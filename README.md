@@ -1,43 +1,27 @@
-# Astro Starter Kit: Minimal
+# REC site
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Rebuild of recolaborativo.com.br on Astro.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- Spec: `../docs/superpowers/specs/2026-04-25-rec-site-rebuild-design.md`
+- Plan: `../docs/superpowers/plans/2026-04-25-rec-site-rebuild.md`
 
-## 🚀 Project Structure
+## Comandos
 
-Inside of your Astro project, you'll see the following folders and files:
+| Comando | Faz |
+|---|---|
+| `npm run dev` | dev server em http://localhost:4321 |
+| `npm run build` | build de produção em `dist/` |
+| `npm run preview` | preview local do build |
+| `npm run test` | testes unitários (vitest) |
+| `npm run test:e2e` | testes E2E (playwright) |
+| `npm run lint` | type-check (astro check) |
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Stack
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Astro 6 - static site generator
+- TypeScript strict
+- Plain CSS com custom properties (sem framework de utility)
+- d3-force - constelação de parceiros
+- vitest - testes unitários
+- playwright - testes E2E + snapshots
+- Vercel - hosting
