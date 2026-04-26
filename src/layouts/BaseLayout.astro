@@ -1,0 +1,34 @@
+---
+import '../styles/globals.css'
+import SeoHead from '../components/seo/SeoHead.astro'
+import AdaptiveNav from '../components/nav/AdaptiveNav.astro'
+import NavDrawer from '../components/nav/NavDrawer.astro'
+import ManifestoFooter from '../components/footer/ManifestoFooter.astro'
+
+interface Props {
+  title: string
+  description: string
+  path: string
+  currentSection?: string
+}
+const { title, description, path, currentSection } = Astro.props
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <SeoHead {title} {description} {path} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <AdaptiveNav current={currentSection} />
+  <NavDrawer />
+  <main>
+    <slot />
+  </main>
+  <ManifestoFooter />
+</body>
+</html>

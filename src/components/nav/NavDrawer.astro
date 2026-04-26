@@ -1,0 +1,42 @@
+---
+import { navItems, externalLinks } from '../../data/nav'
+---
+<div class="nav-drawer" data-nav-drawer aria-hidden="true" role="dialog" aria-label="menu">
+  <div class="nav-drawer-inner">
+    <button class="drawer-close" aria-label="fechar menu">×</button>
+    <ul class="drawer-items">
+      {navItems.map(item => (
+        <li>
+          <a href={item.href}>
+            <span class="drawer-label">{item.label}</span>
+            <span class="drawer-desc">{item.description}</span>
+          </a>
+        </li>
+      ))}
+      <li class="drawer-external">
+        <a href={externalLinks.vitrine.url} target="_blank" rel="noopener">
+          <span class="drawer-label">Vitrine ↗</span>
+          <span class="drawer-desc">divulgação externa</span>
+        </a>
+      </li>
+    </ul>
+    <div class="drawer-contact">
+      <a href={externalLinks.whatsapp.url} target="_blank" rel="noopener">{externalLinks.whatsapp.number}</a>
+      <a href={externalLinks.instagram.url} target="_blank" rel="noopener">{externalLinks.instagram.handle}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.nav-drawer { position: fixed; inset: 0; background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); z-index: 200; transform: translateX(100%); transition: transform var(--motion-medium) var(--easing); overflow-y: auto; }
+.nav-drawer.open { transform: translateX(0); }
+.nav-drawer-inner { padding: var(--space-12) var(--space-6); max-width: 480px; margin: 0 auto; }
+.drawer-close { position: absolute; top: var(--space-6); right: var(--space-6); font-size: 2rem; color: var(--rec-dark); padding: var(--space-2) var(--space-3); }
+.drawer-items { margin: var(--space-12) 0; }
+.drawer-items li { padding: var(--space-4) 0; border-bottom: 1px solid rgba(37,52,57,0.06); }
+.drawer-items li:last-child { border-bottom: none; }
+.drawer-label { display: block; font-size: 1.4rem; font-weight: 800; color: var(--rec-dark); letter-spacing: -0.02em; }
+.drawer-external .drawer-label { color: var(--rec-teal); }
+.drawer-desc { display: block; font-size: var(--type-micro); color: #667; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+.drawer-contact { margin-top: var(--space-12); display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--type-small); color: var(--rec-purple); font-weight: 600; }
+</style>

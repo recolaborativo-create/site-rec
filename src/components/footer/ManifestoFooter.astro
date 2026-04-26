@@ -1,0 +1,42 @@
+---
+import DotLogo from '../ui/DotLogo.astro'
+import { externalLinks } from '../../data/nav'
+const year = new Date().getFullYear()
+---
+<footer class="manifesto-footer">
+  <div class="footer-inner">
+    <div class="footer-manifesto" aria-hidden="true">
+      <div class="word fade">movimento</div>
+      <div class="word emphasis">gera</div>
+      <div class="word fade">movimento.</div>
+    </div>
+    <div class="footer-contact">
+      <div class="contact-block">
+        <span class="uppercase-label">whats</span>
+        <a href={externalLinks.whatsapp.url} target="_blank" rel="noopener">{externalLinks.whatsapp.number}</a>
+      </div>
+      <div class="contact-block">
+        <span class="uppercase-label">instagram</span>
+        <a href={externalLinks.instagram.url} target="_blank" rel="noopener">{externalLinks.instagram.handle}</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <DotLogo size="md" inverted />
+      <span class="footer-copy">© {year} - porto alegre/rs</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+.manifesto-footer { background: var(--grad-footer); color: #fff; padding: var(--space-16) var(--space-6); }
+.footer-inner { max-width: var(--container-max); margin: 0 auto; }
+.footer-manifesto { font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 300; line-height: 1; letter-spacing: var(--letter-tight); margin-bottom: var(--space-12); }
+.footer-manifesto .fade { opacity: 0.4; }
+.footer-manifesto .emphasis { color: var(--rec-teal); font-weight: 800; font-style: italic; }
+.footer-contact { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-8); padding-bottom: var(--space-6); border-bottom: 1px solid rgba(255,255,255,0.1); }
+.contact-block .uppercase-label { color: rgba(255,255,255,0.5); display: block; margin-bottom: var(--space-1); }
+.contact-block a { color: #fff; font-weight: 600; font-size: var(--type-body); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.footer-copy { font-size: var(--type-micro); color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+@media (max-width: 480px) { .footer-contact { grid-template-columns: 1fr; } }
+</style>

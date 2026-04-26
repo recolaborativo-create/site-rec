@@ -1,0 +1,59 @@
+---
+import DotLogo from '../ui/DotLogo.astro'
+import { navItems, externalLinks } from '../../data/nav'
+interface Props { current?: string }
+const { current } = Astro.props
+---
+<nav data-adaptive-nav class="adaptive-nav" aria-label="navegação principal">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand" aria-label="REC início">
+      <DotLogo size="md" />
+      <span class="nav-brand-text">REC</span>
+    </a>
+    <ul class="nav-items">
+      {navItems.map(item => (
+        <li><a href={item.href} class:list={[{ active: current === item.label }]}>{item.label}</a></li>
+      ))}
+    </ul>
+    <a href={externalLinks.whatsapp.url} class="nav-cta" target="_blank" rel="noopener">contato</a>
+    <button class="nav-burger" aria-label="abrir menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-current-indicator" aria-hidden="true">
+    <span class="nav-current-label">seção</span>
+    <span class="nav-current-value">{current || ''}</span>
+  </div>
+</nav>
+
+<style>
+.adaptive-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(37,52,57,0.08); transition: background var(--motion-medium) var(--easing); }
+.adaptive-nav.is-scrolled { background: rgba(37,52,57,0.96); border-bottom-color: rgba(255,255,255,0.08); }
+.adaptive-nav.is-scrolled .nav-brand-text { color: rgba(255,255,255,0.9); }
+.adaptive-nav.is-scrolled .nav-items a { color: rgba(255,255,255,0.85); }
+.adaptive-nav.is-scrolled .nav-items a.active { color: var(--rec-teal); border-bottom-color: var(--rec-teal); }
+.adaptive-nav.is-scrolled .nav-current-indicator { display: flex; }
+.adaptive-nav.is-scrolled .nav-cta { background: var(--rec-teal); }
+.nav-inner { max-width: var(--container-max); margin: 0 auto; padding: var(--space-4) var(--space-6); display: flex; align-items: center; gap: var(--space-6); }
+.nav-brand { display: inline-flex; align-items: center; gap: var(--space-3); }
+.nav-brand-text { font-weight: 800; color: var(--rec-dark); letter-spacing: -0.02em; transition: color var(--motion-medium) var(--easing); }
+.nav-items { display: flex; gap: var(--space-6); margin-left: auto; align-items: center; }
+.nav-items a { font-size: var(--type-small); font-weight: 600; padding-bottom: 2px; transition: color var(--motion-fast) var(--easing); }
+.nav-items a.active { color: var(--rec-purple); border-bottom: 2px solid var(--rec-teal); }
+.nav-cta { background: var(--rec-purple); color: #fff; padding: 8px 14px; border-radius: 6px; font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; transition: background var(--motion-medium) var(--easing); }
+.nav-burger { display: none; flex-direction: column; gap: 4px; padding: 4px; }
+.nav-burger span { width: 22px; height: 2px; background: var(--rec-dark); border-radius: 2px; transition: background var(--motion-medium) var(--easing); }
+.adaptive-nav.is-scrolled .nav-burger span { background: #fff; }
+.nav-current-indicator { display: none; max-width: var(--container-max); margin: 0 auto; padding: 0 var(--space-6) var(--space-2); align-items: center; gap: var(--space-3); font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.nav-current-value { color: var(--rec-teal); font-weight: 700; }
+@media (max-width: 768px) {
+  .nav-items, .nav-cta { display: none; }
+  .nav-burger { display: flex; margin-left: auto; }
+}
+</style>
+
+<script>
+  import { initNavScroll, initNavDrawer } from './nav-scroll'
+  initNavScroll()
+  initNavDrawer()
+</script>

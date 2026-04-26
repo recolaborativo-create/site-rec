@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/sobre-nos", "destination": "/comunidade", "permanent": true },
+    { "source": "/sobre", "destination": "/comunidade", "permanent": true },
+    { "source": "/nossa-rede", "destination": "/comunidade", "permanent": true },
+    { "source": "/beneficios", "destination": "/comunidade", "permanent": true }
+  ]
+}
