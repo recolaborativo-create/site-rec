@@ -1,0 +1,23 @@
+@import './tokens.css';
+@import './reset.css';
+
+h1, h2, h3 {
+  letter-spacing: var(--letter-tight);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+h1 { font-size: var(--type-h1); }
+h2 { font-size: var(--type-h2); }
+h3 { font-size: var(--type-h3); }
+
+.uppercase-label {
+  font-size: var(--type-micro);
+  letter-spacing: var(--letter-uppercase);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+main { display: block; }
+
+::selection { background: rgba(0, 161, 152, 0.2); color: var(--rec-dark); }

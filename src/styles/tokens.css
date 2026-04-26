@@ -1,0 +1,50 @@
+:root {
+  /* Brand colors (locked spec section 4.1) */
+  --rec-purple: #3e4095;
+  --rec-teal: #00a198;
+  --rec-dark: #253439;
+  --rec-navy: #012659;
+  --rec-bg: #ffffff;
+
+  /* Subtle gradients (no hard color cuts) */
+  --grad-soft-teal: linear-gradient(135deg, #fff 0%, #fff 60%, rgba(0,161,152,0.07) 100%);
+  --grad-footer: linear-gradient(135deg, #253439 0%, #012659 100%);
+
+  /* Typography scale */
+  --type-display: 2.6rem;
+  --type-h1: 2rem;
+  --type-h2: 1.5rem;
+  --type-h3: 1.2rem;
+  --type-body: 1rem;
+  --type-small: 0.85rem;
+  --type-micro: 0.7rem;
+  --letter-tight: -0.02em;
+  --letter-uppercase: 0.18em;
+
+  /* Motion */
+  --motion-fast: 200ms;
+  --motion-medium: 400ms;
+  --motion-slow: 800ms;
+  --easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-reading: 680px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 1ms;
+    --motion-medium: 1ms;
+    --motion-slow: 1ms;
+  }
+}
