@@ -1,0 +1,23 @@
+---
+interface Props {
+  name: string
+  company: string
+  quote: string
+  pending?: boolean
+}
+const { name, company, quote, pending = false } = Astro.props
+---
+<blockquote class:list={['testimonial', { pending }]}>
+  <p class="quote">"{quote}"</p>
+  <footer><strong>{name}</strong> <span>{company}</span></footer>
+  {pending && <small class="pending-note">depoimento aguardando confirmação no site original</small>}
+</blockquote>
+
+<style>
+.testimonial { background: rgba(0,161,152,0.04); border-left: 3px solid var(--rec-teal); padding: var(--space-6); border-radius: 0 12px 12px 0; margin-bottom: var(--space-6); }
+.testimonial.pending { opacity: 0.7; border-left-color: rgba(0,161,152,0.4); border-left-style: dashed; }
+.quote { font-size: var(--type-body); color: var(--rec-dark); line-height: 1.6; font-style: italic; margin-bottom: var(--space-3); }
+.testimonial footer strong { color: var(--rec-purple); font-weight: 700; }
+.testimonial footer span { color: #667; font-size: var(--type-small); margin-left: var(--space-2); }
+.pending-note { display: block; font-size: var(--type-micro); color: #999; letter-spacing: 0.1em; text-transform: uppercase; margin-top: var(--space-3); }
+</style>

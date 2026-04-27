@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import IllustrativeImg from '../components/ui/IllustrativeImg.astro'
+import Testimonial from '../components/comunidade/Testimonial.astro'
+---
+<BaseLayout
+  title="Comunidade"
+  description="Eventos, rede e benefícios. A REC é o ponto de encontro do empreendedorismo no RS - mais de 370 mulheres no Network Entre Elas."
+  path="/comunidade"
+  currentSection="Comunidade"
+>
+  <section class="comunidade-hero">
+    <div class="hero-content">
+      <span class="uppercase-label" style="color: var(--rec-teal)">comunidade</span>
+      <h1>Muito mais do que networking - um <em>ecossistema</em>.</h1>
+      <p class="lead">Eventos - conexões estratégicas - uma comunidade exclusiva de empreendedores que acreditam no poder do relacionamento para expandir negócios.</p>
+    </div>
+    <IllustrativeImg src="/illustrative/comunidade-hero.jpg" alt="Encontro REC" ratio="4/5" mood="warm" />
+  </section>
+
+  <section class="comunidade-pillars">
+    <div class="pillars-inner">
+      <h2>Três pilares - <em>uma rede.</em></h2>
+      <div class="pillars-grid">
+        <article class="pillar">
+          <h3>Eventos</h3>
+          <p>Encontros mensais nos formatos feminino - masculino - misto - corporativo. Cada um pensado pra um momento de jornada empreendedora.</p>
+        </article>
+        <article class="pillar">
+          <h3>Rede</h3>
+          <p>84 empresas parceiras - mais de 370 mulheres no Network Entre Elas. Cada conexão dentro da rede é uma porta que abre.</p>
+        </article>
+        <article class="pillar">
+          <h3>Benefícios</h3>
+          <p>Descontos exclusivos com parceiros - mentorias - acesso a serviços do HUB com condições especiais pra membros.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="comunidade-testimonials">
+    <div class="testimonials-inner">
+      <h2>O que dizem as <em>membras.</em></h2>
+      <Testimonial
+        name="Andiara Bohrer"
+        company="Tenax Marcas"
+        quote="[depoimento original a confirmar - puxar do recolaborativo.com.br atual]"
+        pending
+      />
+      <Testimonial
+        name="Aline Freitas"
+        company="Farmácia do Povo"
+        quote="[depoimento original a confirmar - puxar do recolaborativo.com.br atual]"
+        pending
+      />
+      <Testimonial
+        name="Érica Ponce"
+        company="Érica Ponce Solução"
+        quote="[depoimento estava truncado no site atual - aguardando texto completo da Érica]"
+        pending
+      />
+    </div>
+  </section>
+
+  <section class="comunidade-cta">
+    <div class="cta-inner">
+      <h2>Pronta pra entrar na rede?</h2>
+      <p>Os planos da comunidade começam em R$ 47,90/mês.</p>
+      <a href="/planos" class="cta-primary">ver planos comunidade →</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.comunidade-hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); padding: var(--space-16) var(--space-6); max-width: var(--container-max); margin: 0 auto; align-items: center; }
+.comunidade-hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
+.comunidade-hero h1 em { color: var(--rec-teal); font-style: normal; }
+.lead { font-size: var(--type-body); color: #556; line-height: 1.7; }
+.comunidade-pillars { padding: var(--space-16) var(--space-6); background: var(--grad-soft-teal); }
+.pillars-inner { max-width: var(--container-max); margin: 0 auto; }
+.pillars-inner h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+.pillars-inner h2 em { color: var(--rec-teal); font-style: normal; }
+.pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-top: var(--space-8); }
+.pillar { padding: var(--space-6); border: 1px solid rgba(37,52,57,0.08); border-radius: 12px; background: #fff; }
+.pillar h3 { color: var(--rec-purple); margin-bottom: var(--space-3); font-size: var(--type-h3); }
+.pillar p { font-size: var(--type-small); color: #556; line-height: 1.6; }
+.comunidade-testimonials { padding: var(--space-16) var(--space-6); }
+.testimonials-inner { max-width: 760px; margin: 0 auto; }
+.testimonials-inner h2 { margin-bottom: var(--space-8); font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+.testimonials-inner h2 em { color: var(--rec-teal); font-style: normal; }
+.comunidade-cta { padding: var(--space-16) var(--space-6); background: var(--grad-footer); color: #fff; text-align: center; }
+.comunidade-cta h2 { color: #fff; margin-bottom: var(--space-3); }
+.comunidade-cta p { color: rgba(255,255,255,0.7); margin-bottom: var(--space-6); }
+.cta-primary { display: inline-block; background: var(--rec-teal); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+@media (max-width: 768px) { .comunidade-hero { grid-template-columns: 1fr; } .pillars-grid { grid-template-columns: 1fr; } }
+</style>
