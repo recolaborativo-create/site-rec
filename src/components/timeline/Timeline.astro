@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content'
+
+const events = await getCollection('events')
+const sorted = events.sort((a, b) => {
+  const oa = a.data.order ?? a.data.year
+  const ob = b.data.order ?? b.data.year
+  return oa - ob
+})
+
+// Inject a synthetic "now" node between past and future
+const lastPastIndex = sorted.findLastIndex(e => e.data.when === 'past')
+const withNow = [...sorted]
+const nowNode = {
+  id: '__now__',
+  data: { year: new Date().getFullYear(), label: 'você está aqui', when: 'now' as const },
+}
+if (!sorted.some(e => e.data.when === 'now')) {
+  withNow.splice(lastPastIndex + 1, 0, nowNode as any)
+}
+
+const total = withNow.length
+---
+<section class="timeline-section">
+  <div class="timeline-scroll" data-timeline-scroll>
+    <div class="timeline-track" style={`min-width: ${Math.max(800, total * 180)}px;`}>
+      {withNow.map((e, i) => {
+        const left = total > 1 ? (i / (total - 1)) * 100 : 50
+        const stat = (e.data as any).stat
+        return (
+          <div class={`tl-node tl-${e.data.when}`} style={`left: ${left}%`}>
+            {stat && (
+              <div class="tl-stat-above">
+                <strong>{stat.value}</strong>
+                <small>{stat.label}</small>
+              </div>
+            )}
+            <div class="tl-dot"></div>
+            <div class="tl-label">
+              <span class="tl-year">{e.data.year}</span>
+              <strong>{e.data.label}</strong>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  </div>
+  <p class="hint">↔ arrasta pra navegar a jornada</p>
+</section>
+
+<script>
+  import { initTimelineScroll } from './timeline-scroll'
+  initTimelineScroll()
+</script>
+
+<style>
+.timeline-section { padding: var(--space-16) 0 var(--space-8); }
+.timeline-scroll { overflow-x: auto; padding: var(--space-12) var(--space-6); cursor: grab; touch-action: pan-x; scrollbar-width: none; }
+.timeline-scroll::-webkit-scrollbar { display: none; }
+.timeline-track { position: relative; height: 220px; background: linear-gradient(to right, rgba(62,64,149,0.1) 0%, var(--rec-purple) 60%, rgba(0,161,152,0.2) 100%); height: 2px; margin: 80px auto 80px; }
+.tl-node { position: absolute; top: -8px; transform: translateX(-50%); }
+.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--rec-purple); transition: transform var(--motion-fast) var(--easing); }
+.tl-past .tl-dot { background: #fff; border-color: var(--rec-purple); }
+.tl-now .tl-dot { background: var(--rec-teal); border-color: var(--rec-teal); width: 22px; height: 22px; box-shadow: 0 0 0 6px rgba(0,161,152,0.18); animation: pulse-now 2s ease-in-out infinite; }
+.tl-future .tl-dot { background: #fff; border-style: dashed; border-color: #888; }
+@keyframes pulse-now { 0%, 100% { box-shadow: 0 0 0 6px rgba(0,161,152,0.18); } 50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.08); } }
+.tl-label { position: absolute; top: 32px; left: 50%; transform: translateX(-50%); white-space: nowrap; text-align: center; font-size: var(--type-micro); }
+.tl-year { display: block; color: #667; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+.tl-label strong { display: block; color: var(--rec-dark); font-size: var(--type-small); font-weight: 700; letter-spacing: -0.01em; }
+.tl-now .tl-label strong { color: var(--rec-teal); }
+.tl-stat-above { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+.tl-stat-above strong { display: block; color: var(--rec-purple); font-size: 1.6rem; font-weight: 800; line-height: 1; letter-spacing: var(--letter-tight); }
+.tl-stat-above small { font-size: var(--type-micro); color: #667; letter-spacing: 0.1em; text-transform: uppercase; }
+.hint { text-align: center; font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: uppercase; color: #999; }
+</style>
