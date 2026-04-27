@@ -1,0 +1,37 @@
+REC site - illustrative photography credits
+============================================
+
+This folder is RESERVED for licensed editorial photography.
+
+Status: PLACEHOLDER MODE - currently no photos installed. The IllustrativeImg
+component renders an elegant gradient fallback until real photos drop into
+the expected paths below.
+
+Filenames expected by the site:
+
+- /illustrative/comunidade-hero.jpg     (Comunidade page hero - 4:5 portrait)
+- /illustrative/network-entre-elas.jpg  (Blog cover, agenda timeline)
+- /illustrative/hub-social.jpg          (HUB chapter 01)
+- /illustrative/hub-traffic.jpg         (HUB chapter 02)
+- /illustrative/hub-sales.jpg           (HUB chapter 03)
+- /illustrative/hub-branding.jpg        (HUB chapter 04)
+- /illustrative/blog-cases.jpg          (Blog: cases reais)
+- /illustrative/blog-empreender.jpg     (Blog: empreender feminino)
+- /illustrative/blog-redes.jpg          (Blog: gestão de redes)
+- /illustrative/blog-networking.jpg     (Blog: networking estratégico)
+- /illustrative/blog-corporativo.jpg    (Blog: eventos corporativos)
+- /illustrative/blog-ecossistema.jpg    (Blog: 84 empresas - founder POV)
+
+Sourcing rules per spec section 6.2:
+
+- Editorial / candid / warm tones - NEVER stock-cliche
+- Brazilian / latin context - women empreendedoras as primary subject
+- AI-generated faces FORBIDDEN
+- Source: Unsplash or Pexels under their respective licenses
+- Once real REC photos exist, swap files at the same paths - no code change needed
+
+Attribution log (fill in when photos land):
+
+| File | Source | URL | Photographer |
+|---|---|---|---|
+| comunidade-hero.jpg | TBD | TBD | TBD |

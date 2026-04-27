@@ -1,0 +1,32 @@
+---
+interface Props {
+  src: string
+  alt: string
+  ratio?: '16/9' | '4/3' | '1/1' | '4/5' | '21/9'
+  mood?: 'warm' | 'cool' | 'neutral'
+}
+const { src, alt, ratio = '16/9', mood = 'warm' } = Astro.props
+const ratioClass = `ratio-${ratio.replace('/', '-')}`
+---
+<figure class:list={['illustrative', ratioClass, `mood-${mood}`]}>
+  <img src={src} alt={alt} loading="lazy" decoding="async" />
+  <span class="placeholder-fallback" aria-hidden="true"></span>
+</figure>
+
+<style>
+.illustrative { position: relative; border-radius: 12px; overflow: hidden; outline: 1px solid rgba(37,52,57,0.08); margin: 0; background: var(--rec-dark); }
+.illustrative img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.95) contrast(0.98); display: block; position: relative; z-index: 2; }
+.illustrative img:not([src]), .illustrative img[src=""] { display: none; }
+
+/* Fallback shown when image is missing - elegant gradient stand-in until real photos land */
+.placeholder-fallback { position: absolute; inset: 0; z-index: 1; }
+.mood-warm .placeholder-fallback { background: linear-gradient(135deg, rgba(62,64,149,0.12), rgba(0,161,152,0.18) 60%, rgba(255,255,255,0.4)); }
+.mood-cool .placeholder-fallback { background: linear-gradient(135deg, rgba(1,38,89,0.18), rgba(62,64,149,0.14) 60%, rgba(255,255,255,0.3)); }
+.mood-neutral .placeholder-fallback { background: linear-gradient(135deg, rgba(37,52,57,0.1), rgba(37,52,57,0.04)); }
+
+.ratio-16-9 { aspect-ratio: 16/9; }
+.ratio-4-3 { aspect-ratio: 4/3; }
+.ratio-1-1 { aspect-ratio: 1/1; }
+.ratio-4-5 { aspect-ratio: 4/5; }
+.ratio-21-9 { aspect-ratio: 21/9; }
+</style>

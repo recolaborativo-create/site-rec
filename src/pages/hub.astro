@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import HubChapter from '../components/hub/HubChapter.astro'
+
+const chapters = [
+  {
+    number: '01',
+    headline: 'Redes sociais que trabalham por ti',
+    body: 'Gestão completa - planejamento mensal - até 3 posts por semana - stories diários e reels editados. Tu aparece consistente porque tem time cuidando.',
+    image: '/illustrative/hub-social.jpg',
+    imageAlt: 'Mesa de trabalho com calendário de conteúdo',
+    mood: 'warm' as const,
+  },
+  {
+    number: '02',
+    headline: 'Tráfego pago com retorno medido',
+    body: 'Meta ADS e Google ADS construídos em cima do posicionamento da marca. Relatórios mensais simples - sem jargão - mostrando o que funcionou.',
+    image: '/illustrative/hub-traffic.jpg',
+    imageAlt: 'Tela de dashboard de campanha digital',
+    mood: 'cool' as const,
+  },
+  {
+    number: '03',
+    headline: 'Suporte comercial integrado',
+    body: 'Estratégias de follow-up - atendimento inicial de leads - relacionamento que transforma contato em cliente recorrente.',
+    image: '/illustrative/hub-sales.jpg',
+    imageAlt: 'Reunião comercial em ambiente corporativo',
+    mood: 'neutral' as const,
+  },
+  {
+    number: '04',
+    headline: 'Presença digital do zero ou reboot',
+    body: 'Site - branding - identidade visual. Quando precisa de uma base sólida pra crescer em cima.',
+    image: '/illustrative/hub-branding.jpg',
+    imageAlt: 'Materiais de identidade visual',
+    mood: 'warm' as const,
+  },
+]
+---
+<BaseLayout
+  title="HUB Digital"
+  description="Quatro caminhos para crescer no digital - REC HUB. Gestão de redes - tráfego pago - suporte comercial - branding."
+  path="/hub"
+  currentSection="HUB"
+>
+  <section class="hub-intro">
+    <div class="hub-intro-inner">
+      <span class="uppercase-label" style="color: var(--rec-teal)">rec hub</span>
+      <h1>Cada serviço - um <em>capítulo</em>.</h1>
+      <p class="lead">Tu cuida do negócio - a gente cuida do digital. Sem letra miúda - sem pacote engessado. Quatro caminhos pensados pra cada momento da empresa.</p>
+    </div>
+  </section>
+
+  <section class="hub-chapters">
+    <div class="hub-chapters-inner">
+      {chapters.map(c => <HubChapter {...c} />)}
+    </div>
+  </section>
+
+  <section class="hub-cta-block">
+    <div class="hub-cta-inner">
+      <h2>Pronto pra começar?</h2>
+      <p>Vê os planos completos com valores - ou pede um orçamento direto pelo WhatsApp.</p>
+      <a href="/planos" class="cta-primary">ver planos →</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initReveal } from '../utils/reveal'
+  initReveal()
+</script>
+
+<style>
+.hub-intro, .hub-chapters, .hub-cta-block { padding: var(--space-16) var(--space-6); }
+.hub-intro-inner, .hub-chapters-inner, .hub-cta-inner { max-width: 760px; margin: 0 auto; }
+.hub-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
+.hub-intro h1 em { color: var(--rec-teal); font-style: normal; }
+.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
+.hub-cta-block { text-align: center; background: var(--grad-soft-teal); }
+.hub-cta-inner h2 { font-size: 1.6rem; margin-bottom: var(--space-3); }
+.hub-cta-inner p { color: #556; margin-bottom: var(--space-6); }
+.cta-primary { display: inline-block; background: var(--rec-purple); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--type-small); transition: transform var(--motion-fast) var(--easing); }
+.cta-primary:hover { transform: translateY(-2px); }
+</style>
