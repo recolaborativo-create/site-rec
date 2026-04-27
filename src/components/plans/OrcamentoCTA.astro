@@ -1,0 +1,19 @@
+---
+import { whatsappLink, messages } from '../../utils/whatsapp'
+---
+<div class="orcamento-block">
+  <h3>Não sabe qual escolher?</h3>
+  <p>Conversa rápida no WhatsApp pra entender o melhor caminho pro teu negócio. Sem compromisso - sem script.</p>
+  <a href={whatsappLink(messages.hubGeneric)} target="_blank" rel="noopener" class="cta-primary">pedir orçamento</a>
+  <a href={whatsappLink(messages.helpChoose)} target="_blank" rel="noopener" class="cta-secondary">ainda em dúvida? conversa rápida no whats</a>
+</div>
+
+<style>
+.orcamento-block { margin-top: var(--space-12); padding: var(--space-8); background: var(--grad-soft-teal); border-radius: 16px; text-align: center; border: 1px solid rgba(0,161,152,0.12); }
+.orcamento-block h3 { margin-bottom: var(--space-3); font-size: 1.4rem; }
+.orcamento-block p { margin-bottom: var(--space-6); color: #556; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+.cta-primary { display: inline-block; background: var(--rec-purple); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-4); transition: transform var(--motion-fast) var(--easing); }
+.cta-primary:hover { transform: translateY(-2px); }
+.cta-secondary { display: block; color: var(--rec-teal); font-size: var(--type-small); font-weight: 600; }
+.cta-secondary:hover { color: var(--rec-purple); }
+</style>

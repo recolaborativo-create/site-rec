@@ -1,0 +1,76 @@
+---
+import PlanCard from './PlanCard.astro'
+import OrcamentoCTA from './OrcamentoCTA.astro'
+import { comunidadePlans } from '../../data/plans-comunidade'
+import { hubPlans } from '../../data/plans-hub'
+
+function brl(n: number) {
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })
+}
+---
+<div class="plan-tabs" data-plan-tabs>
+  <div class="tab-bar" role="tablist">
+    <button class="tab active" data-tab="comunidade" role="tab" aria-selected="true">Comunidade</button>
+    <button class="tab" data-tab="hub" role="tab" aria-selected="false">HUB Digital</button>
+  </div>
+
+  <div class="tab-panel active" data-panel="comunidade" role="tabpanel">
+    <p class="panel-intro">Adesão à comunidade REC - eventos - rede - mentorias. Mensal, com opção semestral.</p>
+    <div class="plan-grid plan-grid-2">
+      {comunidadePlans.map(p => (
+        <PlanCard
+          name={p.name}
+          price={`R$ ${brl(p.monthly)}`}
+          summary={`semestral R$ ${brl(p.semestral)}`}
+          bullets={p.bullets}
+          featured={p.featured}
+          ctaKey={p.ctaKey}
+        />
+      ))}
+    </div>
+  </div>
+
+  <div class="tab-panel" data-panel="hub" role="tabpanel">
+    <p class="panel-intro">Quatro planos de gestão de redes sociais. Avulsos e consultorias - direto pelo WhatsApp.</p>
+    <div class="plan-grid plan-grid-4">
+      {hubPlans.map(p => (
+        <PlanCard
+          name={p.name}
+          price={`R$ ${brl(p.monthly)}`}
+          summary={p.summary}
+          bullets={p.bullets}
+          addOns={p.addOns}
+          featured={p.featured}
+          ctaKey={p.ctaKey}
+        />
+      ))}
+    </div>
+    <OrcamentoCTA />
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('[data-plan-tabs] .tab')
+  const panels = document.querySelectorAll<HTMLElement>('[data-plan-tabs] .tab-panel')
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => {
+      const active = x === t
+      x.classList.toggle('active', active)
+      x.setAttribute('aria-selected', String(active))
+    })
+    panels.forEach(p => p.classList.toggle('active', p.dataset.panel === t.dataset.tab))
+  }))
+</script>
+
+<style>
+.plan-tabs { max-width: var(--container-max); margin: 0 auto; padding: var(--space-6); }
+.tab-bar { display: inline-flex; gap: var(--space-2); margin-bottom: var(--space-8); padding: 4px; background: rgba(37,52,57,0.05); border-radius: 12px; }
+.tab { padding: 10px 20px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--type-micro); color: #667; transition: all var(--motion-fast) var(--easing); }
+.tab.active { background: var(--rec-purple); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.panel-intro { color: #667; margin-bottom: var(--space-8); max-width: 640px; line-height: 1.6; }
+.plan-grid { display: grid; gap: var(--space-6); }
+.plan-grid-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); max-width: 700px; }
+.plan-grid-4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+</style>
