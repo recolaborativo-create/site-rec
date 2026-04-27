@@ -1,0 +1,27 @@
+---
+type Pillar = 'all' | 'negocios' | 'estrategia' | 'comunidade' | 'eventos' | 'mentalidade'
+interface Props {
+  pillar: Pillar
+  active?: boolean
+  filterable?: boolean
+}
+const { pillar, active = false, filterable = false } = Astro.props
+const labels: Record<Pillar, string> = {
+  all: 'todos',
+  negocios: 'negócios',
+  estrategia: 'estratégia',
+  comunidade: 'comunidade',
+  eventos: 'eventos',
+  mentalidade: 'mentalidade',
+}
+const Tag = filterable ? 'button' : 'span'
+---
+<Tag class:list={['pillar-chip', `pillar-${pillar}`, { active }]} data-pillar={pillar}>{labels[pillar]}</Tag>
+
+<style>
+.pillar-chip { display: inline-block; font-size: var(--type-micro); padding: 4px 10px; border-radius: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; border: 1px solid rgba(37,52,57,0.12); background: transparent; color: #667; transition: all var(--motion-fast) var(--easing); }
+button.pillar-chip { cursor: pointer; }
+.pillar-chip:hover { color: var(--rec-purple); border-color: var(--rec-purple); }
+.pillar-chip.active { background: var(--rec-purple); color: #fff; border-color: var(--rec-purple); }
+.pillar-chip.pillar-eventos.active { background: var(--rec-teal); border-color: var(--rec-teal); }
+</style>

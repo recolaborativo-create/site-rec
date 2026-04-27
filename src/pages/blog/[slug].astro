@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import IllustrativeImg from '../../components/ui/IllustrativeImg.astro'
+import PillarChip from '../../components/blog/PillarChip.astro'
+import { getCollection, render, type CollectionEntry } from 'astro:content'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+  return posts.map(post => ({ params: { slug: post.id }, props: { post } }))
+}
+
+const { post } = Astro.props as { post: CollectionEntry<'blog'> }
+const { Content } = await render(post)
+const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+---
+<BaseLayout
+  title={post.data.title}
+  description={post.data.excerpt}
+  path={`/blog/${post.id}`}
+  currentSection="Blog"
+>
+  <article class="blog-post">
+    <header class="post-header">
+      <div class="post-meta">
+        <PillarChip pillar={post.data.pillar} />
+        <time datetime={post.data.publishedAt.toISOString()}>{dateStr}</time>
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="post-excerpt">{post.data.excerpt}</p>
+    </header>
+    {post.data.cover && (
+      <div class="post-cover">
+        <IllustrativeImg src={post.data.cover} alt={post.data.coverAlt ?? ''} ratio="16/9" mood="warm" />
+      </div>
+    )}
+    <div class="post-content">
+      <Content />
+    </div>
+    <footer class="post-footer">
+      <a href="/blog" class="back-link">← voltar para o blog</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+.blog-post { max-width: var(--container-reading); margin: 0 auto; padding: var(--space-12) var(--space-6) var(--space-16); }
+.post-header { margin-bottom: var(--space-8); }
+.post-meta { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+.post-meta time { color: #667; font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: lowercase; }
+.post-header h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; font-weight: 800; letter-spacing: var(--letter-tight); margin-bottom: var(--space-4); }
+.post-excerpt { font-size: 1.1rem; color: #556; line-height: 1.6; max-width: 560px; }
+.post-cover { margin: var(--space-8) 0 var(--space-12); }
+.post-content { font-size: 1.05rem; line-height: 1.8; color: #333; }
+.post-content :global(p) { margin-bottom: var(--space-6); }
+.post-content :global(h2) { font-size: 1.4rem; margin: var(--space-12) 0 var(--space-4); color: var(--rec-dark); font-weight: 800; letter-spacing: var(--letter-tight); }
+.post-content :global(h3) { font-size: 1.2rem; margin: var(--space-8) 0 var(--space-3); color: var(--rec-dark); }
+.post-content :global(blockquote) { border-left: 3px solid var(--rec-teal); padding-left: var(--space-6); color: var(--rec-teal); font-style: italic; margin: var(--space-8) 0; }
+.post-content :global(ul), .post-content :global(ol) { padding-left: var(--space-6); margin-bottom: var(--space-6); }
+.post-content :global(li) { margin-bottom: var(--space-2); }
+.post-footer { margin-top: var(--space-16); padding-top: var(--space-6); border-top: 1px solid rgba(37,52,57,0.08); }
+.back-link { color: var(--rec-purple); font-size: var(--type-small); font-weight: 700; letter-spacing: 0.05em; }
+.back-link:hover { color: var(--rec-teal); }
+</style>

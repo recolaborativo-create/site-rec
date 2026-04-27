@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import BlogList from '../../components/blog/BlogList.astro'
+import { getCollection } from 'astro:content'
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+)
+---
+<BaseLayout
+  title="Blog"
+  description="Pensamento sem a pressa do feed - REC. Empreendedorismo, comunidade, estratégia digital."
+  path="/blog"
+  currentSection="Blog"
+>
+  <section class="blog-intro">
+    <div class="intro-inner">
+      <span class="uppercase-label" style="color: var(--rec-teal)">blog rec</span>
+      <h1>Pensamento - <em>sem a pressa do feed.</em></h1>
+      <p class="lead">Conteúdo pensado pra durar mais que um stories. Filtra pelo pilar que interessa.</p>
+    </div>
+  </section>
+  <BlogList posts={posts} />
+</BaseLayout>
+
+<style>
+.blog-intro { padding: var(--space-16) var(--space-6) var(--space-8); }
+.intro-inner { max-width: 760px; margin: 0 auto; }
+.blog-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
+.blog-intro h1 em { color: var(--rec-teal); font-style: normal; }
+.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
+</style>
