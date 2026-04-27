@@ -1,0 +1,34 @@
+---
+import DotLogo from '../ui/DotLogo.astro'
+import { whatsappLink, messages } from '../../utils/whatsapp'
+---
+<section class="hero-manifesto" data-hero>
+  <DotLogo size="lg" pulse />
+  <h1 class="hero-statement" aria-label="movimento gera movimento">
+    <span class="word fade word-1">movimento</span>
+    <span class="word emphasis word-2">gera</span>
+    <span class="word fade word-3">movimento.</span>
+  </h1>
+  <p class="hero-sub">Um ecossistema de empresárias e empresários que crescem porque se movem juntos.</p>
+  <a class="hero-cta" href={whatsappLink(messages.generic)} target="_blank" rel="noopener">começa agora →</a>
+</section>
+
+<style>
+.hero-manifesto { min-height: 80vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: var(--space-16) var(--space-6); background: var(--grad-soft-teal); gap: var(--space-6); max-width: var(--container-max); margin: 0 auto; }
+.hero-statement { font-size: clamp(2.4rem, 8vw, 5.5rem); font-weight: 300; line-height: 0.95; letter-spacing: var(--letter-tight); display: flex; flex-direction: column; gap: var(--space-1); margin: var(--space-3) 0; }
+.hero-statement .word { display: inline-block; opacity: 0; transition: opacity var(--motion-slow) var(--easing); }
+.hero-statement .fade { color: var(--rec-dark); }
+.hero-statement .emphasis { color: var(--rec-purple); font-weight: 800; font-style: italic; }
+.hero-statement.in-view .fade { opacity: 0.25; }
+.hero-statement.in-view .word-1 { transition-delay: 100ms; }
+.hero-statement.in-view .word-2 { opacity: 1; transition-delay: 500ms; }
+.hero-statement.in-view .word-3 { transition-delay: 900ms; }
+.hero-sub { max-width: 480px; font-size: var(--type-body); color: var(--rec-dark); line-height: 1.6; }
+.hero-cta { display: inline-block; background: var(--rec-purple); color: #fff; padding: 14px 28px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--type-small); transition: transform var(--motion-fast) var(--easing); }
+.hero-cta:hover { transform: translateY(-2px); }
+</style>
+
+<script>
+  import { initHero } from './hero-animation'
+  initHero()
+</script>

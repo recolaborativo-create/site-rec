@@ -1,0 +1,59 @@
+---
+interface Props {
+  target: number
+  label: string
+  suffix?: string
+  prefix?: string
+}
+const { target, label, suffix = '', prefix = '' } = Astro.props
+---
+<div class="stat-counter" data-stat-target={target}>
+  <div class="stat-value">
+    <span class="stat-prefix">{prefix}</span>
+    <span class="stat-num">0</span>
+    <span class="stat-suffix">{suffix}</span>
+  </div>
+  <div class="stat-label">{label}</div>
+</div>
+
+<style>
+.stat-counter { text-align: left; }
+.stat-value { font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; color: var(--rec-purple); line-height: 1; letter-spacing: var(--letter-tight); display: inline-flex; align-items: baseline; gap: 2px; }
+.stat-prefix:empty, .stat-suffix:empty { display: none; }
+.stat-prefix, .stat-suffix { font-size: 0.55em; }
+.stat-label { font-size: var(--type-micro); letter-spacing: 0.15em; text-transform: uppercase; color: #667; margin-top: var(--space-2); font-weight: 600; }
+</style>
+
+<script>
+  const counters = document.querySelectorAll<HTMLElement>('.stat-counter')
+  if (counters.length) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const obs = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return
+          const el = e.target as HTMLElement
+          if (el.dataset.played) return
+          el.dataset.played = '1'
+          const target = parseInt(el.dataset.statTarget || '0', 10)
+          const num = el.querySelector<HTMLElement>('.stat-num')!
+          if (reduce) {
+            num.textContent = target.toLocaleString('pt-BR')
+            return
+          }
+          const start = performance.now()
+          const dur = 1200
+          const tick = (t: number) => {
+            const p = Math.min(1, (t - start) / dur)
+            num.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3))).toLocaleString('pt-BR')
+            if (p < 1) requestAnimationFrame(tick)
+            else num.textContent = target.toLocaleString('pt-BR')
+          }
+          requestAnimationFrame(tick)
+        })
+      },
+      { threshold: 0.4 },
+    )
+    counters.forEach(c => obs.observe(c))
+  }
+</script>

@@ -1,13 +1,75 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import HeroManifesto from '../components/hero/HeroManifesto.astro'
+import SectionTeaser from '../components/home/SectionTeaser.astro'
+import StatCounter from '../components/ui/StatCounter.astro'
 ---
 <BaseLayout
   title="REC"
   description="Movimento gera movimento - ecossistema de empresárias e empresários que crescem porque se movem juntos."
   path="/"
 >
-  <div style="padding: 6rem 1.5rem; text-align: center;">
-    <h1 style="font-size: 2rem; margin-bottom: 1rem;">REC site - em construção</h1>
-    <p style="color: #667;">As seções vão aparecer aqui em breve.</p>
-  </div>
+  <HeroManifesto />
+
+  <section class="home-stats">
+    <div class="stats-inner">
+      <StatCounter target={370} label="mulheres inscritas" />
+      <StatCounter target={84} label="empresas parceiras" />
+      <StatCounter target={8} label="anos de ecossistema" />
+    </div>
+  </section>
+
+  <SectionTeaser
+    label="hub digital"
+    title="Tu cuida do negócio - a gente cuida do <em>digital.</em>"
+    body="Quatro planos de gestão de redes sociais com tráfego pago e suporte comercial. Sem letra miúda - sem pacote engessado."
+    href="/hub"
+    ctaText="conhecer o hub"
+  />
+
+  <SectionTeaser
+    label="comunidade"
+    title="Mais de 370 mulheres - e a tua próxima <em>conexão.</em>"
+    body="Eventos presenciais, mentorias e uma rede que se ajuda de verdade. A REC é o ponto de encontro do empreendedorismo no RS."
+    href="/comunidade"
+    ctaText="entrar na rede"
+  />
+
+  <SectionTeaser
+    label="parceiros"
+    title="84 empresas conectadas - uma <em>constelação</em>."
+    body="Cada ponto é uma parceira. Cada linha é uma conexão real - parceria - evento - negócio fechado dentro da rede."
+    href="/parceiros"
+    ctaText="explorar a rede"
+  />
+
+  <SectionTeaser
+    label="agenda"
+    title="A trajetória do REC - e <em>onde estamos indo.</em>"
+    body="Oito anos. 370 mulheres no Network Entre Elas. 84 empresas. Os próximos encontros chegam em breve."
+    href="/agenda"
+    ctaText="ver linha do tempo"
+  />
+
+  <SectionTeaser
+    label="planos"
+    title="Dois caminhos - <em>tu escolhe.</em>"
+    body="Comunidade pra entrar na rede. HUB Digital pra crescer no marketing. Cada caminho tem seus planos próprios."
+    href="/planos"
+    ctaText="ver planos"
+  />
+
+  <SectionTeaser
+    label="blog"
+    title="Pensamento - <em>sem a pressa do feed.</em>"
+    body="Empreendedorismo, comunidade, estratégia digital. Conteúdo pensado pra durar mais que um stories."
+    href="/blog"
+    ctaText="ler o blog"
+  />
 </BaseLayout>
+
+<style>
+.home-stats { padding: var(--space-16) var(--space-6); border-bottom: 1px solid rgba(37,52,57,0.05); }
+.stats-inner { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+@media (max-width: 600px) { .stats-inner { grid-template-columns: 1fr; gap: var(--space-6); } }
+</style>
