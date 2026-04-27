@@ -1,0 +1,21 @@
+---
+import { partners } from '../../data/partners'
+const sorted = [...partners].sort((a, b) => b.reach - a.reach)
+---
+<div class="partners-grid">
+  {sorted.map(p => (
+    <a class={`partner-cell reach-${p.reach}`} href={p.instagram ? `https://instagram.com/${p.instagram.replace('@','')}` : '#'} target={p.instagram ? '_blank' : undefined} rel={p.instagram ? 'noopener' : undefined} aria-label={p.name}>
+      <img src={p.logo} alt={p.name} loading="lazy" />
+    </a>
+  ))}
+</div>
+
+<style>
+.partners-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-2); padding: var(--space-6); max-width: var(--container-max); margin: 0 auto; }
+.partner-cell { background: #fff; border: 1px solid rgba(37,52,57,0.1); border-radius: 8px; padding: var(--space-3); display: flex; align-items: center; justify-content: center; aspect-ratio: 5/3; transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing); }
+.partner-cell:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(62,64,149,0.1); }
+.partner-cell img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.reach-5 { grid-column: span 2; grid-row: span 2; }
+.reach-4 { grid-column: span 2; }
+@media (max-width: 600px) { .reach-5, .reach-4 { grid-column: span 1; grid-row: auto; } }
+</style>

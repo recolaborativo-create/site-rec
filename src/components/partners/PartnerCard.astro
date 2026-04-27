@@ -1,0 +1,21 @@
+---
+---
+<aside class="partner-card" data-partner-card aria-hidden="true" role="dialog" aria-label="detalhes do parceiro">
+  <button class="card-close" aria-label="fechar">×</button>
+  <img class="card-logo" alt="" />
+  <h3 class="card-name"></h3>
+  <div class="card-sector"></div>
+  <a class="card-instagram" target="_blank" rel="noopener" style="display:none"></a>
+</aside>
+
+<style>
+.partner-card { position: fixed; right: 0; top: 0; height: 100vh; width: min(380px, 90vw); background: #fff; box-shadow: -8px 0 24px rgba(0,0,0,0.1); padding: var(--space-12) var(--space-6); transform: translateX(100%); transition: transform var(--motion-medium) var(--easing); z-index: 150; overflow-y: auto; }
+.partner-card.open { transform: translateX(0); }
+.card-close { position: absolute; top: var(--space-4); right: var(--space-6); font-size: 1.8rem; padding: var(--space-2) var(--space-3); color: var(--rec-dark); }
+.card-logo { width: 140px; height: 84px; object-fit: contain; margin-bottom: var(--space-6); border: 1px solid rgba(37,52,57,0.08); border-radius: 8px; padding: var(--space-3); background: #fff; }
+.card-name { font-size: 1.4rem; color: var(--rec-dark); margin-bottom: var(--space-3); font-weight: 800; }
+.card-sector { font-size: var(--type-micro); letter-spacing: 0.15em; text-transform: uppercase; color: #667; margin-bottom: var(--space-6); }
+.card-sector:empty { display: none; }
+.card-instagram { color: var(--rec-purple); font-weight: 700; font-size: var(--type-small); }
+.card-instagram:hover { color: var(--rec-teal); }
+</style>
