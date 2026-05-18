@@ -1,22 +1,55 @@
 export function initNavScroll() {
   const nav = document.querySelector<HTMLElement>('[data-adaptive-nav]')
   if (!nav) return
+
+  let lastY = window.scrollY
   let ticking = false
+  let hideTimer: ReturnType<typeof setTimeout> | null = null
+
+  function show() {
+    nav!.classList.remove('is-hidden')
+  }
+  function hide() {
+    nav!.classList.add('is-hidden')
+  }
+
   function update() {
-    const scrolled = window.scrollY > 80
-    nav!.classList.toggle('is-scrolled', scrolled)
+    const y = window.scrollY
+
+    if (y < 120) {
+      // perto do topo: sempre visível
+      show()
+    } else if (y > lastY + 4) {
+      // rolando pra baixo: esconde
+      hide()
+    } else if (y < lastY - 4) {
+      // rolando pra cima: mostra
+      show()
+    }
+
+    lastY = y
     ticking = false
   }
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!ticking) {
-        requestAnimationFrame(update)
-        ticking = true
-      }
-    },
-    { passive: true },
-  )
+
+  window.addEventListener('scroll', () => {
+    // quando parar de rolar: mostra a navbar após 400ms
+    if (hideTimer) clearTimeout(hideTimer)
+    hideTimer = setTimeout(() => {
+      show()
+    }, 400)
+
+    if (!ticking) {
+      requestAnimationFrame(update)
+      ticking = true
+    }
+  }, { passive: true })
+
+  // mouse perto do topo: mostra, mas não quando o modal de vídeo estiver aberto
+  document.addEventListener('mousemove', (e) => {
+    const modalOpen = document.getElementById('video-modal')?.classList.contains('open')
+    if (e.clientY < 80 && !modalOpen) show()
+  })
+
   update()
 }
 

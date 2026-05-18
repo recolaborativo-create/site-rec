@@ -1,38 +1,34 @@
 export interface ComunidadePlan {
-  id: 'pro' | 'select'
+  id: 'pro'
   name: string
   monthly: number
-  semestral: number
+  semestralEquivalent: number
   bullets: string[]
-  featured: boolean
-  ctaKey: 'comunidadePro' | 'comunidadeSelect'
+  paymentMethods: string[]
+  ctaKey: 'comunidadePro'
 }
 
-export const comunidadePlans: ComunidadePlan[] = [
-  {
-    id: 'pro',
-    name: 'Pró',
-    monthly: 47.9,
-    semestral: 287.4,
-    bullets: [
-      'Eventos presenciais mensais',
-      'Acesso à rede de parceiras',
-      'Conteúdo exclusivo da comunidade',
-    ],
-    featured: false,
-    ctaKey: 'comunidadePro',
-  },
-  {
-    id: 'select',
-    name: 'Select',
-    monthly: 87.9,
-    semestral: 527.4,
-    bullets: [
-      'Tudo do Pró',
-      'Mentorias individuais',
-      'Benefícios exclusivos com parceiros',
-    ],
-    featured: true,
-    ctaKey: 'comunidadeSelect',
-  },
-]
+// Plano único Pro a partir de 2026 — alinhado com a apresentação REC-2026.
+// Mensalidade R$ 109,90 em qualquer adesão. Semestral = compromisso 6 meses
+// (equivalente R$ 659,40). Anual = compromisso 12 meses, acerto mensal via Pix.
+export const comunidadePlan: ComunidadePlan = {
+  id: 'pro',
+  name: 'Plano Pro',
+  monthly: 109.9,
+  semestralEquivalent: 659.4,
+  bullets: [
+    'Visibilidade no site do REC',
+    'Benefícios exclusivos da rede',
+    'Protagonismo em eventos',
+    'Condições especiais em eventos',
+    'Consultoria em grupo trimestral',
+    'Clube de desconto',
+    'Engajamento digital',
+    'Página de vendas dentro do nosso site',
+  ],
+  paymentMethods: [
+    'Cartão de crédito em até 6x (consulte taxas)',
+    'Assinatura mensal via Pix (apenas plano anual)',
+  ],
+  ctaKey: 'comunidadePro',
+}

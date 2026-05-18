@@ -1,0 +1,308 @@
+---
+// ShapeGrid — port vanilla do react-bits/ShapeGrid para Astro.
+// Renderiza um grid animado em <canvas> com hover trail.
+interface Props {
+  direction?: 'up' | 'down' | 'left' | 'right' | 'diagonal'
+  speed?: number
+  borderColor?: string
+  squareSize?: number
+  hoverFillColor?: string
+  shape?: 'square' | 'hexagon' | 'circle' | 'triangle'
+  hoverTrailAmount?: number
+  className?: string
+}
+const {
+  direction = 'right',
+  speed = 1,
+  borderColor = '#999',
+  squareSize = 40,
+  hoverFillColor = '#222',
+  shape = 'square',
+  hoverTrailAmount = 0,
+  className = '',
+} = Astro.props
+---
+<canvas
+  class:list={['shapegrid-canvas', className]}
+  data-direction={direction}
+  data-speed={speed}
+  data-border-color={borderColor}
+  data-square-size={squareSize}
+  data-hover-fill-color={hoverFillColor}
+  data-shape={shape}
+  data-hover-trail-amount={hoverTrailAmount}
+></canvas>
+
+<style>
+.shapegrid-canvas { width: 100%; height: 100%; border: none; display: block; }
+</style>
+
+<script>
+type Dir = 'up' | 'down' | 'left' | 'right' | 'diagonal'
+type Shape = 'square' | 'hexagon' | 'circle' | 'triangle'
+
+function initShapeGrid(canvas: HTMLCanvasElement) {
+  const direction = (canvas.dataset.direction || 'right') as Dir
+  const speed = parseFloat(canvas.dataset.speed || '1')
+  const borderColor = canvas.dataset.borderColor || '#999'
+  const squareSize = parseInt(canvas.dataset.squareSize || '40', 10)
+  const hoverFillColor = canvas.dataset.hoverFillColor || '#222'
+  const shape = (canvas.dataset.shape || 'square') as Shape
+  const hoverTrailAmount = parseInt(canvas.dataset.hoverTrailAmount || '0', 10)
+
+  const ctx = canvas.getContext('2d')!
+  const isHex = shape === 'hexagon'
+  const isTri = shape === 'triangle'
+  const hexHoriz = squareSize * 1.5
+  const hexVert = squareSize * Math.sqrt(3)
+
+  const gridOffset = { x: 0, y: 0 }
+  let hoveredSquare: { x: number; y: number } | null = null
+  const trailCells: { x: number; y: number }[] = []
+  const cellOpacities = new Map<string, number>()
+  let rafId = 0
+
+  const resizeCanvas = () => {
+    const dpr = window.devicePixelRatio || 1
+    const w = canvas.offsetWidth
+    const h = canvas.offsetHeight
+    canvas.width = w * dpr
+    canvas.height = h * dpr
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  }
+
+  const cw = () => canvas.width / (window.devicePixelRatio || 1)
+  const ch = () => canvas.height / (window.devicePixelRatio || 1)
+
+  const drawHex = (cx: number, cy: number, size: number) => {
+    ctx.beginPath()
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 3) * i
+      const vx = cx + size * Math.cos(angle)
+      const vy = cy + size * Math.sin(angle)
+      if (i === 0) ctx.moveTo(vx, vy)
+      else ctx.lineTo(vx, vy)
+    }
+    ctx.closePath()
+  }
+  const drawCircle = (cx: number, cy: number, size: number) => {
+    ctx.beginPath()
+    ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
+    ctx.closePath()
+  }
+  const drawTriangle = (cx: number, cy: number, size: number, flip: boolean) => {
+    ctx.beginPath()
+    if (flip) {
+      ctx.moveTo(cx, cy + size / 2)
+      ctx.lineTo(cx + size / 2, cy - size / 2)
+      ctx.lineTo(cx - size / 2, cy - size / 2)
+    } else {
+      ctx.moveTo(cx, cy - size / 2)
+      ctx.lineTo(cx + size / 2, cy + size / 2)
+      ctx.lineTo(cx - size / 2, cy + size / 2)
+    }
+    ctx.closePath()
+  }
+
+  const drawGrid = () => {
+    const W = cw()
+    const H = ch()
+    ctx.clearRect(0, 0, W, H)
+
+    if (isHex) {
+      const colShift = Math.floor(gridOffset.x / hexHoriz)
+      const offsetX = ((gridOffset.x % hexHoriz) + hexHoriz) % hexHoriz
+      const offsetY = ((gridOffset.y % hexVert) + hexVert) % hexVert
+      const cols = Math.ceil(W / hexHoriz) + 3
+      const rows = Math.ceil(H / hexVert) + 3
+      for (let col = -2; col < cols; col++) {
+        for (let row = -2; row < rows; row++) {
+          const cx = col * hexHoriz + offsetX
+          const cy = row * hexVert + ((col + colShift) % 2 !== 0 ? hexVert / 2 : 0) + offsetY
+          const key = `${col},${row}`
+          const alpha = cellOpacities.get(key)
+          if (alpha) {
+            ctx.globalAlpha = alpha
+            drawHex(cx, cy, squareSize)
+            ctx.fillStyle = hoverFillColor
+            ctx.fill()
+            ctx.globalAlpha = 1
+          }
+          drawHex(cx, cy, squareSize)
+          ctx.strokeStyle = borderColor
+          ctx.stroke()
+        }
+      }
+    } else if (isTri) {
+      const halfW = squareSize / 2
+      const colShift = Math.floor(gridOffset.x / halfW)
+      const rowShift = Math.floor(gridOffset.y / squareSize)
+      const offsetX = ((gridOffset.x % halfW) + halfW) % halfW
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      const cols = Math.ceil(W / halfW) + 4
+      const rows = Math.ceil(H / squareSize) + 4
+      for (let col = -2; col < cols; col++) {
+        for (let row = -2; row < rows; row++) {
+          const cx = col * halfW + offsetX
+          const cy = row * squareSize + squareSize / 2 + offsetY
+          const flip = (((col + colShift + row + rowShift) % 2) + 2) % 2 !== 0
+          const key = `${col},${row}`
+          const alpha = cellOpacities.get(key)
+          if (alpha) {
+            ctx.globalAlpha = alpha
+            drawTriangle(cx, cy, squareSize, flip)
+            ctx.fillStyle = hoverFillColor
+            ctx.fill()
+            ctx.globalAlpha = 1
+          }
+          drawTriangle(cx, cy, squareSize, flip)
+          ctx.strokeStyle = borderColor
+          ctx.stroke()
+        }
+      }
+    } else if (shape === 'circle') {
+      const offsetX = ((gridOffset.x % squareSize) + squareSize) % squareSize
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      const cols = Math.ceil(W / squareSize) + 3
+      const rows = Math.ceil(H / squareSize) + 3
+      for (let col = -2; col < cols; col++) {
+        for (let row = -2; row < rows; row++) {
+          const cx = col * squareSize + squareSize / 2 + offsetX
+          const cy = row * squareSize + squareSize / 2 + offsetY
+          const key = `${col},${row}`
+          const alpha = cellOpacities.get(key)
+          if (alpha) {
+            ctx.globalAlpha = alpha
+            drawCircle(cx, cy, squareSize)
+            ctx.fillStyle = hoverFillColor
+            ctx.fill()
+            ctx.globalAlpha = 1
+          }
+          drawCircle(cx, cy, squareSize)
+          ctx.strokeStyle = borderColor
+          ctx.stroke()
+        }
+      }
+    } else {
+      const offsetX = ((gridOffset.x % squareSize) + squareSize) % squareSize
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      const cols = Math.ceil(W / squareSize) + 3
+      const rows = Math.ceil(H / squareSize) + 3
+      for (let col = -2; col < cols; col++) {
+        for (let row = -2; row < rows; row++) {
+          const sx = col * squareSize + offsetX
+          const sy = row * squareSize + offsetY
+          const key = `${col},${row}`
+          const alpha = cellOpacities.get(key)
+          if (alpha) {
+            ctx.globalAlpha = alpha
+            ctx.fillStyle = hoverFillColor
+            ctx.fillRect(sx, sy, squareSize, squareSize)
+            ctx.globalAlpha = 1
+          }
+          ctx.strokeStyle = borderColor
+          ctx.strokeRect(sx, sy, squareSize, squareSize)
+        }
+      }
+    }
+  }
+
+  const updateCellOpacities = () => {
+    const targets = new Map<string, number>()
+    if (hoveredSquare) targets.set(`${hoveredSquare.x},${hoveredSquare.y}`, 1)
+    if (hoverTrailAmount > 0) {
+      for (let i = 0; i < trailCells.length; i++) {
+        const t = trailCells[i]
+        const key = `${t.x},${t.y}`
+        if (!targets.has(key)) targets.set(key, (trailCells.length - i) / (trailCells.length + 1))
+      }
+    }
+    for (const [key] of targets) {
+      if (!cellOpacities.has(key)) cellOpacities.set(key, 0)
+    }
+    for (const [key, opacity] of cellOpacities) {
+      const target = targets.get(key) || 0
+      const next = opacity + (target - opacity) * 0.15
+      if (next < 0.005) cellOpacities.delete(key)
+      else cellOpacities.set(key, next)
+    }
+  }
+
+  const updateAnimation = () => {
+    const effectiveSpeed = Math.max(speed, 0.1)
+    const wrapX = isHex ? hexHoriz * 2 : squareSize
+    const wrapY = isHex ? hexVert : isTri ? squareSize * 2 : squareSize
+    switch (direction) {
+      case 'right': gridOffset.x = (gridOffset.x - effectiveSpeed + wrapX) % wrapX; break
+      case 'left':  gridOffset.x = (gridOffset.x + effectiveSpeed + wrapX) % wrapX; break
+      case 'up':    gridOffset.y = (gridOffset.y + effectiveSpeed + wrapY) % wrapY; break
+      case 'down':  gridOffset.y = (gridOffset.y - effectiveSpeed + wrapY) % wrapY; break
+      case 'diagonal':
+        gridOffset.x = (gridOffset.x - effectiveSpeed + wrapX) % wrapX
+        gridOffset.y = (gridOffset.y - effectiveSpeed + wrapY) % wrapY
+        break
+    }
+    updateCellOpacities()
+    drawGrid()
+    rafId = requestAnimationFrame(updateAnimation)
+  }
+
+  const handleMouseMove = (event: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect()
+    const mouseX = event.clientX - rect.left
+    const mouseY = event.clientY - rect.top
+
+    let col = 0, row = 0
+    if (isHex) {
+      const colShift = Math.floor(gridOffset.x / hexHoriz)
+      const offsetX = ((gridOffset.x % hexHoriz) + hexHoriz) % hexHoriz
+      const offsetY = ((gridOffset.y % hexVert) + hexVert) % hexVert
+      const adjustedX = mouseX - offsetX
+      const adjustedY = mouseY - offsetY
+      col = Math.round(adjustedX / hexHoriz)
+      const rowOffset = (col + colShift) % 2 !== 0 ? hexVert / 2 : 0
+      row = Math.round((adjustedY - rowOffset) / hexVert)
+    } else if (isTri) {
+      const halfW = squareSize / 2
+      const offsetX = ((gridOffset.x % halfW) + halfW) % halfW
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      col = Math.round((mouseX - offsetX) / halfW)
+      row = Math.floor((mouseY - offsetY) / squareSize)
+    } else if (shape === 'circle') {
+      const offsetX = ((gridOffset.x % squareSize) + squareSize) % squareSize
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      col = Math.round((mouseX - offsetX) / squareSize)
+      row = Math.round((mouseY - offsetY) / squareSize)
+    } else {
+      const offsetX = ((gridOffset.x % squareSize) + squareSize) % squareSize
+      const offsetY = ((gridOffset.y % squareSize) + squareSize) % squareSize
+      col = Math.floor((mouseX - offsetX) / squareSize)
+      row = Math.floor((mouseY - offsetY) / squareSize)
+    }
+
+    if (!hoveredSquare || hoveredSquare.x !== col || hoveredSquare.y !== row) {
+      if (hoveredSquare && hoverTrailAmount > 0) {
+        trailCells.unshift({ ...hoveredSquare })
+        if (trailCells.length > hoverTrailAmount) trailCells.length = hoverTrailAmount
+      }
+      hoveredSquare = { x: col, y: row }
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (hoveredSquare && hoverTrailAmount > 0) {
+      trailCells.unshift({ ...hoveredSquare })
+      if (trailCells.length > hoverTrailAmount) trailCells.length = hoverTrailAmount
+    }
+    hoveredSquare = null
+  }
+
+  window.addEventListener('resize', resizeCanvas)
+  resizeCanvas()
+  canvas.addEventListener('mousemove', handleMouseMove)
+  canvas.addEventListener('mouseleave', handleMouseLeave)
+  rafId = requestAnimationFrame(updateAnimation)
+}
+
+document.querySelectorAll<HTMLCanvasElement>('canvas.shapegrid-canvas').forEach(initShapeGrid)
+</script>

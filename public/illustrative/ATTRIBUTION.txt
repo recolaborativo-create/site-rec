@@ -9,7 +9,7 @@ the expected paths below.
 
 Filenames expected by the site:
 
-- /illustrative/comunidade-hero.jpg     (Comunidade page hero - 4:5 portrait)
+- /illustrative/comunidade-hero.jpg     (Comunidade page hero + Home impact - 4:5 portrait)
 - /illustrative/network-entre-elas.jpg  (Blog cover, agenda timeline)
 - /illustrative/hub-social.jpg          (HUB chapter 01)
 - /illustrative/hub-traffic.jpg         (HUB chapter 02)
@@ -22,16 +22,68 @@ Filenames expected by the site:
 - /illustrative/blog-corporativo.jpg    (Blog: eventos corporativos)
 - /illustrative/blog-ecossistema.jpg    (Blog: 84 empresas - founder POV)
 
-Sourcing rules per spec section 6.2:
+==============================================
+QUICK SOURCING (free, commercial-ok, no attribution required) — Apr 2026
+==============================================
 
+Search Unsplash for:
+
+- "women in business meeting" → comunidade-hero.jpg
+   https://unsplash.com/s/photos/women-in-business-meeting
+
+- "female entrepreneur portrait" → blog-empreender.jpg, comunidade-hero.jpg
+   https://unsplash.com/s/photos/female-entrepreneur
+
+- "women networking event" → network-entre-elas.jpg, blog-corporativo.jpg
+   https://unsplash.com/s/photos/women-networking
+
+- "social media phone hands" → hub-social.jpg
+   https://unsplash.com/s/photos/social-media-phone
+
+- "marketing dashboard analytics" → hub-traffic.jpg
+   https://unsplash.com/s/photos/marketing-analytics
+
+- "business handshake meeting" → hub-sales.jpg, blog-networking.jpg
+   https://unsplash.com/s/photos/business-handshake
+
+- "branding design mockup" → hub-branding.jpg
+   https://unsplash.com/s/photos/branding-design
+
+- "small business owner working" → blog-cases.jpg, blog-ecossistema.jpg
+   https://unsplash.com/s/photos/small-business-owner
+
+- "modern desk laptop notebook" → blog-redes.jpg
+   https://unsplash.com/s/photos/modern-desk
+
+Pexels alternative (also free, also no attribution required):
+   https://www.pexels.com/search/women%20business/
+
+Sourcing rules per spec section 6.2:
 - Editorial / candid / warm tones - NEVER stock-cliche
-- Brazilian / latin context - women empreendedoras as primary subject
+- Brazilian / latin context preferred when available
 - AI-generated faces FORBIDDEN
-- Source: Unsplash or Pexels under their respective licenses
 - Once real REC photos exist, swap files at the same paths - no code change needed
+
+DOWNLOAD INSTRUCTIONS:
+1. Open the Unsplash link above
+2. Pick a photo, click Download (or right-click → save image)
+3. Resize to ~1200px on the long edge (Preview / Photos / online tool)
+4. Save as JPEG quality 80, into this folder with the expected filename
+5. Site auto-rebuilds — placeholder gradient swaps to real photo
 
 Attribution log (fill in when photos land):
 
 | File | Source | URL | Photographer |
 |---|---|---|---|
 | comunidade-hero.jpg | TBD | TBD | TBD |
+| network-entre-elas.jpg | TBD | TBD | TBD |
+| hub-social.jpg | TBD | TBD | TBD |
+| hub-traffic.jpg | TBD | TBD | TBD |
+| hub-sales.jpg | TBD | TBD | TBD |
+| hub-branding.jpg | TBD | TBD | TBD |
+| blog-cases.jpg | TBD | TBD | TBD |
+| blog-empreender.jpg | TBD | TBD | TBD |
+| blog-redes.jpg | TBD | TBD | TBD |
+| blog-networking.jpg | TBD | TBD | TBD |
+| blog-corporativo.jpg | TBD | TBD | TBD |
+| blog-ecossistema.jpg | TBD | TBD | TBD |

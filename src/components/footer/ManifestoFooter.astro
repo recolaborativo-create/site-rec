@@ -1,42 +1,112 @@
 ---
-import DotLogo from '../ui/DotLogo.astro'
 import { externalLinks } from '../../data/nav'
+import { whatsappLink, messages } from '../../utils/whatsapp'
 const year = new Date().getFullYear()
+
+const faqItems = [
+  {
+    q: 'Como funciona o REC?',
+    a: 'Conectamos empresas locais por meio de eventos, encontros e colaboração estratégica. Você se associa, frequenta os encontros e ativa sua rede.',
+  },
+  {
+    q: 'Qual a diferença entre Comunidade e HUB?',
+    a: 'A Comunidade é o ecossistema de empresas associadas. Networking, parcerias, visibilidade e oportunidades de negócio. O HUB é a estrutura voltada pro crescimento empresarial: estruturação, desenvolvimento, execução e capacitação. Você entra pela Comunidade e cresce dentro do ecossistema completo, com acesso ao HUB em condições especiais.',
+  },
+  {
+    q: 'Como faço para me associar?',
+    a: 'Escolhe o plano que combina com você na página /planos e fala com a gente no WhatsApp. A gente conversa, você visita um encontro, decide depois.',
+  },
+  {
+    q: 'O que uma empresa ganha ao fazer parte do REC?',
+    a: 'Além de networking avançado, a rede abre espaço para visibilidade, parcerias estratégicas, oportunidades comerciais e conexões que podem acelerar o crescimento do negócio.',
+  },
+]
 ---
-<footer class="manifesto-footer">
+<footer class="rec-footer">
   <div class="footer-inner">
-    <div class="footer-manifesto" aria-hidden="true">
-      <div class="word fade">movimento</div>
-      <div class="word emphasis">gera</div>
-      <div class="word fade">movimento.</div>
-    </div>
-    <div class="footer-contact">
-      <div class="contact-block">
-        <span class="uppercase-label">whats</span>
-        <a href={externalLinks.whatsapp.url} target="_blank" rel="noopener">{externalLinks.whatsapp.number}</a>
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <img src="/logo-white.png" alt="REC Colaborativo" style="width:110px;height:auto;display:block;margin-left:-13px;" />
+        <p class="footer-tagline">movimento <em>gera</em> movimento.</p>
+        <p class="footer-locale">Rio Grande do Sul</p>
       </div>
-      <div class="contact-block">
-        <span class="uppercase-label">instagram</span>
-        <a href={externalLinks.instagram.url} target="_blank" rel="noopener">{externalLinks.instagram.handle}</a>
+
+      <div class="footer-col">
+        <h3>contato</h3>
+        <ul>
+          <li>
+            <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener">
+              <span class="contact-label">whatsapp</span>
+              <span class="contact-value">{externalLinks.whatsapp.number}</span>
+            </a>
+          </li>
+          <li>
+            <a href={externalLinks.instagram.url} target="_blank" rel="noopener">
+              <span class="contact-label">instagram</span>
+              <span class="contact-value">{externalLinks.instagram.handle}</span>
+            </a>
+          </li>
+          <li>
+            <a href={externalLinks.vitrine.url} target="_blank" rel="noopener">
+              <span class="contact-label">vitrine</span>
+              <span class="contact-value">benefícios da rede</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-faq">
+        <h3>perguntas frequentes</h3>
+        <ul>
+          {faqItems.map(item => (
+            <li>
+              <details>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
+
     <div class="footer-bottom">
-      <DotLogo size="md" inverted />
-      <span class="footer-copy">© {year} - porto alegre/rs</span>
+      <span class="footer-copy">© {year} REC Colaborativo, todos os direitos reservados</span>
+      <span class="footer-built">Do Rio Grande do Sul para negócios que se movem.</span>
     </div>
   </div>
 </footer>
 
 <style>
-.manifesto-footer { background: var(--grad-footer); color: #fff; padding: var(--space-16) var(--space-6); }
+.rec-footer { background: linear-gradient(180deg, #042050 0%, #021438 60%, #010b22 100%); color: rgba(255,255,255,0.85); padding: var(--space-12) var(--space-6) var(--space-6); font-size: var(--type-small); }
 .footer-inner { max-width: var(--container-max); margin: 0 auto; }
-.footer-manifesto { font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 300; line-height: 1; letter-spacing: var(--letter-tight); margin-bottom: var(--space-12); }
-.footer-manifesto .fade { opacity: 0.4; }
-.footer-manifesto .emphasis { color: var(--rec-teal); font-weight: 800; font-style: italic; }
-.footer-contact { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-8); padding-bottom: var(--space-6); border-bottom: 1px solid rgba(255,255,255,0.1); }
-.contact-block .uppercase-label { color: rgba(255,255,255,0.5); display: block; margin-bottom: var(--space-1); }
-.contact-block a { color: #fff; font-weight: 600; font-size: var(--type-body); }
-.footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
-.footer-copy { font-size: var(--type-micro); color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
-@media (max-width: 480px) { .footer-contact { grid-template-columns: 1fr; } }
+.footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1.4fr; gap: var(--space-8); padding-bottom: var(--space-8); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.footer-brand-col { display: flex; flex-direction: column; gap: var(--space-3); }
+.footer-logo-img { height: 52px; width: auto; }
+.footer-tagline { font-size: 1rem; color: rgba(255,255,255,0.85); font-weight: 300; line-height: 1.4; margin: 0; }
+.footer-tagline em { color: var(--rec-teal); font-style: italic; font-weight: 700; }
+.footer-locale { font-size: var(--type-micro); color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
+.footer-col h3 { font-size: var(--type-micro); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); font-weight: 700; margin-bottom: var(--space-4); }
+.footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.footer-col a { color: rgba(255,255,255,0.85); transition: color var(--motion-fast) var(--easing); display: inline-flex; flex-direction: column; gap: 2px; }
+.footer-col a:hover { color: var(--rec-teal); }
+.contact-label { font-size: var(--type-micro); color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+.contact-value { font-weight: 600; font-size: var(--type-small); }
+.footer-faq details { cursor: pointer; }
+.footer-faq summary { list-style: none; padding-right: var(--space-4); position: relative; transition: color var(--motion-fast) var(--easing); }
+.footer-faq summary::-webkit-details-marker { display: none; }
+.footer-faq summary::after { content: '+'; position: absolute; right: 0; top: -1px; color: var(--rec-teal); font-weight: 300; transition: transform var(--motion-fast) var(--easing); font-size: 1.1rem; line-height: 1; }
+.footer-faq details[open] summary::after { content: '−'; }
+.footer-faq summary:hover { color: var(--rec-teal); }
+.footer-faq p { margin-top: var(--space-2); font-size: var(--type-micro); color: rgba(255,255,255,0.65); line-height: 1.6; padding-right: var(--space-4); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); padding-top: var(--space-6); }
+.footer-copy, .footer-built { font-size: var(--type-micro); color: rgba(255,255,255,0.4); letter-spacing: 0.05em; }
+@media (max-width: 900px) {
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .footer-faq { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .footer-top { grid-template-columns: 1fr; gap: var(--space-6); }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+}
 </style>

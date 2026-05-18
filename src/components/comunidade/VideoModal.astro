@@ -1,0 +1,166 @@
+---
+// Modal global de vídeo. É um único modal reutilizado por todos os depoimentos.
+// Os botões .t-cta disparam a abertura via data-video-src.
+---
+<div class="vm-overlay" id="video-modal" role="dialog" aria-modal="true" aria-labelledby="vm-name" aria-hidden="true">
+  <div class="vm-content">
+    <button class="vm-close" type="button" aria-label="Fechar vídeo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="vm-video-wrap">
+      <video class="vm-video" id="vm-video" controls preload="metadata" playsinline></video>
+    </div>
+    <div class="vm-info">
+      <strong id="vm-name"></strong>
+      <span id="vm-company"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+.vm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(1,17,22,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--easing);
+}
+.vm-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vm-content {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 92vh;
+  background: #0E1116;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  transform: scale(0.94);
+  transition: transform 0.35s var(--easing);
+  display: flex;
+  flex-direction: column;
+}
+.vm-overlay.open .vm-content { transform: scale(1); }
+
+.vm-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.25s var(--easing), transform 0.25s var(--easing);
+}
+.vm-close:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+.vm-close svg { width: 18px; height: 18px; }
+
+.vm-video-wrap {
+  position: relative;
+  width: 100%;
+  background: #000;
+  aspect-ratio: 9 / 16;
+  flex-shrink: 1;
+  min-height: 0;
+}
+.vm-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+.vm-info {
+  padding: var(--space-5) var(--space-6);
+  background: linear-gradient(180deg, #0E1116, #1a1d22);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.vm-info strong { font-size: 1.1rem; font-weight: 800; letter-spacing: var(--letter-tight); }
+.vm-info span { color: var(--rec-teal-soft); font-size: var(--type-small); }
+
+@media (max-width: 700px) {
+  .vm-overlay { padding: var(--space-3); }
+  .vm-info { padding: var(--space-4); }
+}
+</style>
+
+<script>
+  const overlay = document.getElementById('video-modal') as HTMLElement | null
+  const video = document.getElementById('vm-video') as HTMLVideoElement | null
+  const nameEl = document.getElementById('vm-name') as HTMLElement | null
+  const companyEl = document.getElementById('vm-company') as HTMLElement | null
+  const closeBtn = overlay?.querySelector('.vm-close') as HTMLElement | null
+
+  if (overlay && video && nameEl && companyEl && closeBtn) {
+    const nav = document.querySelector<HTMLElement>('[data-adaptive-nav]')
+
+    function open(src: string, name: string, company: string) {
+      nameEl!.textContent = name
+      companyEl!.textContent = company
+      video!.src = src
+      overlay!.classList.add('open')
+      overlay!.setAttribute('aria-hidden', 'false')
+      document.body.style.overflow = 'hidden'
+      // Esconde navbar
+      if (nav) nav.classList.add('is-hidden')
+      setTimeout(() => video!.play().catch(() => {}), 320)
+    }
+
+    function close() {
+      overlay!.classList.remove('open')
+      overlay!.setAttribute('aria-hidden', 'true')
+      video!.pause()
+      video!.removeAttribute('src')
+      video!.load()
+      document.body.style.overflow = ''
+      // Mostra navbar novamente com a animação de descer
+      if (nav) nav.classList.remove('is-hidden')
+    }
+
+    // Triggers: qualquer botão com data-video-src
+    document.querySelectorAll<HTMLElement>('[data-video-src]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const src = btn.dataset.videoSrc || ''
+        const name = btn.dataset.videoName || ''
+        const company = btn.dataset.videoCompany || ''
+        if (src) open(src, name, company)
+      })
+    })
+
+    // Fechar
+    closeBtn.addEventListener('click', close)
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close()
+    })
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) close()
+    })
+  }
+</script>

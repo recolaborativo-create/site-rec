@@ -1,6 +1,6 @@
 ---
-title: O que aprendi conectando 84 empresas em um ecossistema
-excerpt: De três parceiras em 2018 a 84 empresas em 2024. O que se aprende sobre comunidade ao longo de seis anos puxando rede.
+title: O que aprendi conectando diversas empresas em um grande ecossistema
+excerpt: "O que começou com 3 parcerias em 2018, hoje conecta mais de noventa empresas. Oito anos depois, a maior lição continua a mesma: comunidades não se criam, se constroem conexão por conexão."
 pillar: comunidade
 publishedAt: 2026-04-15
 cover: /illustrative/blog-ecossistema.jpg
@@ -21,4 +21,4 @@ Uma parceira só vira parceira de verdade depois do terceiro encontro. No primei
 
 Setores muito diferentes - beleza, jurídico, gastronomia, marketing, saúde. Mas todas compartilham uma característica - elas trazem mais valor para a rede do que extraem dela. É a única regra que filtra o pertencimento.
 
-A constelação na página de Parceiros mostra essa rede visualmente. Cada ponto é uma empresa, cada conexão visível é um negócio que aconteceu por dentro do REC.
+A constelação na página de Empresas mostra essa rede visualmente. Cada ponto é uma empresa, cada conexão visível é um negócio que aconteceu por dentro do REC.

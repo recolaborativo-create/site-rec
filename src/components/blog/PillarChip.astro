@@ -1,5 +1,5 @@
 ---
-type Pillar = 'all' | 'negocios' | 'estrategia' | 'comunidade' | 'eventos' | 'mentalidade'
+type Pillar = 'all' | 'negocios' | 'estrategia' | 'comunidade' | 'eventos' | 'mentalidade' | 'empreendedorismo'
 interface Props {
   pillar: Pillar
   active?: boolean
@@ -13,6 +13,7 @@ const labels: Record<Pillar, string> = {
   comunidade: 'comunidade',
   eventos: 'eventos',
   mentalidade: 'mentalidade',
+  empreendedorismo: 'empreendedorismo',
 }
 const Tag = filterable ? 'button' : 'span'
 ---

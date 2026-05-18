@@ -3,7 +3,7 @@ import { whatsappLink, messages, type WhatsAppMessageKey } from '../../utils/wha
 
 interface Props {
   name: string
-  price: string
+  price?: string
   priceSuffix?: string
   summary?: string
   bullets: string[]
@@ -11,15 +11,29 @@ interface Props {
   featured?: boolean
   ctaKey: WhatsAppMessageKey
   ctaText?: string
+  hidePrice?: boolean
 }
-const { name, price, priceSuffix = '/mês', summary, bullets, addOns = [], featured = false, ctaKey, ctaText = 'contratar' } = Astro.props
+const {
+  name,
+  price,
+  priceSuffix = '/mês',
+  summary,
+  bullets,
+  addOns = [],
+  featured = false,
+  ctaKey,
+  ctaText = 'contratar',
+  hidePrice = false,
+} = Astro.props
 const cta = whatsappLink(messages[ctaKey])
 ---
-<article class:list={['plan-card', { featured }]}>
+<article class:list={['plan-card', { featured, 'no-price': hidePrice }]}>
   {featured && <span class="featured-badge">popular</span>}
   <h3>{name}</h3>
   {summary && <p class="summary">{summary}</p>}
-  <div class="price"><span class="price-value">{price}</span><small>{priceSuffix}</small></div>
+  {!hidePrice && price && (
+    <div class="price"><span class="price-value">{price}</span><small>{priceSuffix}</small></div>
+  )}
   <ul class="bullets">
     {bullets.map(b => <li>{b}</li>)}
   </ul>
@@ -42,6 +56,8 @@ const cta = whatsappLink(messages[ctaKey])
 .price { display: flex; align-items: baseline; gap: 4px; margin: var(--space-3) 0; }
 .price-value { font-size: 2rem; font-weight: 800; color: var(--rec-purple); letter-spacing: var(--letter-tight); line-height: 1; }
 .price small { font-size: var(--type-small); color: #667; font-weight: 400; }
+.plan-card.no-price h3 { font-size: 1.5rem; }
+.plan-card.no-price .summary { font-weight: 600; color: var(--rec-purple); margin-bottom: var(--space-2); }
 .bullets { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2); }
 .bullets li { font-size: var(--type-small); color: #444; line-height: 1.5; padding-left: 18px; position: relative; }
 .bullets li::before { content: ''; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--rec-teal); }
@@ -52,4 +68,7 @@ const cta = whatsappLink(messages[ctaKey])
 .plan-card.featured .card-cta { background: var(--rec-teal); }
 .card-cta:hover { background: var(--rec-teal); }
 .plan-card.featured .card-cta:hover { background: var(--rec-purple); }
+.plan-card.no-price .card-cta { background: transparent; color: var(--rec-purple); border: 1px solid var(--rec-purple); }
+.plan-card.no-price.featured .card-cta { background: var(--rec-teal); color: #fff; border-color: var(--rec-teal); }
+.plan-card.no-price .card-cta:hover { background: var(--rec-purple); color: #fff; }
 </style>

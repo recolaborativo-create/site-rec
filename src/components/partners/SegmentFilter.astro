@@ -1,0 +1,311 @@
+---
+import { SECTOR_LABEL } from '../../data/sector-labels'
+import type { PartnerSector } from '../../data/partners'
+
+interface Props { sectors: PartnerSector[] }
+const { sectors } = Astro.props
+const sorted = sectors
+  .map((s) => ({ key: s, label: SECTOR_LABEL[s] ?? s }))
+  .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+---
+<div class="segment-filter" data-segment-filter>
+  <div class="filter-inner">
+    <header class="filter-header">
+      <div class="filter-title-wrap">
+        <span class="filter-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </span>
+        <span class="filter-label">filtrar por segmento</span>
+      </div>
+      <span class="filter-count" data-filter-count hidden></span>
+    </header>
+
+    <div class="chip-row" role="group" aria-label="filtros de segmento">
+      {sorted.map((s) => (
+        <button class="filter-chip" data-sector={s.key} type="button" aria-pressed="false">
+          <span class="chip-check" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="chip-label">{s.label}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn-clear" data-clear-filter type="button" hidden>
+        <span aria-hidden="true">×</span> limpar filtro
+      </button>
+      <button class="btn-apply" data-apply-filter type="button" disabled>
+        aplicar filtro
+        <span class="btn-apply-arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-segment-filter]')
+  if (root) {
+    const chips = root.querySelectorAll<HTMLButtonElement>('.filter-chip')
+    const clearBtn = root.querySelector<HTMLButtonElement>('[data-clear-filter]')!
+    const applyBtn = root.querySelector<HTMLButtonElement>('[data-apply-filter]')!
+    const countEl = root.querySelector<HTMLElement>('[data-filter-count]')!
+    const pending = new Set<string>()
+    const applied = new Set<string>()
+
+    function syncApplyState() {
+      const count = pending.size
+      const sameAsApplied =
+        count === applied.size && [...pending].every(s => applied.has(s))
+      applyBtn.disabled = count === 0 ? false : sameAsApplied
+      // When pending is empty AND nothing applied → disabled
+      // When pending matches applied → disabled (no changes)
+      // Else enabled
+      if (count === 0 && applied.size === 0) applyBtn.disabled = true
+      applyBtn.classList.toggle('has-pending', count > 0 && !sameAsApplied)
+    }
+
+    function syncCount() {
+      if (applied.size === 0) {
+        countEl.hidden = true
+      } else {
+        countEl.hidden = false
+        countEl.textContent = `${applied.size} ${applied.size === 1 ? 'segmento ativo' : 'segmentos ativos'}`
+      }
+      clearBtn.hidden = applied.size === 0
+    }
+
+    function emit(sectors: string[]) {
+      document.dispatchEvent(new CustomEvent('partners-filter', { detail: { sectors } }))
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const key = chip.dataset.sector!
+        if (pending.has(key)) {
+          pending.delete(key)
+          chip.setAttribute('aria-pressed', 'false')
+          chip.classList.remove('selected')
+        } else {
+          pending.add(key)
+          chip.setAttribute('aria-pressed', 'true')
+          chip.classList.add('selected')
+        }
+        syncApplyState()
+      })
+    })
+
+    applyBtn.addEventListener('click', () => {
+      applied.clear()
+      pending.forEach(s => applied.add(s))
+      chips.forEach(c => {
+        const key = c.dataset.sector!
+        c.classList.toggle('applied', applied.has(key))
+      })
+      emit([...applied])
+      syncCount()
+      syncApplyState()
+    })
+
+    clearBtn.addEventListener('click', () => {
+      pending.clear()
+      applied.clear()
+      chips.forEach(c => {
+        c.setAttribute('aria-pressed', 'false')
+        c.classList.remove('selected', 'applied')
+      })
+      emit([])
+      syncCount()
+      syncApplyState()
+    })
+
+    syncApplyState()
+  }
+</script>
+
+<style>
+.segment-filter {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6) var(--space-4);
+}
+.filter-inner {
+  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.03) 100%);
+  border: 1px solid rgba(108,90,178,0.12);
+  border-radius: 16px;
+  padding: var(--space-5) var(--space-6);
+  box-shadow: 0 4px 20px rgba(37,52,57,0.04);
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(37,52,57,0.06);
+}
+.filter-title-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.filter-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,161,152,0.1);
+  color: var(--rec-teal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.filter-label {
+  font-size: var(--type-small);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rec-dark);
+  font-weight: 700;
+}
+.filter-count {
+  font-size: var(--type-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  font-weight: 700;
+  padding: 4px 10px;
+  background: rgba(0,161,152,0.1);
+  border-radius: 999px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: var(--type-micro);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--rec-dark);
+  background: rgba(37,52,57,0.04);
+  border: 1.5px solid transparent;
+  transition: all var(--motion-fast) var(--easing);
+  cursor: pointer;
+}
+.chip-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(0,161,152,0.2);
+  color: var(--rec-teal);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all var(--motion-fast) var(--easing);
+}
+.chip-label { line-height: 1; }
+.filter-chip:hover {
+  background: rgba(0,161,152,0.08);
+  border-color: rgba(0,161,152,0.2);
+  transform: translateY(-1px);
+}
+.filter-chip.selected {
+  background: rgba(108,90,178,0.1);
+  border-color: var(--rec-purple);
+  color: var(--rec-purple);
+}
+.filter-chip.selected .chip-check {
+  background: var(--rec-purple);
+  color: #fff;
+  opacity: 1;
+  transform: scale(1);
+}
+.filter-chip.applied {
+  background: var(--rec-teal);
+  color: #fff;
+  border-color: var(--rec-teal);
+  box-shadow: 0 4px 12px rgba(0,161,152,0.25);
+}
+.filter-chip.applied .chip-check {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.btn-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--type-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #889;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--easing);
+  background: transparent;
+  border: none;
+}
+.btn-clear:hover { color: var(--rec-purple); background: rgba(108,90,178,0.06); }
+
+.btn-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 11px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--rec-teal) 0%, var(--rec-teal-deep, #006d68) 100%);
+  color: #fff;
+  font-size: var(--type-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all var(--motion-fast) var(--easing);
+  box-shadow: 0 4px 14px rgba(0,161,152,0.3);
+}
+.btn-apply:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,161,152,0.4);
+}
+.btn-apply:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(37,52,57,0.2);
+  box-shadow: none;
+}
+.btn-apply.has-pending {
+  animation: btn-pulse 1.6s ease-in-out infinite;
+}
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(0,161,152,0.3); }
+  50% { box-shadow: 0 6px 22px rgba(0,161,152,0.5); }
+}
+.btn-apply-arrow { transition: transform var(--motion-fast) var(--easing); }
+.btn-apply:hover:not(:disabled) .btn-apply-arrow { transform: translateX(3px); }
+
+@media (max-width: 600px) {
+  .filter-inner { padding: var(--space-4); }
+  .btn-apply { width: 100%; justify-content: center; margin-left: 0; }
+  .filter-actions { flex-direction: column-reverse; align-items: stretch; }
+  .btn-clear { width: 100%; justify-content: center; }
+}
+</style>

@@ -1,0 +1,295 @@
+---
+// V2 OPENING ANIMATION — preview-only file. Lives on /preview-intro until approved.
+//
+// Fixes desta iteração:
+//   - JS move o elemento para <body> em runtime, escapando do stacking context
+//     do <main> (isolation:isolate). Assim o z-index 99999 é absoluto e o nav
+//     fica DEFINITIVAMENTE escondido durante a animação.
+//   - "Bem-vindo ao REC" vira título único, 2 linhas com MESMA fonte, MESMO
+//     tamanho, Fraunces 800, no padrão dos outros títulos do site.
+//   - Logo agora é a imagem original /logo-full.png (não reconstruído em CSS),
+//     então os traços ficam exatamente como o branding manda.
+//   - Os 3 traços grandes ficam ALINHADOS À ESQUERDA (não centralizados),
+//     replicando a estrutura da logo (todos partindo do mesmo x).
+//   - Crossfade longo + transform-origin no centro vertical-baixo (onde a
+//     logo está) → câmera entra fluida na logo, sem corte abrupto.
+//
+// Timeline (ms):
+//   0       → playing
+//   100/400 → "Bem-vindo / ao REC" entram da esquerda
+//   1300    → logo (imagem) faz fade-up
+//   5000    → ZOOM: welcome-stage cresce (camera dentro da logo) +
+//             bars-stage emerge simultâneo (crossfade fluido ~1.6s)
+//   6800    → palavras caminham de DENTRO do traço, esquerda → direita
+//   8500    → leitura
+//  10500    → saída em fila: traço 1 → +0.5s → traço 2 → +0.5s → traço 3
+//  12700    → reveal site (clip-path wipe esquerda → direita)
+//  14200    → done
+---
+<div class="rec-intro-v2" data-rec-intro-v2 aria-hidden="true">
+  <!-- Stage A — welcome card (texto + logo imagem) -->
+  <div class="welcome-stage">
+    <h1 class="welcome-text">
+      <span class="line line-1">Bem-vindo</span>
+      <span class="line line-2">ao <strong>REC</strong></span>
+    </h1>
+    <img class="welcome-logo" src="/logo-full.png" alt="REC" width="1200" height="600" />
+  </div>
+
+  <!-- Stage B — 3 traços grandes alinhados à esquerda, com palavras dentro -->
+  <div class="bars-stage">
+    <div class="big-bar bb-1"><span class="big-word bw-1">Crescimento</span></div>
+    <div class="big-bar bb-2"><span class="big-word bw-2">Colaboração</span></div>
+    <div class="big-bar bb-3"><span class="big-word bw-3">Conexão</span></div>
+  </div>
+</div>
+
+<script>
+  const intro = document.querySelector<HTMLElement>('[data-rec-intro-v2]')
+  if (intro) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) {
+      intro.remove()
+    } else {
+      // Move o elemento para o <body> diretamente para escapar do stacking
+      // context do <main> (isolation:isolate) — assim o z-index 99999
+      // realmente cobre o nav.
+      if (intro.parentElement !== document.body) {
+        document.body.appendChild(intro)
+      }
+
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+
+      requestAnimationFrame(() => intro.classList.add('playing'))
+
+      const ZOOM_AT   = 5000
+      const WORDS_AT  = 6800
+      const EXIT_AT   = 10500
+      const REVEAL_AT = 12700
+      const DONE_AT   = 14200
+
+      setTimeout(() => intro.classList.add('zooming'),   ZOOM_AT)
+      setTimeout(() => intro.classList.add('words-in'),  WORDS_AT)
+      setTimeout(() => intro.classList.add('exiting'),   EXIT_AT)
+      setTimeout(() => intro.classList.add('revealing'), REVEAL_AT)
+      setTimeout(() => {
+        intro.remove()
+        document.documentElement.style.overflow = ''
+        document.body.style.overflow = ''
+      }, DONE_AT)
+
+      const skip = () => {
+        intro.classList.add('exiting')
+        intro.classList.add('revealing')
+        setTimeout(() => {
+          intro.remove()
+          document.documentElement.style.overflow = ''
+          document.body.style.overflow = ''
+        }, 1500)
+      }
+      intro.addEventListener('click', skip)
+      document.addEventListener('keydown', function onKey(e) {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+          skip()
+          document.removeEventListener('keydown', onKey)
+        }
+      })
+    }
+  }
+</script>
+
+<style>
+.rec-intro-v2 {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  isolation: isolate;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.4s cubic-bezier(0.5, 0, 0.7, 0.2);
+}
+.rec-intro-v2.revealing { clip-path: inset(0 0 0 100%); }
+
+/* ==================================================================
+   STAGE A — welcome card (text + logo image)
+   ================================================================== */
+.welcome-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 4vw, 56px);
+  /* Origem do scale na ÁREA DA LOGO (logo está abaixo do texto, ~60% vert) */
+  transform-origin: 50% 60%;
+  transition: opacity 1.4s cubic-bezier(0.5, 0, 0.7, 0.4),
+              transform 1.6s cubic-bezier(0.55, 0, 0.45, 1);
+}
+.rec-intro-v2.zooming .welcome-stage {
+  opacity: 0;
+  /* Escala forte para dar a sensação de câmera mergulhando na logo */
+  transform: scale(8);
+}
+
+/* Welcome text — 2 linhas com MESMA tipografia (Fraunces 800, mesmo tamanho) */
+.welcome-text {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 6.4vw, 5rem);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--rec-blue);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.4vw, 8px);
+  margin: 0;
+  overflow: hidden;
+}
+.line {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-110%);
+  will-change: transform, opacity;
+  /* Mesmo tamanho/peso para AMBAS as linhas — só "REC" muda de cor */
+}
+.line strong {
+  font-weight: 800;
+  font-style: normal;
+  color: var(--rec-teal);
+}
+
+.rec-intro-v2.playing .line-1 {
+  animation: line-slide-in 0.7s cubic-bezier(0.22, 0.7, 0.16, 1) 0.10s forwards;
+}
+.rec-intro-v2.playing .line-2 {
+  animation: line-slide-in 0.85s cubic-bezier(0.22, 0.7, 0.16, 1) 0.40s forwards;
+}
+@keyframes line-slide-in {
+  0%   { transform: translateX(-110%); opacity: 0; }
+  60%  { opacity: 1; }
+  100% { transform: translateX(0);     opacity: 1; }
+}
+
+/* Logo — imagem original sem alteração */
+.welcome-logo {
+  display: block;
+  height: auto;
+  max-width: clamp(220px, 28vw, 360px);
+  width: 100%;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 800ms ease-out, transform 800ms cubic-bezier(0.22, 0.7, 0.16, 1);
+}
+.rec-intro-v2.playing .welcome-logo {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 1.30s;
+}
+
+/* ==================================================================
+   STAGE B — 3 traços grandes ALINHADOS À ESQUERDA, palavras dentro
+   ================================================================== */
+.bars-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;     /* << alinhamento à esquerda, replicando logo */
+  justify-content: center;
+  gap: 4vh;
+  padding-left: 6vw;
+  padding-right: 0;
+  /* Crossfade longo, mesmo timing do welcome para dar fluidez */
+  opacity: 0;
+  transform: scale(0.10);
+  transform-origin: 30% 60%;   /* perto de onde a logo estava */
+  transition: opacity 1.4s cubic-bezier(0.3, 0.5, 0.5, 1),
+              transform 1.6s cubic-bezier(0.4, 0, 0.4, 1);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.rec-intro-v2.zooming .bars-stage {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.big-bar {
+  height: 14vh;
+  min-height: 70px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 clamp(24px, 4vw, 56px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(1,38,89,0.22);
+}
+/* Larguras: replica a proporção da logo (1.00 / 0.75 / 0.50) */
+.bb-1 { width: 88vw; background: var(--rec-blue); }
+.bb-2 { width: 66vw; background: var(--rec-teal); }
+.bb-3 { width: 44vw; background: var(--rec-blue); }
+
+/* Palavras caminham DE DENTRO do traço, esquerda → direita,
+   param alinhadas no fim. Bar tem overflow:hidden, então só
+   é vista enquanto está dentro do traço. */
+.big-word {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #fff;
+  opacity: 0;
+  transform: translateX(-100vw);
+  will-change: transform, opacity;
+}
+.bw-1 { font-size: clamp(28px, 5.5vw, 84px); font-weight: 600; }
+.bw-2 { font-size: clamp(22px, 4.4vw, 66px); font-weight: 500; font-style: italic; }
+.bw-3 { font-size: clamp(18px, 3.4vw, 52px); font-weight: 600; }
+
+.rec-intro-v2.words-in .bw-1 { animation: word-walk 1.4s linear 0s    forwards; }
+.rec-intro-v2.words-in .bw-2 { animation: word-walk 1.4s linear 0.25s forwards; }
+.rec-intro-v2.words-in .bw-3 { animation: word-walk 1.4s linear 0.50s forwards; }
+
+@keyframes word-walk {
+  0%   { transform: translateX(-100vw); opacity: 0; }
+  10%  { opacity: 1; }                         /* já visível ao entrar no traço */
+  100% { transform: translateX(0);      opacity: 1; }
+}
+
+/* ==================================================================
+   STAGE C — saída em fila (0.5s entre cada)
+   ================================================================== */
+.rec-intro-v2.exiting .bb-1 { animation: bar-exit 0.85s cubic-bezier(0.5, 0, 0.7, 0.2) 0.00s forwards; }
+.rec-intro-v2.exiting .bb-2 { animation: bar-exit 0.85s cubic-bezier(0.5, 0, 0.7, 0.2) 0.50s forwards; }
+.rec-intro-v2.exiting .bb-3 { animation: bar-exit 0.85s cubic-bezier(0.5, 0, 0.7, 0.2) 1.00s forwards; }
+
+@keyframes bar-exit {
+  0%   { transform: translateX(0);     opacity: 1; }
+  100% { transform: translateX(120vw); opacity: 1; }
+}
+
+/* ==================================================================
+   Mobile
+   ================================================================== */
+@media (max-width: 600px) {
+  .welcome-text { font-size: clamp(2rem, 9vw, 3rem); }
+  .welcome-logo { max-width: clamp(180px, 60vw, 280px); }
+  .bars-stage { gap: 3vh; padding-left: 5vw; }
+  .big-bar { height: 13vh; min-height: 60px; padding: 0 18px; }
+  .bb-1 { width: 92vw; }
+  .bb-2 { width: 72vw; }
+  .bb-3 { width: 52vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-intro-v2 { display: none; }
+}
+</style>

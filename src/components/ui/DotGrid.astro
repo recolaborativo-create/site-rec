@@ -1,0 +1,267 @@
+---
+// DotGrid — port vanilla do react-bits/DotGrid para Astro.
+// Física de spring/inércia implementada sem GSAP.
+interface Props {
+  dotSize?: number
+  gap?: number
+  baseColor?: string
+  activeColor?: string
+  proximity?: number
+  speedTrigger?: number
+  shockRadius?: number
+  shockStrength?: number
+  maxSpeed?: number
+  resistance?: number
+  returnDuration?: number
+  className?: string
+}
+const {
+  dotSize = 5,
+  gap = 15,
+  baseColor = '#2F293A',
+  activeColor = '#5227FF',
+  proximity = 120,
+  speedTrigger = 100,
+  shockRadius = 250,
+  shockStrength = 5,
+  maxSpeed = 5000,
+  resistance = 750,
+  returnDuration = 1.5,
+  className = '',
+} = Astro.props
+---
+<div
+  class:list={['dot-grid-root', className]}
+  data-dot-size={dotSize}
+  data-gap={gap}
+  data-base-color={baseColor}
+  data-active-color={activeColor}
+  data-proximity={proximity}
+  data-speed-trigger={speedTrigger}
+  data-shock-radius={shockRadius}
+  data-shock-strength={shockStrength}
+  data-max-speed={maxSpeed}
+  data-resistance={resistance}
+  data-return-duration={returnDuration}
+>
+  <canvas class="dot-grid__canvas"></canvas>
+</div>
+
+<style>
+.dot-grid-root { width: 100%; height: 100%; position: relative; }
+.dot-grid__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+
+<script>
+interface Dot {
+  cx: number; cy: number
+  xOffset: number; yOffset: number
+  vx: number; vy: number
+}
+interface Rgb { r: number; g: number; b: number }
+
+function hexToRgb(hex: string): Rgb {
+  const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
+  if (!m) return { r: 0, g: 0, b: 0 }
+  return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) }
+}
+
+function throttle<T extends (...args: any[]) => void>(fn: T, limit: number): T {
+  let last = 0
+  return ((...args: unknown[]) => {
+    const now = performance.now()
+    if (now - last >= limit) { last = now; fn(...args) }
+  }) as T
+}
+
+function initDotGrid(root: HTMLElement) {
+  const canvas = root.querySelector<HTMLCanvasElement>('.dot-grid__canvas')!
+  const ctx = canvas.getContext('2d')!
+
+  const dotSize      = parseFloat(root.dataset.dotSize      || '5')
+  const gap          = parseFloat(root.dataset.gap           || '15')
+  const baseColor    = root.dataset.baseColor               || '#2F293A'
+  const activeColor  = root.dataset.activeColor             || '#5227FF'
+  const proximity    = parseFloat(root.dataset.proximity     || '120')
+  const speedTrigger = parseFloat(root.dataset.speedTrigger  || '100')
+  const shockRadius  = parseFloat(root.dataset.shockRadius   || '250')
+  const shockStrength= parseFloat(root.dataset.shockStrength || '5')
+  const maxSpeed     = parseFloat(root.dataset.maxSpeed      || '5000')
+  const resistance   = parseFloat(root.dataset.resistance    || '750')
+  const returnDur    = parseFloat(root.dataset.returnDuration|| '1.5')
+
+  const baseRgb   = hexToRgb(baseColor)
+  const activeRgb = hexToRgb(activeColor)
+
+  // Spring constants derived from returnDuration (seconds)
+  // ω₀ = angular frequency, ζ = damping ratio (< 1 = underdamped = elastic bounce)
+  const omega    = (2 * Math.PI) / (returnDur * 0.9)
+  const springK  = omega * omega          // spring stiffness (px/s²  per px)
+  const dampingB = 2 * 0.42 * omega       // damping coefficient (ζ=0.42 → elastic)
+
+  // Pointer state
+  const ptr = { x: -9999, y: -9999, vx: 0, vy: 0, speed: 0, lastTime: 0, lastX: 0, lastY: 0 }
+
+  let dots: Dot[] = []
+  let dpr = 1
+
+  // ── Build grid ──────────────────────────────────────────────────────────────
+  function buildGrid() {
+    const { width, height } = root.getBoundingClientRect()
+    dpr = window.devicePixelRatio || 1
+    canvas.width  = width  * dpr
+    canvas.height = height * dpr
+    canvas.style.width  = `${width}px`
+    canvas.style.height = `${height}px`
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    const cell = dotSize + gap
+    const cols = Math.floor((width  + gap) / cell)
+    const rows = Math.floor((height + gap) / cell)
+    const gridW = cell * cols - gap
+    const gridH = cell * rows - gap
+    const startX = (width  - gridW) / 2 + dotSize / 2
+    const startY = (height - gridH) / 2 + dotSize / 2
+
+    dots = []
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        dots.push({
+          cx: startX + c * cell,
+          cy: startY + r * cell,
+          xOffset: 0, yOffset: 0,
+          vx: 0, vy: 0,
+        })
+      }
+    }
+  }
+
+  // ── Render loop ─────────────────────────────────────────────────────────────
+  const circlePath = new Path2D()
+  circlePath.arc(0, 0, dotSize / 2, 0, Math.PI * 2)
+
+  const proxSq = proximity * proximity
+  let lastTime = 0
+  let rafId = 0
+
+  function draw(now: number) {
+    rafId = requestAnimationFrame(draw)
+    const dt = Math.min((now - lastTime) / 1000, 0.05)  // seconds, capped at 50ms
+    lastTime = now
+
+    const { width, height } = canvas.getBoundingClientRect()
+    ctx.clearRect(0, 0, width, height)
+
+    for (const dot of dots) {
+      // ── Physics: spring-damper pulls dot back to rest ──
+      if (Math.abs(dot.xOffset) > 0.01 || Math.abs(dot.yOffset) > 0.01 ||
+          Math.abs(dot.vx) > 0.01 || Math.abs(dot.vy) > 0.01) {
+        const ax = -springK * dot.xOffset - dampingB * dot.vx
+        const ay = -springK * dot.yOffset - dampingB * dot.vy
+        dot.vx += ax * dt
+        dot.vy += ay * dt
+        dot.xOffset += dot.vx * dt
+        dot.yOffset += dot.vy * dt
+      }
+
+      // ── Color by proximity ─────────────────────────────────────────────────
+      const dx = dot.cx - ptr.x
+      const dy = dot.cy - ptr.y
+      const dsq = dx * dx + dy * dy
+      let fillStyle = baseColor
+      if (dsq <= proxSq) {
+        const t = 1 - Math.sqrt(dsq) / proximity
+        const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t)
+        const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t)
+        const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t)
+        fillStyle = `rgb(${r},${g},${b})`
+      }
+
+      // ── Draw ───────────────────────────────────────────────────────────────
+      ctx.save()
+      ctx.translate(dot.cx + dot.xOffset, dot.cy + dot.yOffset)
+      ctx.fillStyle = fillStyle
+      ctx.fill(circlePath)
+      ctx.restore()
+    }
+  }
+
+  // ── Push helper ──────────────────────────────────────────────────────────────
+  function pushDot(dot: Dot, px: number, py: number, speed: number) {
+    const angle   = Math.atan2(dot.cy - py, dot.cx - px)
+    const dist    = Math.hypot(dot.cx - px, dot.cy - py)
+    const falloff = Math.max(0, 1 - dist / proximity)
+    // Magnitude proporcional à velocidade do mouse, inversamente à resistência
+    const mag = (speed / speedTrigger) * (750 / resistance) * 55 * falloff
+    dot.vx = Math.cos(angle) * mag
+    dot.vy = Math.sin(angle) * mag
+  }
+
+  // ── Mousemove ────────────────────────────────────────────────────────────────
+  const onMove = throttle((e: MouseEvent) => {
+    const now = performance.now()
+    const dt  = ptr.lastTime ? now - ptr.lastTime : 16
+    const dx  = e.clientX - ptr.lastX
+    const dy  = e.clientY - ptr.lastY
+    let vx = (dx / dt) * 1000
+    let vy = (dy / dt) * 1000
+    let speed = Math.hypot(vx, vy)
+    if (speed > maxSpeed) { const s = maxSpeed / speed; vx *= s; vy *= s; speed = maxSpeed }
+
+    ptr.lastTime = now; ptr.lastX = e.clientX; ptr.lastY = e.clientY
+    ptr.vx = vx; ptr.vy = vy; ptr.speed = speed
+
+    const rect = canvas.getBoundingClientRect()
+    ptr.x = e.clientX - rect.left
+    ptr.y = e.clientY - rect.top
+
+    if (speed > speedTrigger) {
+      for (const dot of dots) {
+        const dist = Math.hypot(dot.cx - ptr.x, dot.cy - ptr.y)
+        if (dist < proximity) pushDot(dot, ptr.x, ptr.y, speed)
+      }
+    }
+  }, 30)
+
+  // ── Click shock ─────────────────────────────────────────────────────────────
+  function onClick(e: MouseEvent) {
+    const rect = canvas.getBoundingClientRect()
+    const cx = e.clientX - rect.left
+    const cy = e.clientY - rect.top
+    for (const dot of dots) {
+      const dist = Math.hypot(dot.cx - cx, dot.cy - cy)
+      if (dist < shockRadius) {
+        const falloff = Math.max(0, 1 - dist / shockRadius)
+        const angle   = Math.atan2(dot.cy - cy, dot.cx - cx)
+        const mag     = shockStrength * falloff * 180
+        dot.vx = Math.cos(angle) * mag
+        dot.vy = Math.sin(angle) * mag
+      }
+    }
+  }
+
+  // ── Mouse leave: reset pointer position ─────────────────────────────────────
+  function onLeave() { ptr.x = -9999; ptr.y = -9999 }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  buildGrid()
+  rafId = requestAnimationFrame(draw)
+
+  const ro = new ResizeObserver(buildGrid)
+  ro.observe(root)
+
+  window.addEventListener('mousemove', onMove as EventListener, { passive: true })
+  window.addEventListener('click',     onClick)
+  root.addEventListener('mouseleave',  onLeave)
+
+  // Cleanup quando Astro desmonta (View Transitions)
+  document.addEventListener('astro:before-swap', () => {
+    cancelAnimationFrame(rafId)
+    ro.disconnect()
+    window.removeEventListener('mousemove', onMove as EventListener)
+    window.removeEventListener('click', onClick)
+  }, { once: true })
+}
+
+document.querySelectorAll<HTMLElement>('.dot-grid-root').forEach(initDotGrid)
+</script>

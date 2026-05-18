@@ -1,0 +1,9 @@
+# Partners managed via Decap CMS
+#
+# Each *.json file in this folder represents a partner added via the CMS at /admin.
+# The CMS auto-creates these — don't edit by hand unless you know what you're doing.
+#
+# Schema (validated by src/content.config.ts):
+#   { id, name, instagram?, sector, logo, description?, reach? }
+#
+# These merge with the static partners list at src/data/partners.ts via loadAllPartners().

@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import IllustrativeImg from '../../components/ui/IllustrativeImg.astro'
-import PillarChip from '../../components/blog/PillarChip.astro'
+import ReadingProgress from '../../components/blog/ReadingProgress.astro'
+import ArticleSidebar from '../../components/blog/ArticleSidebar.astro'
+import ShareBar from '../../components/blog/ShareBar.astro'
+import { getCategoryInfo, pillarToCategory, readingTime } from '../../utils/blog-category'
 import { getCollection, render, type CollectionEntry } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -11,53 +13,498 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props as { post: CollectionEntry<'blog'> }
 const { Content } = await render(post)
-const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+
+const cat = getCategoryInfo(post.data.pillar)
+const catSlug = pillarToCategory(post.data.pillar)
+const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', {
+  day: '2-digit', month: 'long', year: 'numeric',
+})
+const minutes = readingTime(post.body || '')
+
+// Variante do hero: Eventos com imagem, demais texto-puro
+const hasImageHero = catSlug === 'eventos' && !!post.data.cover
+
+// Artigos relacionados (mesma categoria visual, exceto o atual)
+const allPosts = await getCollection('blog')
+const related = allPosts
+  .filter(p => p.id !== post.id && pillarToCategory(p.data.pillar) === catSlug)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .slice(0, 3)
+
+// URL canônica para compartilhamento
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://somosrecoficial.com.br'
+const fullUrl = `${siteUrl}/blog/${post.id}`
 ---
+
 <BaseLayout
   title={post.data.title}
   description={post.data.excerpt}
   path={`/blog/${post.id}`}
   currentSection="Blog"
 >
-  <article class="blog-post">
-    <header class="post-header">
-      <div class="post-meta">
-        <PillarChip pillar={post.data.pillar} />
-        <time datetime={post.data.publishedAt.toISOString()}>{dateStr}</time>
-      </div>
-      <h1>{post.data.title}</h1>
-      <p class="post-excerpt">{post.data.excerpt}</p>
-    </header>
-    {post.data.cover && (
-      <div class="post-cover">
-        <IllustrativeImg src={post.data.cover} alt={post.data.coverAlt ?? ''} ratio="16/9" mood="warm" />
+
+  <ReadingProgress />
+
+  <!-- ============================================
+       HERO DO ARTIGO — variante por categoria
+       ============================================ -->
+  <header
+    class:list={['article-hero', hasImageHero ? 'article-hero--image' : 'article-hero--text']}
+    style={`--cat-color: ${cat.color};`}
+  >
+    {hasImageHero && post.data.cover && (
+      <div class="article-hero-media" aria-hidden="true">
+        <img src={post.data.cover} alt={post.data.coverAlt ?? ''} />
+        <div class="article-hero-overlay"></div>
       </div>
     )}
-    <div class="post-content">
-      <Content />
+
+    <div class="article-hero-inner">
+      <a href="/blog" class="article-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        voltar para o blog
+      </a>
+
+      <div class="article-hero-meta">
+        <span class="article-hero-cat">
+          <span class="article-hero-cat-dot" aria-hidden="true"></span>
+          {cat.label}
+        </span>
+        <time class="article-hero-date" datetime={post.data.publishedAt.toISOString()}>
+          {dateStr}
+        </time>
+        <span class="article-hero-sep" aria-hidden="true">·</span>
+        <span class="article-hero-read">{minutes} min de leitura</span>
+      </div>
+
+      <h1 class="article-hero-title">{post.data.title}</h1>
+      <p class="article-hero-excerpt">{post.data.excerpt}</p>
+
+      {post.data.author && (
+        <span class="article-hero-author">
+          por <strong>{post.data.author}</strong>
+        </span>
+      )}
     </div>
-    <footer class="post-footer">
-      <a href="/blog" class="back-link">← voltar para o blog</a>
-    </footer>
-  </article>
+  </header>
+
+  <!-- ============================================
+       LAYOUT ARTIGO + SIDEBAR
+       ============================================ -->
+  <div class="article-layout">
+
+    <article class="article-body">
+      <Content />
+    </article>
+
+    <ArticleSidebar related={related} />
+
+  </div>
+
+  <!-- ============================================
+       SHARE BAR + FOOTER
+       ============================================ -->
+  <ShareBar url={fullUrl} title={post.data.title} />
+
+  <footer class="article-footer">
+    <span class="article-footer-eyebrow">obrigado pela leitura</span>
+    <h2 class="article-footer-title">
+      Quer continuar a conversa <em>com a gente</em>?
+    </h2>
+    <p class="article-footer-lead">
+      O conteúdo aqui é uma amostra — a comunidade REC é onde as conexões viram negócio.
+    </p>
+    <div class="article-footer-actions">
+      <a href="/blog" class="article-footer-btn article-footer-btn--ghost">
+        ver mais artigos
+      </a>
+      <a href="/agenda#proximos" class="article-footer-btn">
+        próximos eventos →
+      </a>
+    </div>
+  </footer>
+
 </BaseLayout>
 
+<script>
+  // ── Smooth scroll para links de âncora dentro do artigo ───
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    const link = target.closest<HTMLAnchorElement>('a[href^="#"]')
+    if (!link) return
+    const id = link.getAttribute('href')?.slice(1)
+    if (!id) return
+    const el = document.getElementById(id)
+    if (el) {
+      e.preventDefault()
+      const top = el.getBoundingClientRect().top + window.scrollY - 90
+      window.scrollTo({ top, behavior: 'smooth' })
+      history.replaceState(null, '', `#${id}`)
+    }
+  })
+</script>
+
 <style>
-.blog-post { max-width: var(--container-reading); margin: 0 auto; padding: var(--space-12) var(--space-6) var(--space-16); }
-.post-header { margin-bottom: var(--space-8); }
-.post-meta { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
-.post-meta time { color: #667; font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: lowercase; }
-.post-header h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; font-weight: 800; letter-spacing: var(--letter-tight); margin-bottom: var(--space-4); }
-.post-excerpt { font-size: 1.1rem; color: #556; line-height: 1.6; max-width: 560px; }
-.post-cover { margin: var(--space-8) 0 var(--space-12); }
-.post-content { font-size: 1.05rem; line-height: 1.8; color: #333; }
-.post-content :global(p) { margin-bottom: var(--space-6); }
-.post-content :global(h2) { font-size: 1.4rem; margin: var(--space-12) 0 var(--space-4); color: var(--rec-dark); font-weight: 800; letter-spacing: var(--letter-tight); }
-.post-content :global(h3) { font-size: 1.2rem; margin: var(--space-8) 0 var(--space-3); color: var(--rec-dark); }
-.post-content :global(blockquote) { border-left: 3px solid var(--rec-teal); padding-left: var(--space-6); color: var(--rec-teal); font-style: italic; margin: var(--space-8) 0; }
-.post-content :global(ul), .post-content :global(ol) { padding-left: var(--space-6); margin-bottom: var(--space-6); }
-.post-content :global(li) { margin-bottom: var(--space-2); }
-.post-footer { margin-top: var(--space-16); padding-top: var(--space-6); border-top: 1px solid rgba(37,52,57,0.08); }
-.back-link { color: var(--rec-purple); font-size: var(--type-small); font-weight: 700; letter-spacing: 0.05em; }
-.back-link:hover { color: var(--rec-teal); }
+:global(main) { overflow: visible !important; }
+
+/* ============================================
+   HERO — TEXTO PURO (educacional/histórias)
+   ============================================ */
+.article-hero {
+  --cat-color: var(--rec-teal);
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-20) var(--space-6) var(--space-12);
+  background: var(--rec-navy);
+  color: #fff;
+}
+.article-hero--text {
+  padding-top: calc(var(--space-20) + var(--space-6));
+}
+
+.article-hero-inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+.article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  margin-bottom: var(--space-8);
+  transition: color 220ms var(--easing), gap 220ms var(--easing);
+}
+.article-back svg { width: 14px; height: 14px; transition: transform 220ms var(--easing); }
+.article-back:hover { color: var(--rec-teal); gap: 12px; }
+.article-back:hover svg { transform: translateX(-3px); }
+
+.article-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+.article-hero-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.96);
+  color: var(--cat-color);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.article-hero-cat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cat-color); }
+.article-hero-date,
+.article-hero-read {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.6);
+}
+.article-hero-sep { color: rgba(255,255,255,0.4); }
+
+.article-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 4.4rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: #fff;
+  margin: 0 0 var(--space-5);
+}
+
+.article-hero-excerpt {
+  font-size: 1.18rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.78);
+  max-width: 620px;
+  margin: 0 0 var(--space-6);
+}
+
+.article-hero-author {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.55);
+}
+.article-hero-author strong { color: var(--rec-teal); font-weight: 600; letter-spacing: 0.06em; }
+
+/* ============================================
+   HERO — VARIANTE COM IMAGEM (eventos)
+   ============================================ */
+.article-hero--image {
+  background: var(--rec-navy);
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-24) var(--space-6) var(--space-12);
+}
+.article-hero-media {
+  position: absolute; inset: 0;
+  z-index: 0;
+}
+.article-hero-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.article-hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(1,14,42,0) 0%, rgba(1,14,42,0.5) 50%, rgba(1,14,42,0.92) 100%),
+    linear-gradient(135deg, rgba(1,38,89,0.4) 0%, transparent 60%);
+}
+
+/* ============================================
+   LAYOUT (corpo + sidebar)
+   ============================================ */
+.article-layout {
+  display: flex;
+  gap: var(--space-12);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-14) var(--space-6) var(--space-12);
+}
+
+.article-body {
+  flex: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: rgba(1,38,89,0.85);
+}
+
+@media (min-width: 1100px) {
+  .article-layout {
+    align-items: flex-start;
+  }
+  .article-body { margin: 0; }
+}
+
+/* ============================================
+   TIPOGRAFIA DO CORPO DO ARTIGO
+   ============================================ */
+.article-body :global(p) {
+  margin: 0 0 var(--space-5);
+}
+.article-body :global(p:first-of-type) {
+  font-size: 1.18rem;
+  line-height: 1.65;
+  color: var(--rec-blue);
+  font-weight: 400;
+}
+
+.article-body :global(h2) {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--rec-blue);
+  margin: var(--space-12) 0 var(--space-5);
+  scroll-margin-top: 100px;
+}
+.article-body :global(h3) {
+  font-family: var(--font-ui);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--rec-blue);
+  margin: var(--space-8) 0 var(--space-3);
+  scroll-margin-top: 100px;
+}
+
+.article-body :global(a) {
+  color: var(--rec-teal);
+  text-decoration: none;
+  background-image: linear-gradient(180deg, transparent 65%, rgba(0,161,152,0.25) 65%);
+  transition: background-color 220ms var(--easing);
+  padding: 0 2px;
+}
+.article-body :global(a:hover) {
+  background-color: rgba(0,161,152,0.18);
+}
+
+.article-body :global(strong) { color: var(--rec-blue); font-weight: 600; }
+.article-body :global(em) { font-style: italic; }
+
+.article-body :global(blockquote) {
+  margin: var(--space-10) 0;
+  padding: var(--space-5) 0 var(--space-5) var(--space-6);
+  border-left: 3px solid var(--rec-teal);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.42rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--rec-teal);
+  letter-spacing: -0.005em;
+}
+.article-body :global(blockquote p) { margin: 0; }
+.article-body :global(blockquote p + p) { margin-top: var(--space-3); }
+
+.article-body :global(ul),
+.article-body :global(ol) {
+  padding-left: var(--space-6);
+  margin: 0 0 var(--space-6);
+}
+.article-body :global(li) {
+  margin-bottom: var(--space-3);
+  line-height: 1.7;
+}
+.article-body :global(li::marker) { color: var(--rec-teal); }
+
+.article-body :global(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 14px;
+  margin: var(--space-8) 0;
+  box-shadow: 0 12px 40px rgba(1,38,89,0.08);
+}
+
+.article-body :global(hr) {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(1,38,89,0.15) 50%, transparent 100%);
+  margin: var(--space-12) 0;
+}
+
+.article-body :global(code) {
+  background: rgba(0,161,152,0.08);
+  color: var(--rec-blue);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.88em;
+}
+.article-body :global(pre) {
+  background: var(--rec-navy);
+  color: #e6edf3;
+  padding: var(--space-5);
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: var(--space-8) 0;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.article-body :global(pre code) { background: none; color: inherit; padding: 0; }
+
+/* ============================================
+   ARTICLE FOOTER
+   ============================================ */
+.article-footer {
+  position: relative;
+  text-align: center;
+  padding: var(--space-20) var(--space-6) var(--space-24);
+  max-width: 760px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(1,38,89,0.08);
+}
+
+.article-footer-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
+
+.article-footer-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--rec-blue);
+  margin: 0 0 var(--space-4);
+}
+.article-footer-title em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
+
+.article-footer-lead {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: rgba(1,38,89,0.65);
+  max-width: 520px;
+  margin: 0 auto var(--space-8);
+}
+
+.article-footer-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.article-footer-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  text-decoration: none;
+  background: var(--rec-teal);
+  color: #fff;
+  border: 2px solid var(--rec-teal);
+  transition:
+    background var(--motion-fast) var(--easing),
+    color var(--motion-fast) var(--easing),
+    transform var(--motion-fast) var(--easing);
+}
+.article-footer-btn:hover {
+  background: var(--rec-blue);
+  border-color: var(--rec-blue);
+  transform: translateY(-2px);
+}
+.article-footer-btn--ghost {
+  background: transparent;
+  color: var(--rec-blue);
+  border-color: rgba(1,38,89,0.2);
+}
+.article-footer-btn--ghost:hover {
+  background: var(--rec-blue);
+  color: #fff;
+  border-color: var(--rec-blue);
+}
+
+@media (max-width: 600px) {
+  .article-hero { padding: var(--space-16) var(--space-5) var(--space-10); }
+  .article-hero--image { min-height: 60vh; padding-top: var(--space-20); }
+  .article-layout { padding: var(--space-10) var(--space-5); }
+  .article-body { font-size: 1.02rem; }
+  .article-body :global(p:first-of-type) { font-size: 1.1rem; }
+  .article-body :global(blockquote) { font-size: 1.2rem; padding-left: var(--space-5); margin: var(--space-8) 0; }
+  .article-footer { padding: var(--space-16) var(--space-5) var(--space-24); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-footer-btn:hover { transform: none; }
+}
 </style>

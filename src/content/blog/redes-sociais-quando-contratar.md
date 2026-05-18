@@ -1,9 +1,9 @@
 ---
-title: Gestão de redes sociais - quando contratar e quando fazer dentro de casa
-excerpt: O sinal claro que te diz que chegou a hora de tirar o Instagram da tua mão. E o que considerar antes de contratar uma agência.
+title: Quando a comunicação da sua marca deixa de ser interna e passa a exigir estrutura
+excerpt: Nem sempre o melhor caminho é continuar centralizando a comunicação. Entenda os sinais de que sua marca precisa de uma operação mais estratégica.
 pillar: estrategia
 publishedAt: 2026-04-08
-cover: /illustrative/blog-redes.jpg
+cover: /illustrative/blog-redes.png
 coverAlt: Profissional planejando conteúdo de redes sociais
 ---
 

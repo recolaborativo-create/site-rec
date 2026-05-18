@@ -1,0 +1,83 @@
+---
+// REC logo — symbol (3 bars) + wordmark "REC"
+// Sizes: 'xs' (nav/footer), 's', 'm'. Variants: 'on-light' (default), 'on-dark'.
+interface Props {
+  size?: 'xs' | 's' | 'm'
+  variant?: 'on-light' | 'on-dark'
+  symbolOnly?: boolean
+  href?: string
+  ariaLabel?: string
+}
+const {
+  size = 'xs',
+  variant = 'on-light',
+  symbolOnly = false,
+  href,
+  ariaLabel = 'REC Colaborativo',
+} = Astro.props
+
+const Tag = href ? 'a' : 'span'
+---
+<Tag class:list={['rec-logo', `size-${size}`, variant]} href={href} aria-label={ariaLabel}>
+  <span class="rec-symbol" aria-hidden="true">
+    <span class="bar bar-1"></span>
+    <span class="bar bar-2"></span>
+    <span class="bar bar-3"></span>
+  </span>
+  {!symbolOnly && <span class="rec-wordmark">REC</span>}
+</Tag>
+
+<style>
+.rec-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--rec-blue);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.rec-symbol {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.bar {
+  display: block;
+  border-radius: 999px;
+  background: var(--rec-blue);
+  transition: width 0.6s var(--easing);
+}
+.bar-2 { background: var(--rec-teal); }
+
+/* On dark backgrounds, bars become white (teal stays as accent) */
+.on-dark { color: var(--rec-white); }
+.on-dark .bar { background: var(--rec-white); }
+.on-dark .bar-2 { background: var(--rec-teal); }
+
+/* ===== Sizes ===== */
+.size-xs .bar { height: 4px; margin-top: 2.2px; }
+.size-xs .bar-1 { width: 22px; }
+.size-xs .bar-2 { width: 16px; }
+.size-xs .bar-3 { width: 11px; }
+.size-xs .rec-symbol { gap: 2px; }
+.size-xs .rec-wordmark { font-size: 16px; }
+
+.size-s .bar { height: 6px; }
+.size-s .bar-1 { width: 32px; }
+.size-s .bar-2 { width: 24px; }
+.size-s .bar-3 { width: 16px; }
+.size-s .rec-symbol { gap: 4px; }
+.size-s .rec-wordmark { font-size: 22px; }
+
+.size-m .bar { height: 9px; }
+.size-m .bar-1 { width: 50px; }
+.size-m .bar-2 { width: 38px; }
+.size-m .bar-3 { width: 26px; }
+.size-m .rec-symbol { gap: 6px; }
+.size-m .rec-wordmark { font-size: 32px; }
+
+a.rec-logo:hover .bar-1 { width: calc(var(--bar-1-w, 22px) * 1.05); }
+</style>

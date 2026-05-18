@@ -1,75 +1,556 @@
 ---
-import { getCollection } from 'astro:content'
+import { getCollection, render } from 'astro:content'
 
 const events = await getCollection('events')
-const sorted = events.sort((a, b) => {
-  const oa = a.data.order ?? a.data.year
-  const ob = b.data.order ?? b.data.year
-  return oa - ob
-})
 
-// Inject a synthetic "now" node between past and future
-const lastPastIndex = sorted.findLastIndex(e => e.data.when === 'past')
-const withNow = [...sorted]
-const nowNode = {
-  id: '__now__',
-  data: { year: new Date().getFullYear(), label: 'você está aqui', when: 'now' as const },
-}
-if (!sorted.some(e => e.data.when === 'now')) {
-  withNow.splice(lastPastIndex + 1, 0, nowNode as any)
+type EventEntry = (typeof events)[number]
+const byYear = new Map<number, EventEntry[]>()
+for (const e of events) {
+  const arr = byYear.get(e.data.year) ?? []
+  arr.push(e)
+  byYear.set(e.data.year, arr)
 }
 
-const total = withNow.length
+const renderedYears = await Promise.all(
+  Array.from(byYear.entries()).map(async ([year, entries]) => {
+    const sorted = entries.slice().sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+    const items = await Promise.all(
+      sorted.map(async (e) => {
+        const { Content } = await render(e)
+        return { entry: e, Content }
+      }),
+    )
+    return [year, items] as const
+  }),
+)
+
+const FOUNDING_YEAR = 2018
+const currentYear = new Date().getFullYear()
+const lastYear = Math.max(currentYear + 1, ...byYear.keys())
+const years: number[] = []
+for (let y = FOUNDING_YEAR; y <= lastYear; y++) years.push(y)
+
+const yearMeta = new Map<number, { count: number; when: 'past' | 'now' | 'future' }>()
+for (const y of years) {
+  const entries = byYear.get(y) ?? []
+  let when: 'past' | 'now' | 'future' = 'past'
+  if (y > currentYear) when = 'future'
+  else if (y === currentYear) when = 'now'
+  yearMeta.set(y, { count: entries.length, when })
+}
+
+const total = years.length
+const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 ---
 <section class="timeline-section">
-  <div class="timeline-scroll" data-timeline-scroll>
-    <div class="timeline-track" style={`min-width: ${Math.max(800, total * 180)}px;`}>
-      {withNow.map((e, i) => {
-        const left = total > 1 ? (i / (total - 1)) * 100 : 50
-        const stat = (e.data as any).stat
-        return (
-          <div class={`tl-node tl-${e.data.when}`} style={`left: ${left}%`}>
-            {stat && (
-              <div class="tl-stat-above">
-                <strong>{stat.value}</strong>
-                <small>{stat.label}</small>
-              </div>
-            )}
-            <div class="tl-dot"></div>
-            <div class="tl-label">
-              <span class="tl-year">{e.data.year}</span>
-              <strong>{e.data.label}</strong>
-            </div>
+  <!-- Year strip (always visible) -->
+  <div class="timeline-years">
+    <div class="timeline-scroll" data-timeline-scroll>
+      <div class="timeline-track" style={`min-width: ${Math.max(800, total * 140)}px;`}>
+        {years.map((y, i) => {
+          const left = total > 1 ? (i / (total - 1)) * 100 : 50
+          const meta = yearMeta.get(y)!
+          const hasEvents = meta.count > 0
+          return (
+            <button
+              class={`tl-year-node tl-${meta.when} ${hasEvents ? 'has-events' : 'is-empty'}`}
+              type="button"
+              data-year={y}
+              style={`left: ${left}%`}
+              aria-label={`Ano ${y}, ${hasEvents ? `${meta.count} ${meta.count === 1 ? 'evento' : 'eventos'}` : 'sem eventos registrados'}`}
+            >
+              <span class="tl-dot"></span>
+              <span class="tl-year-label">
+                <span class="tl-year-num">{y}</span>
+                <span class="tl-year-meta">
+                  {hasEvents ? `${meta.count} ${meta.count === 1 ? 'evento' : 'eventos'}` : 'em breve'}
+                </span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+    <p class="hint">
+      <span class="hint-dot" aria-hidden="true"></span>
+      clica em qualquer ano pra ver os eventos
+    </p>
+  </div>
+
+  <!-- Drill-down panel (opens below the timeline) -->
+  <div class="year-panel" data-year-panel hidden>
+    <div class="year-panel-inner">
+      <header class="panel-header">
+        <div class="panel-header-text">
+          <span class="panel-eyebrow">eventos de</span>
+          <h2 class="panel-year" data-panel-year>0000</h2>
+        </div>
+        <button class="panel-close" type="button" data-panel-close aria-label="fechar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+
+      <!-- Month axis -->
+      <div class="month-axis">
+        {MONTHS.map((m, i) => (
+          <div class="month-cell" data-month={i}>
+            <span class="month-label">{m}</span>
+            <span class="month-dot" aria-hidden="true"></span>
           </div>
-        )
-      })}
+        ))}
+      </div>
+
+      <!-- Events container (filled at runtime) -->
+      <div class="month-events" data-month-events></div>
+
+      <!-- Empty state -->
+      <div class="panel-empty" data-panel-empty hidden>
+        <p>Esse ano ainda não tem eventos registrados.</p>
+        <a href="https://instagram.com/somosrecoficial" target="_blank" rel="noopener" class="empty-cta">acompanhar @somosrecoficial →</a>
+      </div>
     </div>
   </div>
-  <p class="hint">↔ arrasta pra navegar a jornada</p>
+
+  <!-- Hidden seed data for runtime rendering -->
+  <div class="year-data-source" hidden aria-hidden="true">
+    {renderedYears.map(([year, items]) => (
+      <div data-source-year={year}>
+        {items.map(({ entry, Content }) => (
+          <article class="seed-event" data-month={(entry.data as any).month ?? ''} data-label={entry.data.label} data-description={entry.data.description ?? ''}>
+            <div class="seed-content"><Content /></div>
+          </article>
+        ))}
+      </div>
+    ))}
+  </div>
 </section>
 
 <script>
   import { initTimelineScroll } from './timeline-scroll'
   initTimelineScroll()
+
+  const section = document.querySelector<HTMLElement>('.timeline-section')
+  if (section) {
+    const panel = section.querySelector<HTMLElement>('[data-year-panel]')!
+    const yearLabel = section.querySelector<HTMLElement>('[data-panel-year]')!
+    const monthEvents = section.querySelector<HTMLElement>('[data-month-events]')!
+    const emptyEl = section.querySelector<HTMLElement>('[data-panel-empty]')!
+    const monthCells = section.querySelectorAll<HTMLElement>('.month-cell')
+    const closeBtn = section.querySelector<HTMLButtonElement>('[data-panel-close]')!
+    let activeYear = 0
+
+    function clearMonthHighlights() {
+      monthCells.forEach(c => c.classList.remove('has-event', 'highlight'))
+    }
+
+    function openYear(year: number) {
+      if (activeYear === year && !panel.hidden) {
+        closePanel()
+        return
+      }
+      activeYear = year
+      yearLabel.textContent = String(year)
+      panel.hidden = false
+      // force reflow then animate
+      void panel.offsetHeight
+      panel.classList.add('is-open')
+
+      const source = section!.querySelector<HTMLElement>(`[data-source-year="${year}"]`)
+      monthEvents.innerHTML = ''
+      clearMonthHighlights()
+
+      if (!source || source.children.length === 0) {
+        emptyEl.hidden = false
+        monthEvents.hidden = true
+      } else {
+        emptyEl.hidden = true
+        monthEvents.hidden = false
+        const events = Array.from(source.querySelectorAll<HTMLElement>('.seed-event'))
+        events.forEach((evt, idx) => {
+          const monthIdx = parseInt(evt.dataset.month || '-1', 10)
+          const label = evt.dataset.label || ''
+          const description = evt.dataset.description || ''
+          const inner = evt.querySelector<HTMLElement>('.seed-content')?.innerHTML || ''
+
+          if (monthIdx >= 0 && monthIdx < 12) {
+            monthCells[monthIdx]?.classList.add('has-event')
+          }
+
+          const card = document.createElement('article')
+          card.className = 'event-card'
+          card.style.animationDelay = `${idx * 80}ms`
+          if (monthIdx >= 0 && monthIdx < 12) {
+            card.dataset.month = String(monthIdx)
+          }
+
+          card.innerHTML = `
+            <div class="event-card-marker"></div>
+            <div class="event-card-body">
+              ${monthIdx >= 0 ? `<span class="event-month-badge">${(['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'])[monthIdx]}</span>` : ''}
+              <h3 class="event-card-title">${label}</h3>
+              ${description ? `<p class="event-card-desc">${description}</p>` : ''}
+              ${inner ? `<div class="event-card-content">${inner}</div>` : ''}
+            </div>
+          `
+          monthEvents.appendChild(card)
+        })
+      }
+
+      // smooth scroll panel into view
+      requestAnimationFrame(() => {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+
+      // visual feedback on year nodes
+      section!.querySelectorAll<HTMLButtonElement>('.tl-year-node').forEach(b => {
+        b.classList.toggle('is-active', Number(b.dataset.year) === year)
+      })
+    }
+
+    function closePanel() {
+      panel.classList.remove('is-open')
+      setTimeout(() => { panel.hidden = true }, 360)
+      section!.querySelectorAll<HTMLButtonElement>('.tl-year-node').forEach(b => b.classList.remove('is-active'))
+      activeYear = 0
+    }
+
+    section.querySelectorAll<HTMLButtonElement>('.tl-year-node').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const y = Number(btn.dataset.year)
+        if (Number.isFinite(y)) openYear(y)
+      })
+    })
+
+    closeBtn.addEventListener('click', closePanel)
+
+    // Esc closes
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) closePanel()
+    })
+  }
 </script>
 
 <style>
-.timeline-section { padding: var(--space-16) 0 var(--space-8); }
+.timeline-section { padding: var(--space-12) 0 var(--space-8); position: relative; }
+
+/* ===== Year strip ===== */
+.timeline-years { padding-bottom: var(--space-8); }
 .timeline-scroll { overflow-x: auto; padding: var(--space-12) var(--space-6); cursor: grab; touch-action: pan-x; scrollbar-width: none; }
 .timeline-scroll::-webkit-scrollbar { display: none; }
-.timeline-track { position: relative; height: 220px; background: linear-gradient(to right, rgba(62,64,149,0.1) 0%, var(--rec-purple) 60%, rgba(0,161,152,0.2) 100%); height: 2px; margin: 80px auto 80px; }
-.tl-node { position: absolute; top: -8px; transform: translateX(-50%); }
-.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--rec-purple); transition: transform var(--motion-fast) var(--easing); }
+.timeline-track {
+  position: relative;
+  height: 2px;
+  background: linear-gradient(to right, rgba(62,64,149,0.12) 0%, var(--rec-purple) 60%, rgba(0,161,152,0.2) 100%);
+  margin: 80px auto 80px;
+}
+.tl-year-node {
+  position: absolute;
+  top: -8px;
+  transform: translateX(-50%);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  text-align: center;
+  transition: transform var(--motion-fast) var(--easing);
+  border: none;
+}
+.tl-year-node:hover { transform: translateX(-50%) translateY(-3px); }
+.tl-year-node:hover .tl-dot { box-shadow: 0 0 0 8px rgba(62,64,149,0.14); }
+.tl-year-node.is-active .tl-dot {
+  background: var(--rec-purple);
+  border-color: var(--rec-purple);
+  box-shadow: 0 0 0 10px rgba(108,90,178,0.18);
+}
+.tl-dot {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--rec-purple);
+  margin: 0 auto;
+  transition: all var(--motion-fast) var(--easing);
+}
 .tl-past .tl-dot { background: #fff; border-color: var(--rec-purple); }
-.tl-now .tl-dot { background: var(--rec-teal); border-color: var(--rec-teal); width: 22px; height: 22px; box-shadow: 0 0 0 6px rgba(0,161,152,0.18); animation: pulse-now 2s ease-in-out infinite; }
+.tl-now .tl-dot {
+  background: var(--rec-teal);
+  border-color: var(--rec-teal);
+  width: 22px;
+  height: 22px;
+  box-shadow: 0 0 0 6px rgba(0,161,152,0.18);
+  animation: pulse-now 2s ease-in-out infinite;
+}
 .tl-future .tl-dot { background: #fff; border-style: dashed; border-color: #888; }
-@keyframes pulse-now { 0%, 100% { box-shadow: 0 0 0 6px rgba(0,161,152,0.18); } 50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.08); } }
-.tl-label { position: absolute; top: 32px; left: 50%; transform: translateX(-50%); white-space: nowrap; text-align: center; font-size: var(--type-micro); }
-.tl-year { display: block; color: #667; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
-.tl-label strong { display: block; color: var(--rec-dark); font-size: var(--type-small); font-weight: 700; letter-spacing: -0.01em; }
-.tl-now .tl-label strong { color: var(--rec-teal); }
-.tl-stat-above { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
-.tl-stat-above strong { display: block; color: var(--rec-purple); font-size: 1.6rem; font-weight: 800; line-height: 1; letter-spacing: var(--letter-tight); }
-.tl-stat-above small { font-size: var(--type-micro); color: #667; letter-spacing: 0.1em; text-transform: uppercase; }
-.hint { text-align: center; font-size: var(--type-micro); letter-spacing: 0.1em; text-transform: uppercase; color: #999; }
+.tl-year-node.is-empty .tl-dot { opacity: 0.45; }
+@keyframes pulse-now {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(0,161,152,0.18); }
+  50% { box-shadow: 0 0 0 12px rgba(0,161,152,0.08); }
+}
+.tl-year-label {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: var(--type-micro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.tl-year-num {
+  display: block;
+  font-size: var(--type-small);
+  font-weight: 800;
+  color: var(--rec-dark);
+  letter-spacing: -0.01em;
+}
+.tl-now .tl-year-num { color: var(--rec-teal); }
+.tl-year-node.is-active .tl-year-num { color: var(--rec-purple); }
+.tl-year-meta {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #889;
+  font-weight: 500;
+}
+.tl-year-node.has-events .tl-year-meta { color: var(--rec-purple); font-weight: 700; }
+.hint {
+  text-align: center;
+  font-size: var(--type-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rec-purple);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+.hint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rec-teal);
+  box-shadow: 0 0 0 4px rgba(0,161,152,0.16);
+  animation: pulse-now 2s ease-in-out infinite;
+}
+
+/* ===== Year panel (drill-down) ===== */
+.year-panel {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 360ms var(--easing), transform 360ms var(--easing);
+}
+.year-panel.is-open { opacity: 1; transform: translateY(0); }
+.year-panel-inner {
+  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.03) 100%);
+  border: 1px solid rgba(108,90,178,0.18);
+  border-radius: 20px;
+  padding: var(--space-8) var(--space-6) var(--space-10);
+  box-shadow: 0 24px 60px rgba(37,52,57,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.year-panel-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--rec-purple) 0%, var(--rec-teal) 100%);
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid rgba(37,52,57,0.06);
+}
+.panel-header-text { display: flex; flex-direction: column; gap: 4px; }
+.panel-eyebrow {
+  font-size: var(--type-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  font-weight: 700;
+}
+.panel-year {
+  font-size: clamp(2.6rem, 6vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--rec-purple) 0%, var(--rec-teal) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.panel-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(37,52,57,0.05);
+  border: none;
+  color: var(--rec-dark);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--motion-fast) var(--easing);
+  flex-shrink: 0;
+}
+.panel-close:hover { background: var(--rec-purple); color: #fff; transform: rotate(90deg); }
+
+/* Month axis */
+.month-axis {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0;
+  margin-bottom: var(--space-8);
+  padding: var(--space-4) 0;
+  position: relative;
+}
+.month-axis::before {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: calc(var(--space-4) + 22px);
+  height: 2px;
+  background: linear-gradient(to right, transparent 0%, rgba(37,52,57,0.12) 8%, rgba(37,52,57,0.12) 92%, transparent 100%);
+}
+.month-cell {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+.month-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aab;
+  transition: color var(--motion-fast) var(--easing);
+}
+.month-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(37,52,57,0.12);
+  transition: all var(--motion-fast) var(--easing);
+}
+.month-cell.has-event .month-label { color: var(--rec-purple); }
+.month-cell.has-event .month-dot {
+  background: var(--rec-teal);
+  box-shadow: 0 0 0 4px rgba(0,161,152,0.18);
+  width: 10px;
+  height: 10px;
+}
+
+/* Event cards */
+.month-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.event-card {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(37,52,57,0.06);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: card-slide-in 460ms var(--easing) forwards;
+  transition: border-color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+}
+.event-card:hover {
+  border-color: rgba(0,161,152,0.3);
+  box-shadow: 0 12px 32px rgba(0,161,152,0.12);
+  transform: translateY(-2px);
+}
+@keyframes card-slide-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+.event-card-marker {
+  width: 6px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--rec-purple) 0%, var(--rec-teal) 100%);
+  flex-shrink: 0;
+}
+.event-card-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.event-month-badge {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  background: rgba(0,161,152,0.1);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.event-card-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--rec-dark);
+  letter-spacing: var(--letter-tight);
+  line-height: 1.2;
+  margin: 0;
+}
+.event-card-desc {
+  font-size: var(--type-small);
+  color: #556;
+  line-height: 1.55;
+  margin: 0;
+}
+.event-card-content {
+  font-size: var(--type-small);
+  color: #556;
+  line-height: 1.6;
+}
+.event-card-content :global(p) { margin: var(--space-2) 0 0; }
+
+/* Empty state */
+.panel-empty {
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+.panel-empty p {
+  font-size: var(--type-body);
+  color: #667;
+  margin-bottom: var(--space-4);
+}
+.empty-cta {
+  display: inline-block;
+  color: var(--rec-teal);
+  font-weight: 700;
+  font-size: var(--type-small);
+  letter-spacing: 0.05em;
+}
+.empty-cta:hover { color: var(--rec-purple); }
+
+/* Hidden source data */
+.year-data-source { display: none !important; }
+
+@media (max-width: 720px) {
+  .month-axis { grid-template-columns: repeat(6, 1fr); row-gap: var(--space-3); }
+  .month-axis::before { display: none; }
+  .panel-header { flex-wrap: wrap; gap: var(--space-3); }
+  .year-panel-inner { padding: var(--space-6) var(--space-4) var(--space-8); }
+}
 </style>

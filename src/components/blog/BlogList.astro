@@ -6,7 +6,7 @@ import type { CollectionEntry } from 'astro:content'
 interface Props { posts: CollectionEntry<'blog'>[] }
 const { posts } = Astro.props
 
-const pillars = ['all', 'negocios', 'estrategia', 'comunidade', 'eventos', 'mentalidade'] as const
+const pillars = ['all', 'negocios', 'estrategia', 'comunidade', 'eventos', 'mentalidade', 'empreendedorismo'] as const
 ---
 <div class="blog-list" data-blog-list>
   <div class="filter-bar">
@@ -25,7 +25,7 @@ const pillars = ['all', 'negocios', 'estrategia', 'comunidade', 'eventos', 'ment
       />
     ))}
   </div>
-  <p class="empty-state" hidden>Nenhum post nesse pilar ainda - em breve.</p>
+  <p class="empty-state" hidden>Nenhum post nesse pilar ainda. Em breve.</p>
 </div>
 
 <script>

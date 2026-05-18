@@ -10,10 +10,12 @@ export const messages = {
   hubClassic: 'Olá! Tenho interesse no plano Classic do HUB Digital.',
   hubPro: 'Olá! Tenho interesse no plano Pro do HUB Digital.',
   hubPremium: 'Olá! Tenho interesse no plano Premium do HUB Digital.',
-  comunidadePro: 'Olá! Quero saber mais sobre o Plano Pró da comunidade REC.',
-  comunidadeSelect: 'Olá! Quero saber mais sobre o Plano Select da comunidade REC.',
+  comunidadeSelect: 'Olá! Quero saber mais sobre a comunidade do REC.',
+  comunidadePro: 'Olá! Quero saber mais sobre o Plano Pro da comunidade do REC.',
+  comunidadeProSemestral: 'Olá! Tenho interesse no Plano Pro da comunidade do REC com adesão semestral.',
+  comunidadeProAnual: 'Olá! Tenho interesse no Plano Pro da comunidade do REC com adesão anual.',
   helpChoose: 'Olá! Quero entender qual plano combina com o meu negócio.',
-  generic: 'Olá! Vim pelo site da REC.',
+  generic: 'Olá! Vim pelo site do REC.',
 } as const
 
 export type WhatsAppMessageKey = keyof typeof messages

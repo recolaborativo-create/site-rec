@@ -1,69 +1,409 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import HubChapter from '../components/hub/HubChapter.astro'
+import DotGrid from '../components/ui/DotGrid.astro'
+import SolutionIcon from '../components/hub/SolutionIcon.astro'
+import { whatsappLink, messages } from '../utils/whatsapp'
 
-const chapters = [
+const solutions = [
   {
-    number: '01',
-    headline: 'Redes sociais que trabalham por ti',
-    body: 'Gestão completa - planejamento mensal - até 3 posts por semana - stories diários e reels editados. Tu aparece consistente porque tem time cuidando.',
-    image: '/illustrative/hub-social.jpg',
-    imageAlt: 'Mesa de trabalho com calendário de conteúdo',
-    mood: 'warm' as const,
+    code: '/01',
+    title: 'Presença digital',
+    desc: 'Estruturação da empresa nos canais digitais. Da fundação até a operação contínua de marca.',
+    span: 'wide',
+    tone: 'teal',
+    icon: 'globe',
+    tags: ['site', 'redes sociais', 'biolink', 'e-mail marketing'],
   },
   {
-    number: '02',
-    headline: 'Tráfego pago com retorno medido',
-    body: 'Meta ADS e Google ADS construídos em cima do posicionamento da marca. Relatórios mensais simples - sem jargão - mostrando o que funcionou.',
-    image: '/illustrative/hub-traffic.jpg',
-    imageAlt: 'Tela de dashboard de campanha digital',
-    mood: 'cool' as const,
+    code: '/02',
+    title: 'Posicionamento de marca',
+    desc: 'Identidade, narrativa, propósito. Marca que comunica antes de vender.',
+    span: 'tall',
+    tone: 'blue',
+    icon: 'target',
+    tags: ['identidade visual', 'narrativa', 'voz', 'naming', 'manifesto'],
   },
   {
-    number: '03',
-    headline: 'Suporte comercial integrado',
-    body: 'Estratégias de follow-up - atendimento inicial de leads - relacionamento que transforma contato em cliente recorrente.',
-    image: '/illustrative/hub-sales.jpg',
-    imageAlt: 'Reunião comercial em ambiente corporativo',
-    mood: 'neutral' as const,
+    code: '/03',
+    title: 'Marketing estratégico',
+    desc: 'Planejamento que respeita o momento da empresa e amplia faturamento.',
+    span: 'normal',
+    tone: 'soft',
+    icon: 'chart',
+    tags: ['planejamento', 'calendário', 'métricas'],
   },
   {
-    number: '04',
-    headline: 'Presença digital do zero ou reboot',
-    body: 'Site - branding - identidade visual. Quando precisa de uma base sólida pra crescer em cima.',
-    image: '/illustrative/hub-branding.jpg',
-    imageAlt: 'Materiais de identidade visual',
-    mood: 'warm' as const,
+    code: '/04',
+    title: 'Produção de conteúdo',
+    desc: 'Reels, fotos, vídeos e materiais que constroem autoridade.',
+    span: 'normal',
+    tone: 'soft',
+    icon: 'play',
+    tags: ['reels', 'fotos', 'copywriting'],
   },
+  {
+    code: '/05',
+    title: 'Tráfego pago',
+    desc: 'Campanhas Meta ADS e Google ADS estruturadas com leitura de resultado real, não vaidade.',
+    span: 'wide',
+    tone: 'blue',
+    icon: 'megaphone',
+    tags: ['meta ads', 'google ads', 'remarketing', 'dashboards'],
+  },
+  {
+    code: '/06',
+    title: 'Fortalecimento comercial',
+    desc: 'Processo, follow-up e qualificação que transformam lead em cliente recorrente.',
+    span: 'normal',
+    tone: 'soft',
+    icon: 'trend',
+    tags: ['funil', 'follow-up', 'fechamento'],
+  },
+  {
+    code: '/07',
+    title: 'Experiência do cliente',
+    desc: 'Atendimento e jornadas pensados para recorrência e relacionamento de longo prazo.',
+    span: 'normal',
+    tone: 'soft',
+    icon: 'heart',
+    tags: ['atendimento', 'onboarding', 'retenção'],
+  },
+  {
+    code: '/08',
+    title: 'Treinamentos e capacitações',
+    desc: 'Capacitação de times, lideranças e operações comerciais, internas ou abertas.',
+    span: 'normal',
+    tone: 'teal',
+    icon: 'cap',
+    tags: ['workshops', 'palestras', 'liderança'],
+  },
+  {
+    code: '/09',
+    title: 'Consultorias personalizadas',
+    desc: 'Imersões e consultorias sob medida. Ciclo da empresa, gargalo, oportunidade e leitura específica.',
+    span: 'wide',
+    tone: 'soft',
+    icon: 'chat',
+    tags: ['diagnóstico', 'plano de ação', 'mentoria 1:1', 'acompanhamento'],
+  },
+]
+
+// Posições orbitais — calculadas em build time
+// Stage full-bleed 100vw. ViewBox 1400×780, centro (700,390)
+const ORBIT = {
+  svgW: 1400,
+  svgH: 780,
+  cx: 700,
+  cy: 390,
+  rx: 550,       // raio horizontal dos cards
+  ry: 300,       // raio vertical dos cards
+  globeR: 105,   // raio do globo (início das linhas)
+  lineRx: 460,   // raio horizontal do fim das linhas
+  lineRy: 250,   // raio vertical do fim das linhas
+}
+const solutionsOrbit = solutions.map((s, i) => {
+  const angle = -90 + i * (360 / 9)
+  const rad = (angle * Math.PI) / 180
+  const cos = Math.cos(rad)
+  const sin = Math.sin(rad)
+  return {
+    ...s, angle,
+    leftPct: 50 + (cos * ORBIT.rx * 100) / ORBIT.svgW,
+    topPct:  50 + (sin * ORBIT.ry * 100) / ORBIT.svgH,
+    x1: ORBIT.cx + cos * ORBIT.globeR,
+    y1: ORBIT.cy + sin * ORBIT.globeR,
+    x2: ORBIT.cx + cos * ORBIT.lineRx,
+    y2: ORBIT.cy + sin * ORBIT.lineRy,
+    isLeft: cos < -0.15,
+    isRight: cos > 0.15,
+  }
+})
+
+const method = [
+  { n: '01', t: 'Diagnóstico', d: 'Leitura do momento, do mercado e dos gargalos. Antes de mexer, a gente entende.' },
+  { n: '02', t: 'Estratégia', d: 'Frentes, prioridades e indicadores. A operação só começa quando o caminho está claro.' },
+  { n: '03', t: 'Execução', d: 'Time multidisciplinar em campo. Marca, conteúdo, performance e comercial articulados.' },
+  { n: '04', t: 'Aceleração', d: 'Leitura de dados, ajustes e novos movimentos. Resultado é cíclico, não pontual.' },
 ]
 ---
 <BaseLayout
-  title="HUB Digital"
-  description="Quatro caminhos para crescer no digital - REC HUB. Gestão de redes - tráfego pago - suporte comercial - branding."
+  title="HUB | núcleo estratégico de soluções empresariais"
+  description="O HUB é o núcleo estratégico do REC. Soluções em posicionamento, marketing, comercial, tráfego e consultoria para acelerar faturamento."
   path="/hub"
   currentSection="HUB"
 >
-  <section class="hub-intro">
-    <div class="hub-intro-inner">
-      <span class="uppercase-label" style="color: var(--rec-teal)">rec hub</span>
-      <h1>Cada serviço - um <em>capítulo</em>.</h1>
-      <p class="lead">Tu cuida do negócio - a gente cuida do digital. Sem letra miúda - sem pacote engessado. Quatro caminhos pensados pra cada momento da empresa.</p>
+
+  <!-- 1. HERO PREMIUM (DARK) -->
+  <section class="hub-hero">
+    <div class="hub-hero-grid" aria-hidden="true">
+      <DotGrid
+        dotSize={4}
+        gap={18}
+        baseColor="#1a3a6e"
+        activeColor="#00a198"
+        proximity={140}
+        speedTrigger={60}
+        shockRadius={280}
+        shockStrength={8}
+        resistance={580}
+        returnDuration={1.5}
+      />
+    </div>
+    <div class="hub-hero-inner">
+      <h1 class="hub-hero-title">
+        Onde a <em>estratégia</em>
+        <br />vira <span class="hub-blink">faturamento.</span>
+      </h1>
+
+      <div class="hub-hero-foot">
+        <p class="hub-hero-lead">
+          O HUB é o núcleo estratégico de soluções empresariais da marca. Construído para
+          fortalecer posicionamento, estruturar crescimento e ampliar receita com leitura
+          afiada do mercado atual.
+        </p>
+        <div class="hub-hero-cta">
+          <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="hub-btn-primary">
+            falar com o time
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#solucoes" class="hub-btn-ghost">ver soluções</a>
+        </div>
+      </div>
+
+      <!-- Chips 3×2 grid -->
+      <ul class="hub-hero-chips" aria-hidden="true">
+        <li><span>posicionamento</span></li>
+        <li><span>conteúdo</span></li>
+        <li><span>tráfego pago</span></li>
+        <li><span>comercial</span></li>
+        <li><span>treinamentos</span></li>
+        <li><span>consultoria</span></li>
+      </ul>
+    </div>
+    <img src="/logo-white.png" class="hub-hero-logo-bottom" alt="" aria-hidden="true" />
+  </section>
+
+  <!-- 2. MANIFESTO -->
+  <section class="hub-manifesto" data-reveal>
+    <div class="hub-manifesto-inner">
+      <span class="hub-eyebrow hub-eyebrow-dark">o que é o hub</span>
+      <p class="hub-manifesto-text">
+        Atuamos com soluções voltadas à <strong>presença digital</strong>, posicionamento de marca,
+        marketing estratégico, produção de conteúdo, campanhas de tráfego pago, fortalecimento
+        comercial, experiência e atendimento ao cliente, além de <strong>treinamentos, capacitações
+        e consultorias empresariais personalizadas</strong>.
+      </p>
     </div>
   </section>
 
-  <section class="hub-chapters">
-    <div class="hub-chapters-inner">
-      {chapters.map(c => <HubChapter {...c} />)}
+  <!-- 3. BENTO DE SOLUÇÕES -->
+  <section id="solucoes" class="hub-solutions">
+    <div class="hub-solutions-inner">
+      <header class="hub-section-head" data-reveal>
+        <span class="hub-eyebrow hub-eyebrow-dark">soluções</span>
+        <h2>Nove frentes. <em>Um movimento contínuo.</em></h2>
+        <p>Seja de forma independente ou integrada, cada frente é pensada para acompanhar o momento, a necessidade e a ambição de cada negócio.</p>
+      </header>
+
+      <!-- ORBIT STAGE — desktop -->
+      <div class="hub-orbit" data-reveal>
+        <div class="orbit-stage">
+
+          <!-- 1) Linhas de conexão SVG (atrás de tudo) -->
+          <svg class="orbit-lines" viewBox="0 0 1400 780" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <linearGradient id="orbitLineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"  stop-color="#00a198" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#042050" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+            <!-- Anéis orbitais leves de fundo -->
+            <circle cx="700" cy="390" r="370" fill="none" stroke="#042050" stroke-width="1" stroke-opacity="0.04" stroke-dasharray="2 6"/>
+            <circle cx="700" cy="390" r="245" fill="none" stroke="#042050" stroke-width="1" stroke-opacity="0.06" stroke-dasharray="1 8"/>
+            <!-- Linhas + sparks round-trip para cada satélite -->
+            {solutionsOrbit.map((p, i) => (
+              <g class="orbit-line">
+                <line x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke="#042050" stroke-opacity="0.18" stroke-width="1"/>
+                <!-- offset-path path round-trip: globe→card→globe -->
+                <circle class="orbit-spark" r="3.5" cx="0" cy="0"
+                  style={`offset-path: path('M ${p.x1} ${p.y1} L ${p.x2} ${p.y2} L ${p.x1} ${p.y1}'); --delay: ${i * 0.6}s;`}
+                />
+              </g>
+            ))}
+          </svg>
+
+          <!-- 2) Globo central animado -->
+          <div class="orbit-core" aria-hidden="true">
+            <span class="orbit-pulse pulse-a"></span>
+            <span class="orbit-pulse pulse-b"></span>
+            <span class="orbit-pulse pulse-c"></span>
+            <div class="orbit-globe">
+              <svg viewBox="0 0 200 200">
+                <defs>
+                  <radialGradient id="globeFill" cx="42%" cy="40%">
+                    <stop offset="0%"  stop-color="#0a3678" stop-opacity="1"/>
+                    <stop offset="60%" stop-color="#021a45" stop-opacity="1"/>
+                    <stop offset="100%" stop-color="#01122e" stop-opacity="1"/>
+                  </radialGradient>
+                  <radialGradient id="globeGlow" cx="50%" cy="50%">
+                    <stop offset="55%" stop-color="rgba(0,161,152,0)"/>
+                    <stop offset="80%" stop-color="rgba(0,161,152,0.18)"/>
+                    <stop offset="100%" stop-color="rgba(0,161,152,0)"/>
+                  </radialGradient>
+                </defs>
+                <!-- Aura externa -->
+                <circle cx="100" cy="100" r="98" fill="url(#globeGlow)"/>
+                <!-- Esfera -->
+                <circle cx="100" cy="100" r="78" fill="url(#globeFill)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                <!-- Paralelos (fixos) -->
+                <g stroke="rgba(0,161,152,0.35)" stroke-width="0.7" fill="none">
+                  <ellipse cx="100" cy="100" rx="78" ry="14"/>
+                  <ellipse cx="100" cy="100" rx="78" ry="36"/>
+                  <ellipse cx="100" cy="100" rx="78" ry="58"/>
+                  <ellipse cx="100" cy="100" rx="78" ry="72"/>
+                </g>
+                <!-- Meridianos (giram) -->
+                <g class="globe-meridians" stroke="rgba(100,180,255,0.4)" stroke-width="0.7" fill="none">
+                  <ellipse cx="100" cy="100" rx="14" ry="78"/>
+                  <ellipse cx="100" cy="100" rx="36" ry="78"/>
+                  <ellipse cx="100" cy="100" rx="58" ry="78"/>
+                  <line x1="100" y1="22" x2="100" y2="178" stroke="rgba(255,255,255,0.18)"/>
+                </g>
+                <!-- Pontos de brilho -->
+                <g fill="#00a198">
+                  <circle cx="76" cy="72" r="1.6" opacity="0.85"/>
+                  <circle cx="132" cy="98" r="1.4" opacity="0.7"/>
+                  <circle cx="92" cy="138" r="1.2" opacity="0.6"/>
+                </g>
+              </svg>
+              <!-- Logo icon no centro do globo -->
+              <img src="/LOGO REC HUB.png" alt="REC HUB" class="orbit-globe-hub" />
+            </div>
+          </div>
+
+          <!-- 3) Cards-satélite -->
+          {solutionsOrbit.map((s, i) => (
+            <article
+              class:list={[
+                'orbit-card',
+                s.isLeft ? 'orbit-card--left' : (s.isRight ? 'orbit-card--right' : 'orbit-card--center'),
+              ]}
+              style={`left: ${s.leftPct}%; top: ${s.topPct}%; --card-delay: ${i * 90}ms; --spark-delay: ${i * 0.6}s;`}
+            >
+              <!-- Linha-varredura que sincroniza com o spark -->
+              <div class="orbit-scan" aria-hidden="true"></div>
+              <div class="orbit-card-head">
+                <div class="orbit-card-icon">
+                  <SolutionIcon icon={s.icon} />
+                </div>
+                <span class="orbit-card-code">{s.code}</span>
+              </div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+              <ul class="orbit-card-tags" aria-hidden="true">
+                {s.tags.slice(0, 3).map(tag => <li>{tag}</li>)}
+              </ul>
+            </article>
+          ))}
+
+        </div>
+      </div>
+
+      <!-- FALLBACK MOBILE — stack vertical limpo -->
+      <div class="hub-solutions-stack">
+        {solutions.map((s, i) => (
+          <article class="stack-tile" data-reveal style={`--reveal-delay: ${i * 50}ms`}>
+            <div class="stack-tile-icon"><SolutionIcon icon={s.icon} /></div>
+            <div class="stack-tile-body">
+              <span class="stack-tile-code">{s.code}</span>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+              <ul class="stack-tile-tags">
+                {s.tags.slice(0, 4).map(tag => <li>{tag}</li>)}
+              </ul>
+            </div>
+          </article>
+        ))}
+      </div>
     </div>
   </section>
 
-  <section class="hub-cta-block">
-    <div class="hub-cta-inner">
-      <h2>Pronto pra começar?</h2>
-      <p>Vê os planos completos com valores - ou pede um orçamento direto pelo WhatsApp.</p>
-      <a href="/planos" class="cta-primary">ver planos →</a>
+  <!-- 4. METHOD STRIP -->
+  <section class="hub-method">
+    <div class="hub-method-inner">
+      <header class="hub-section-head light-head" data-reveal>
+        <span class="hub-eyebrow">como trabalhamos</span>
+        <h2>Quatro tempos da operação.</h2>
+      </header>
+
+      <ol class="hub-method-flow">
+        {method.map((m, i) => (
+          <li class="method-step" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
+            <div class="step-number">{m.n}</div>
+            <div class="step-body">
+              <h3>{m.t}</h3>
+              <p>{m.d}</p>
+            </div>
+            {i < method.length - 1 && <span class="step-line" aria-hidden="true"></span>}
+          </li>
+        ))}
+      </ol>
     </div>
   </section>
+
+  <!-- 5. EMBAIXADORAS (FEATURE DARK PANEL) -->
+  <section class="hub-ambassadors">
+    <div class="hub-amb-inner" data-reveal>
+      <div class="hub-amb-text">
+        <span class="hub-eyebrow">programa de embaixadoras</span>
+        <h2>Empresas que <em>carregam</em><br />a marca adiante.</h2>
+        <p>
+          O HUB desenvolve estratégias de visibilidade, autoridade e expansão para empresas parceiras,
+          incluindo oportunidades de atuação como <strong>embaixadoras da marca REC</strong>.
+        </p>
+        <ul class="hub-amb-bullets">
+          <li>Curadoria de empresas alinhadas com o propósito da rede</li>
+          <li>Posicionamento conjunto, presença em eventos e mídia</li>
+          <li>Acesso prioritário às frentes do HUB</li>
+        </ul>
+        <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="hub-btn-primary hub-btn-primary--alt">
+          conversar sobre o programa
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="hub-amb-seal" aria-hidden="true">
+        <div class="seal-ring">
+          <svg viewBox="0 0 240 240" width="100%" height="100%">
+            <defs>
+              <path id="sealText" d="M120,120 m-92,0 a92,92 0 1,1 184,0 a92,92 0 1,1 -184,0" />
+            </defs>
+            <text fill="currentColor" font-size="13" letter-spacing="6">
+              <textPath href="#sealText">EMBAIXADORAS REC · ESTRATÉGIA · AUTORIDADE · MOVIMENTO · </textPath>
+            </text>
+          </svg>
+          <div class="seal-core">
+            <img src="/logo-icon-white.png" alt="REC" class="seal-logo" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CTA ESTRATÉGICO -->
+  <section class="hub-final" data-reveal>
+    <div class="hub-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="hub-final-inner">
+      <h2>Crescimento <span class="hub-final-light">estruturado</span> <em>começa</em> com leitura <span class="hub-final-light">precisa.</span></h2>
+      <p>Crescimento consistente começa com direção. Nossa primeira conversa é feita para entender sua empresa, alinhar objetivos e identificar os caminhos mais estratégicos para evoluir.</p>
+      <a href="/planos#hub-digital" class="hub-final-cta">Aumentar meu faturamento →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+
 </BaseLayout>
 
 <script>
@@ -72,14 +412,695 @@ const chapters = [
 </script>
 
 <style>
-.hub-intro, .hub-chapters, .hub-cta-block { padding: var(--space-16) var(--space-6); }
-.hub-intro-inner, .hub-chapters-inner, .hub-cta-inner { max-width: 760px; margin: 0 auto; }
-.hub-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
-.hub-intro h1 em { color: var(--rec-teal); font-style: normal; }
-.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
-.hub-cta-block { text-align: center; background: var(--grad-soft-teal); }
-.hub-cta-inner h2 { font-size: 1.6rem; margin-bottom: var(--space-3); }
-.hub-cta-inner p { color: #556; margin-bottom: var(--space-6); }
-.cta-primary { display: inline-block; background: var(--rec-purple); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--type-small); transition: transform var(--motion-fast) var(--easing); }
-.cta-primary:hover { transform: translateY(-2px); }
+/* ==========================================================
+   HUB — núcleo estratégico
+   Page-specific styles. Distinct visual language from home/comunidade.
+   ========================================================== */
+
+/* Reveal baseline */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms), transform 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms); }
+[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+/* Shared eyebrow / heads */
+.hub-eyebrow { font-family: var(--font-ui); font-size: var(--type-micro); letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; color: var(--rec-teal); display: inline-block; }
+.hub-eyebrow-dark { color: var(--rec-blue); opacity: 0.7; }
+.hub-section-head { max-width: 720px; margin: 0 auto var(--space-10); text-align: center; }
+.hub-section-head h2 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-3); font-weight: 300; color: var(--rec-blue); }
+.hub-section-head h2 em { color: var(--rec-teal); font-style: italic; }
+.hub-section-head p { color: #556; font-size: var(--type-body); line-height: 1.65; max-width: 580px; margin: 0 auto; }
+.hub-section-head.light-head h2 { color: #fff; }
+.hub-section-head.light-head .hub-eyebrow { color: rgba(255,255,255,0.6); }
+
+/* Generic buttons */
+.hub-btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--rec-teal); color: #fff; padding: 16px 30px; border-radius: 999px; font-weight: 700; letter-spacing: 0.04em; font-size: 0.95rem; text-transform: lowercase; transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), background var(--motion-fast) var(--easing); }
+.hub-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,161,152,0.35); background: #00b3a9; }
+.hub-btn-primary svg { transition: transform var(--motion-fast) var(--easing); }
+.hub-btn-primary:hover svg { transform: translateX(3px); }
+.hub-btn-primary--big { padding: 18px 36px; font-size: 1rem; }
+.hub-btn-primary--alt { background: #fff; color: var(--rec-blue); }
+.hub-btn-primary--alt:hover { background: var(--rec-teal); color: #fff; }
+
+.hub-btn-ghost { display: inline-flex; align-items: center; color: rgba(255,255,255,0.85); padding: 18px 26px; font-weight: 600; font-size: 1.05rem; letter-spacing: 0.04em; border-bottom: 1px solid rgba(255,255,255,0.3); transition: color var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
+.hub-btn-ghost:hover { color: var(--rec-teal); border-color: var(--rec-teal); }
+.hub-btn-ghost-dark { display: inline-flex; align-items: center; color: rgba(255,255,255,0.8); padding: 18px 22px; font-weight: 600; font-size: var(--type-small); letter-spacing: 0.04em; border-bottom: 1px solid rgba(255,255,255,0.25); transition: color var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
+.hub-btn-ghost-dark:hover { color: var(--rec-teal); border-color: var(--rec-teal); }
+
+/* =====================================
+   1. HERO PREMIUM (dark)
+   ===================================== */
+.hub-hero {
+  position: relative;
+  min-height: 92vh;
+  background: linear-gradient(160deg, #021438 0%, #042050 50%, #061a4a 100%);
+  color: #fff;
+  overflow: hidden;
+  padding: var(--space-12) var(--space-6) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* animated ShapeGrid container */
+.hub-hero-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  opacity: 0.85;
+  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0) 95%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0) 95%);
+}
+.hub-hero-grid > * { width: 100%; height: 100%; display: block; }
+.hub-hero-inner { position: relative; z-index: 2; max-width: var(--container-max); margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 440px; grid-template-rows: 1fr auto; gap: var(--space-6) var(--space-6); padding-right: 0; }
+.hub-hero-title {
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 200;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin: 0;
+  color: #fff;
+}
+.hub-hero-title em { font-style: italic; color: var(--rec-teal); font-weight: 300; }
+.hub-blink { display: inline-block; position: relative; color: #fff; font-weight: 300; }
+.hub-blink::after { content: ''; position: absolute; bottom: 6px; left: 0; right: 0; height: 3px; background: var(--rec-teal); transform-origin: left; transform: scaleX(0); animation: hub-blink-line 1.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+@keyframes hub-blink-line { to { transform: scaleX(1); } }
+
+.hub-hero-foot { grid-column: 1; display: flex; flex-direction: column; gap: var(--space-5); max-width: 620px; }
+.hub-hero-lead { font-size: 1.05rem; line-height: 1.65; color: rgba(255,255,255,0.78); margin: 0; }
+.hub-hero-cta { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+
+/* Chips 3×2 grid — todos mesma largura */
+.hub-hero-chips { grid-column: 2; grid-row: 1 / 3; align-self: center; list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; justify-self: end; margin-right: 40px; }
+.hub-hero-chips li { display: flex; transition: transform 350ms cubic-bezier(0.22,1,0.36,1); }
+.hub-hero-chips li:hover { transform: translateY(-7px); }
+.hub-hero-chips span { transition: border-color 250ms ease, box-shadow 250ms ease, color 250ms ease; }
+.hub-hero-chips li:hover span { border-color: rgba(100,160,255,0.65); box-shadow: 0 8px 20px rgba(1,38,89,0.5); color: #fff; }
+.hub-hero-chips span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid rgba(100,160,255,0.18);
+  background: rgba(1,38,89,0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 22px 20px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.82);
+  text-transform: lowercase;
+  white-space: nowrap;
+  text-align: center;
+  animation: hub-chip-in 600ms cubic-bezier(0.22,1,0.36,1) both, chip-breathe 4s ease-in-out infinite;
+}
+.hub-hero-chips li:nth-child(odd) span  { background: rgba(1,38,89,0.35); border-color: rgba(100,160,255,0.28); }
+.hub-hero-chips li:nth-child(1) span  { animation-delay: 150ms, 0.0s; }
+.hub-hero-chips li:nth-child(2) span  { animation-delay: 240ms, 0.6s; }
+.hub-hero-chips li:nth-child(3) span  { animation-delay: 330ms, 1.2s; }
+.hub-hero-chips li:nth-child(4) span  { animation-delay: 420ms, 1.8s; }
+.hub-hero-chips li:nth-child(5) span  { animation-delay: 510ms, 2.4s; }
+.hub-hero-chips li:nth-child(6) span  { animation-delay: 600ms, 3.0s; }
+@keyframes hub-chip-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes chip-breathe {
+  0%, 100% { border-color: rgba(100,160,255,0.15); box-shadow: none; }
+  50%       { border-color: rgba(100,160,255,0.45); box-shadow: 0 0 12px rgba(100,160,255,0.12); }
+}
+
+/* Logo branca no rodapé do hero */
+.hub-hero-logo-bottom {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 36px;
+  width: auto;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+@media (max-width: 800px) {
+  .hub-hero-inner { grid-template-columns: 1fr; grid-template-rows: auto auto auto; gap: var(--space-6); }
+  .hub-hero-chips { grid-column: 1; grid-row: auto; grid-template-columns: repeat(2, 1fr); align-self: start; width: 100%; }
+  .hub-hero-logo-bottom { display: none; }
+}
+
+/* =====================================
+   2. MANIFESTO
+   ===================================== */
+.hub-manifesto { background: #fff; padding: var(--space-16) var(--space-6); }
+.hub-manifesto-inner { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
+.hub-manifesto-text { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.85rem); line-height: 1.45; color: var(--rec-blue); margin: 0; }
+.hub-manifesto-text strong { font-weight: 600; color: var(--rec-blue); }
+.hub-manifesto-text a { color: var(--rec-teal); border-bottom: 1px solid currentColor; padding-bottom: 1px; transition: color var(--motion-fast) var(--easing); }
+.hub-manifesto-text a:hover { color: var(--rec-blue); }
+
+/* =====================================
+   3. SOLUÇÕES — ORBIT (constelação)
+   ===================================== */
+.hub-solutions {
+  background: linear-gradient(180deg, #fbfafa 0%, #f1f3f6 100%);
+  padding: var(--space-10) 0 var(--space-12);
+  position: relative;
+  overflow: visible;
+}
+.hub-solutions::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, rgba(0,161,152,0.06) 0%, transparent 60%);
+}
+.hub-solutions-inner { max-width: 1320px; margin: 0 auto; position: relative; }
+
+/* ── Stage ──────────────────────────────────────────────────────────── */
+/* Full-bleed: sai do container e ocupa 100vw */
+.hub-orbit {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  display: flex;
+  justify-content: center;
+}
+.orbit-stage {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1400 / 780;
+}
+
+/* ── SVG das linhas (atrás) ─────────────────────────────────────────── */
+.orbit-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.orbit-line line { transition: stroke-opacity 400ms ease; }
+/* ── Spark round-trip via offset-path ──────────────────────────────── */
+.orbit-spark {
+  fill: #00a198;
+  filter: drop-shadow(0 0 5px rgba(0,161,152,0.9)) drop-shadow(0 0 2px #fff);
+  opacity: 0;
+  offset-distance: 0%;
+  animation: orbit-spark-roundtrip 18s var(--delay, 0s) ease-in-out infinite;
+}
+@keyframes orbit-spark-roundtrip {
+  /* Parte: globe → card */
+  0%   { offset-distance: 0%;   opacity: 0; r: 3.5; }
+  4%   { opacity: 1; r: 3.5; }
+  26%  { offset-distance: 50%;  opacity: 1; r: 3.5; }
+  /* Chega no card: vira invisível enquanto scan corre */
+  29%  { offset-distance: 50%;  opacity: 0; r: 2; }
+  /* Espera scan (29%→71%) */
+  71%  { offset-distance: 50%;  opacity: 0; r: 2; }
+  /* Retorno: card → globe */
+  74%  { opacity: 1; r: 3.5; }
+  96%  { offset-distance: 100%; opacity: 1; r: 3.5; }
+  100% { offset-distance: 100%; opacity: 0; r: 2; }
+}
+
+/* ── Núcleo central (globo) ─────────────────────────────────────────── */
+.orbit-core {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 17%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+}
+.orbit-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0,161,152,0.4);
+  opacity: 0;
+  animation: orbit-pulse 4.2s cubic-bezier(0.22,1,0.36,1) infinite;
+}
+.orbit-pulse.pulse-b { animation-delay: 1.4s; }
+.orbit-pulse.pulse-c { animation-delay: 2.8s; }
+@keyframes orbit-pulse {
+  0%   { transform: scale(0.7); opacity: 0; border-color: rgba(0,161,152,0.55); }
+  20%  { opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; border-color: rgba(0,161,152,0); }
+}
+.orbit-globe {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 12px 30px rgba(0,161,152,0.2)) drop-shadow(0 4px 18px rgba(1,38,89,0.25));
+  animation: orbit-globe-breathe 6s ease-in-out infinite;
+}
+@keyframes orbit-globe-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+/* ── Logo icon no globo ─────────────────────────────────────────────── */
+.orbit-globe-hub {
+  position: relative;
+  z-index: 2;
+  width: 68%;
+  height: auto;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 10px rgba(0,161,152,0.4)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+  user-select: none;
+  pointer-events: none;
+}
+.orbit-globe > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Meridianos simulam rotação 3D em torno do eixo Y via scaleX */
+.globe-meridians {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: orbit-globe-meridians 14s linear infinite;
+}
+@keyframes orbit-globe-meridians {
+  0%   { transform: scaleX(1); }
+  25%  { transform: scaleX(0.15); }
+  50%  { transform: scaleX(-1); }
+  75%  { transform: scaleX(-0.15); }
+  100% { transform: scaleX(1); }
+}
+
+/* .orbit-globe-core removido — substituído por .orbit-globe-logo */
+
+/* ── Ajuste fino de alinhamento: /02 e /09 no mesmo nível visual ─────── */
+/* /02 = 4º filho, /09 = 11º filho do orbit-stage */
+.orbit-stage > article:nth-child(4),
+.orbit-stage > article:nth-child(11) {
+  margin-top: -28px;
+}
+
+/* ── Cards-satélite ─────────────────────────────────────────────────── */
+.orbit-card {
+  position: absolute;
+  /* Base transform: centraliza o card no ponto orbital */
+  transform: translate(-50%, -50%) scale(0.88);
+  width: 265px;
+  background: #fff;
+  border: 1px solid rgba(1,38,89,0.08);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  z-index: 4;
+  box-shadow: 0 8px 24px rgba(1,38,89,0.06);
+  /* Transition controla TUDO — sem animation conflitando */
+  transition:
+    transform 600ms cubic-bezier(0.22,1,0.36,1) var(--card-delay, 0ms),
+    opacity   600ms ease                          var(--card-delay, 0ms),
+    box-shadow 350ms ease,
+    border-color 350ms ease,
+    background 350ms ease;
+  opacity: 0;
+  overflow: hidden; /* clip do orbit-scan — ::after usa inset:0, ok */
+}
+/* Quando o orbit stage entra na view, os cards revelam */
+.hub-orbit.in-view .orbit-card {
+  opacity: 1;
+  /* transition-delay já vem do --card-delay */
+  transform: translate(-50%, -50%) scale(1);
+}
+/* Hover: sem animation:none — só altera box-shadow e border */
+.orbit-card:hover {
+  z-index: 10;
+  border-color: rgba(0,161,152,0.5);
+  box-shadow: 0 18px 40px rgba(1,38,89,0.16);
+  /* Sobe um pouco pra compensar o crescimento das tags e não sobrepor o card abaixo */
+  transform: translate(-50%, calc(-50% - 36px)) scale(1.06);
+  transition:
+    transform 350ms cubic-bezier(0.22,1,0.36,1),
+    opacity   350ms ease,
+    box-shadow 350ms ease,
+    border-color 350ms ease,
+    background 350ms ease;
+  background: linear-gradient(160deg, #ffffff 0%, rgba(0,161,152,0.04) 100%);
+}
+
+/* ── Linha-varredura (scan sincronizada com o spark) ─────────────────── */
+/*
+   Sequência (ciclo 18s, mesmo delay do spark correspondente):
+   0–29%  → invisível (spark vai de globe ao card)
+   29–50% → sweep de baixo para cima (cobre o card)
+   50–54% → espera no topo (card "brilhando")
+   54–71% → sweep de cima para baixo (desce até 0)
+   71–100%→ invisível (spark retorna)
+*/
+.orbit-scan {
+  position: absolute;
+  inset: 0;
+  bottom: 0; left: 0; right: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  /* Linha de varredura: gradiente de baixo pra cima + borda teal no topo */
+  background: linear-gradient(to top,
+    rgba(0,161,152,0.0) 0%,
+    rgba(0,161,152,0.10) 60%,
+    rgba(0,161,152,0.18) 100%
+  );
+  border-top: 2px solid rgba(0,161,152,0.65);
+  /* Começa colapsado na base */
+  transform-origin: bottom center;
+  transform: scaleY(0);
+  opacity: 0;
+  animation: orbit-scan-sweep 18s var(--spark-delay, 0s) ease-in-out infinite;
+}
+@keyframes orbit-scan-sweep {
+  /* Espera o spark chegar (0–29%) */
+  0%,  28% { transform: scaleY(0);   opacity: 0; }
+  /* Aparece e sobe (28–50%) */
+  30%       { transform: scaleY(0);   opacity: 1; }
+  50%       { transform: scaleY(1);   opacity: 1; }
+  /* Pausa no topo (50–54%) */
+  54%       { transform: scaleY(1);   opacity: 1; }
+  /* Desce de volta (54–71%) */
+  70%       { transform: scaleY(0);   opacity: 1; }
+  72%       { transform: scaleY(0);   opacity: 0; }
+  /* Spark retornando, scan invisível */
+  100%      { transform: scaleY(0);   opacity: 0; }
+}
+
+/* Borda lateral brilhante que "acende" quando scan está no topo */
+.orbit-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid rgba(0,161,152,0);
+  pointer-events: none;
+  z-index: 2;
+  transition: border-color 350ms ease, box-shadow 350ms ease;
+  animation: orbit-card-border-pulse 18s var(--spark-delay, 0s) ease-in-out infinite;
+}
+@keyframes orbit-card-border-pulse {
+  0%,  48% { border-color: rgba(0,161,152,0);    box-shadow: none; }
+  52%       { border-color: rgba(0,161,152,0.6);  box-shadow: inset 0 0 16px rgba(0,161,152,0.14); }
+  56%       { border-color: rgba(0,161,152,0.6);  box-shadow: inset 0 0 16px rgba(0,161,152,0.14); }
+  70%       { border-color: rgba(0,161,152,0);    box-shadow: none; }
+  100%      { border-color: rgba(0,161,152,0);    box-shadow: none; }
+}
+
+.orbit-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.orbit-card-icon {
+  width: 30px; height: 30px;
+  color: var(--rec-blue);
+  display: flex; align-items: center; justify-content: center;
+  transition: color 300ms ease, transform 400ms cubic-bezier(0.22,1,0.36,1);
+}
+.orbit-card:hover .orbit-card-icon { color: var(--rec-teal); transform: rotate(-6deg) scale(1.08); }
+.orbit-card-code {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: rgba(1,38,89,0.35);
+  font-weight: 700;
+}
+.orbit-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--rec-blue);
+  margin: 0;
+}
+.orbit-card p {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #5b6878;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.orbit-card-tags {
+  list-style: none; padding: 0;
+  margin: 4px 0 0;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height 400ms cubic-bezier(0.22,1,0.36,1), opacity 280ms ease, margin 400ms ease;
+}
+.orbit-card:hover .orbit-card-tags {
+  max-height: 80px;
+  opacity: 1;
+  margin-top: 8px;
+}
+.orbit-card-tags li {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  padding: 3px 7px;
+  background: rgba(0,161,152,0.08);
+  color: #007a73;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ── Fallback mobile (escondido em desktop) ─────────────────────────── */
+.hub-solutions-stack { display: none; }
+
+/* Responsivo: abaixo de 980px, esconde a orbit e mostra stack */
+@media (max-width: 980px) {
+  .hub-orbit { display: none; }
+  .hub-solutions-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .stack-tile {
+    background: #fff;
+    border: 1px solid rgba(1,38,89,0.08);
+    border-radius: 16px;
+    padding: var(--space-5);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-4);
+    align-items: flex-start;
+    transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+  .stack-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(1,38,89,0.08);
+    border-color: rgba(0,161,152,0.3);
+  }
+  .stack-tile-icon {
+    width: 44px; height: 44px;
+    color: var(--rec-teal);
+    background: rgba(0,161,152,0.08);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stack-tile-body { display: flex; flex-direction: column; gap: 4px; }
+  .stack-tile-code { font-family: var(--font-ui); font-size: var(--type-micro); letter-spacing: 0.15em; color: rgba(1,38,89,0.4); font-weight: 600; }
+  .stack-tile h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: var(--rec-blue); margin: 0; line-height: 1.2; }
+  .stack-tile p { font-family: var(--font-body); font-size: 0.85rem; line-height: 1.55; color: #4a5868; margin: 4px 0 0; }
+  .stack-tile-tags { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 5px; }
+  .stack-tile-tags li {
+    font-family: var(--font-ui); font-size: 0.65rem; letter-spacing: 0.05em;
+    padding: 3px 8px; background: rgba(0,161,152,0.08); color: #007a73;
+    border-radius: 999px; border: 1px solid rgba(0,161,152,0.16);
+  }
+}
+
+/* =====================================
+   4. METHOD STRIP (dark)
+   ===================================== */
+.hub-method { background: linear-gradient(180deg, #021438 0%, #042050 100%); color: #fff; padding: var(--space-20) var(--space-6); position: relative; overflow: hidden; }
+.hub-method::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,161,152,0.4) 50%, transparent 100%);
+}
+.hub-method-inner { max-width: 1180px; margin: 0 auto; }
+.hub-method-flow { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); position: relative; }
+.method-step { position: relative; padding: var(--space-5) var(--space-3) 0; }
+.step-number { font-family: var(--font-display); font-size: clamp(2.5rem, 4vw, 3.2rem); font-weight: 200; color: var(--rec-teal); letter-spacing: -0.02em; line-height: 1; margin-bottom: var(--space-4); }
+.step-body h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; color: #fff; margin: 0 0 var(--space-3); line-height: 1.2; }
+.step-body p { color: rgba(255,255,255,0.72); font-size: var(--type-small); line-height: 1.6; margin: 0; }
+.step-line {
+  position: absolute;
+  top: calc(var(--space-5) + 1.6rem);
+  right: -16px;
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--rec-teal), rgba(0,161,152,0.1));
+}
+@media (max-width: 900px) {
+  .hub-method-flow { grid-template-columns: repeat(2, 1fr); }
+  .step-line:nth-of-type(odd) { display: none; }
+}
+@media (max-width: 540px) {
+  .hub-method-flow { grid-template-columns: 1fr; }
+  .step-line { display: none; }
+}
+
+/* =====================================
+   5. EMBAIXADORAS (FEATURE DARK PANEL)
+   ===================================== */
+.hub-ambassadors {
+  background: #fff;
+  padding: var(--space-12) var(--space-6) var(--space-20);
+  position: relative;
+}
+.hub-amb-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #021438 0%, #042050 60%, #003e3a 100%);
+  border-radius: 28px;
+  padding: clamp(var(--space-8), 5vw, var(--space-16));
+  color: #fff;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(1,38,89,0.25);
+}
+.hub-amb-inner::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,161,152,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hub-amb-text { position: relative; z-index: 2; }
+.hub-amb-text .hub-eyebrow { color: var(--rec-teal); }
+.hub-amb-text h2 { font-family: var(--font-display); font-weight: 300; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); color: #fff; }
+.hub-amb-text h2 em { color: var(--rec-teal); font-style: italic; }
+.hub-amb-text > p { font-size: var(--type-body); color: rgba(255,255,255,0.8); line-height: 1.7; margin: 0 0 var(--space-5); }
+.hub-amb-text strong { color: #fff; font-weight: 600; }
+.hub-amb-bullets { list-style: none; padding: 0; margin: 0 0 var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); }
+.hub-amb-bullets li { font-size: var(--type-small); color: rgba(255,255,255,0.85); line-height: 1.5; }
+
+/* Seal */
+.hub-amb-seal { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+.seal-ring { position: relative; width: 280px; height: 280px; }
+.seal-ring svg { color: rgba(255,255,255,0.55); animation: hub-seal-spin 32s linear infinite; text-transform: uppercase; font-family: var(--font-ui); font-weight: 700; }
+@keyframes hub-seal-spin { to { transform: rotate(360deg); } }
+.seal-core {
+  position: absolute;
+  inset: 24%;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px);
+}
+.seal-logo {
+  width: 80%;
+  height: auto;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+@media (max-width: 880px) {
+  .hub-amb-inner { grid-template-columns: 1fr; gap: var(--space-6); padding: var(--space-8); }
+  .seal-ring { width: 220px; height: 220px; margin: 0 auto; }
+}
+
+/* =====================================
+   6. CTA FINAL ESTRATÉGICO
+   ===================================== */
+.hub-final {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%,
+    #f5fafd  3%,
+    #eef6fc  6%,
+    #eef6fc  9%,
+    #e4f0fa 12%,
+    #d6e9f7 16%,
+    #c5dff3 20%,
+    #b0d2ee 24%,
+    #97c3e7 29%,
+    #7ab0de 34%,
+    #5d9cd3 39%,
+    #4287c5 45%,
+    #2c73b6 51%,
+    #1a60a6 57%,
+    #0f4e95 63%,
+    #083e81 70%,
+    #052e6a 79%,
+    #031f52 89%,
+    #042050 100%
+  );
+  text-align: center;
+}
+/* Noise overlay anti-banding — z-index baixo, fica embaixo do branco */
+.hub-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+/* Branco linear cobrindo topo inteiro — elimina seam com a página */
+.hub-final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 22%;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    #fbfcfe 0%,
+    #fbfcfe 30%,
+    rgba(251,252,254,0) 100%
+  );
+}
+.hub-final-bars {
+  position: absolute;
+  top: 32px;
+  right: 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+}
+.hub-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.hub-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.hub-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.hub-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .hub-final-bars { display: none; } }
+.hub-final-inner { position: relative; max-width: 680px; margin: 0 auto; z-index: 2; }
+.hub-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--rec-blue); }
+.hub-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.hub-final-light { font-weight: 300; }
+.hub-final p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: var(--space-8); font-size: var(--type-body); }
+.hub-final-cta {
+  display: inline-block;
+  background: transparent;
+  color: var(--rec-teal);
+  padding: 20px 60px;
+  border-radius: 999px;
+  border: 2px solid var(--rec-teal);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 1.05rem;
+  transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+  animation: hub-cta-pulse 2.8s ease-in-out infinite;
+}
+.hub-final-cta:hover { background: var(--rec-teal); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,161,152,0.45); animation: none; }
+@keyframes hub-cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); }
+  50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); }
+}
 </style>

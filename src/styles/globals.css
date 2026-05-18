@@ -1,23 +1,43 @@
 @import './tokens.css';
 @import './reset.css';
 
-h1, h2, h3 {
-  letter-spacing: var(--letter-tight);
-  font-weight: 800;
-  line-height: 1.15;
+/* ===== Global typography (REC 2026 rebrand) ===== */
+html {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  font-family: var(--font-body);
+  color: var(--rec-blue);
+  background: var(--rec-white);
 }
 
-h1 { font-size: var(--type-h1); }
-h2 { font-size: var(--type-h2); }
-h3 { font-size: var(--type-h3); }
+/* Display headings use Fraunces serif */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: var(--letter-tight);
+  font-weight: 300;
+  line-height: 1.05;
+  color: var(--rec-blue);
+}
+h1 { font-size: var(--type-h1); font-weight: 200; }
+h2 { font-size: var(--type-h2); font-weight: 300; }
+h3 { font-size: var(--type-h3); font-weight: 400; }
+
+/* Italic em inside display headings = teal accent (per brand) */
+h1 em, h2 em, h3 em { color: var(--rec-teal); font-style: italic; font-weight: 300; }
+
+p { font-family: var(--font-body); color: var(--rec-blue); line-height: 1.6; }
 
 .uppercase-label {
+  font-family: var(--font-ui);
   font-size: var(--type-micro);
   letter-spacing: var(--letter-uppercase);
   text-transform: uppercase;
   font-weight: 600;
 }
 
-main { display: block; }
+main { display: block; position: relative; z-index: 0; isolation: isolate; overflow: hidden; }
 
-::selection { background: rgba(0, 161, 152, 0.2); color: var(--rec-dark); }
+::selection { background: rgba(0, 161, 152, 0.25); color: var(--rec-blue); }

@@ -1,6 +1,7 @@
 export function initTimelineScroll() {
-  const tl = document.querySelector<HTMLElement>('[data-timeline-scroll]')
-  if (!tl) return
+  const tlEl = document.querySelector<HTMLElement>('[data-timeline-scroll]')
+  if (!tlEl) return
+  const tl: HTMLElement = tlEl
   let isDown = false
   let startX = 0
   let scrollLeft = 0

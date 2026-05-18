@@ -2,95 +2,842 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import IllustrativeImg from '../components/ui/IllustrativeImg.astro'
 import Testimonial from '../components/comunidade/Testimonial.astro'
+import VideoModal from '../components/comunidade/VideoModal.astro'
+import { whatsappLink, messages } from '../utils/whatsapp'
 ---
 <BaseLayout
   title="Comunidade"
-  description="Eventos, rede e benefícios. A REC é o ponto de encontro do empreendedorismo no RS - mais de 370 mulheres no Network Entre Elas."
+  description="Eventos, rede e benefícios. O REC é o ponto de encontro do empreendedorismo no RS, com mais de 370 mulheres no Network Entre Elas."
   path="/comunidade"
   currentSection="Comunidade"
 >
-  <section class="comunidade-hero">
-    <div class="hero-content">
-      <span class="uppercase-label" style="color: var(--rec-teal)">comunidade</span>
-      <h1>Muito mais do que networking - um <em>ecossistema</em>.</h1>
-      <p class="lead">Eventos - conexões estratégicas - uma comunidade exclusiva de empreendedores que acreditam no poder do relacionamento para expandir negócios.</p>
+
+
+  <!-- BACKGROUND GRAPHICS -->
+  <div class="com-bg" aria-hidden="true">
+    <svg class="com-bg-ring" viewBox="0 0 240 240" width="240" height="240">
+      <g fill="currentColor">
+        {Array.from({ length: 36 }).map((_, i) => {
+          const a = (i / 36) * Math.PI * 2
+          const cx = 120 + Math.cos(a) * 100
+          const cy = 120 + Math.sin(a) * 100
+          return <circle cx={cx} cy={cy} r={2.4} />
+        })}
+      </g>
+    </svg>
+    <div class="com-bg-blob com-bg-blob-1"></div>
+    <svg class="com-bg-squiggle" viewBox="0 0 320 80" width="320" height="80">
+      <path d="M4 48 C 40 8, 80 88, 120 40 S 200 12, 240 56 S 300 24, 316 44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    </svg>
+    <div class="com-bg-blob com-bg-blob-2"></div>
+    <svg class="com-bg-diamonds" viewBox="0 0 100 160" width="100" height="160">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+        <polygon points="28,8 48,28 28,48 8,28" />
+        <polygon points="68,8 88,28 68,48 48,28" />
+        <polygon points="28,68 48,88 28,108 8,88" />
+        <polygon points="68,68 88,88 68,108 48,88" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- HERO -->
+  <section class="com-hero">
+    <div class="com-hero-inner">
+      <div class="com-hero-text" data-reveal>
+        <h1>
+          <span class="com-h1-line"><span class="com-word">Muito</span> <span class="com-word">mais</span> <span class="com-word">do</span> <span class="com-word">que</span> <span class="com-word com-word-thin">networking.</span></span>
+          <span class="com-h1-line"><span class="com-word">um</span> <span class="com-word com-word-em"><em>ecossistema.</em></span></span>
+        </h1>
+        <p class="com-lead">A comunidade foi desenvolvida para conectar e fortalecer empresas que buscam crescimento estruturado e aumento de faturamento.</p>
+        <p class="com-lead-secondary">Mais do que um espaço de networking, somos um ecossistema de relações verdadeiras, onde estratégias inteligentes encontram as pessoas certas e geram resultados reais e duradouros.</p>
+        <div class="com-hero-ctas">
+          <a href="/planos" class="com-cta-primary">quero fazer parte →</a>
+        </div>
+      </div>
+      <div class="com-hero-img" data-reveal>
+        <div class="com-hero-img-frame">
+          <IllustrativeImg src="/illustrative/comunidade-hero.jpg" alt="Encontro REC" ratio="4/5" mood="warm" />
+        </div>
+      </div>
     </div>
-    <IllustrativeImg src="/illustrative/comunidade-hero.jpg" alt="Encontro REC" ratio="4/5" mood="warm" />
   </section>
 
-  <section class="comunidade-pillars">
-    <div class="pillars-inner">
-      <h2>Três pilares - <em>uma rede.</em></h2>
-      <div class="pillars-grid">
-        <article class="pillar">
+
+  <!-- SOBRE / MANIFESTO -->
+  <section class="com-about">
+    <img class="com-about-logo" src="/logo-icon.png" alt="" aria-hidden="true" />
+    <div class="com-about-wrap">
+      <div class="com-about-inner" data-reveal>
+        <span class="uppercase-label" style="color: var(--rec-teal)">o que é a comunidade</span>
+        <h2>Empresas que <em>crescem juntas</em> chegam mais longe.</h2>
+        <p>A comunidade reúne empresários e empreendedores com um propósito comum: crescer de forma estruturada, inteligente e conectada. Aqui você encontra parceiros de negócio, mentores, clientes e uma rede que trabalha ativamente pelo seu crescimento.</p>
+        <p>Cada empresa dentro do ecossistema traz valor para a rede. É esse princípio que faz o REC funcionar: quando uma empresa cresce, ela puxa as demais consigo. <em>Movimento gera movimento.</em></p>
+      </div>
+
+      <!-- CONSTELAÇÃO DE EMPRESAS -->
+      <div class="com-constellation" aria-hidden="true" data-reveal>
+        <svg class="constellation-svg" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Linhas de conexão -->
+          <line class="c-line" x1="210" y1="190" x2="100" y2="90" />
+          <line class="c-line" x1="210" y1="190" x2="320" y2="80" />
+          <line class="c-line" x1="210" y1="190" x2="360" y2="220" />
+          <line class="c-line" x1="210" y1="190" x2="290" y2="310" />
+          <line class="c-line" x1="210" y1="190" x2="100" y2="300" />
+          <line class="c-line" x1="210" y1="190" x2="55"  y2="190" />
+          <line class="c-line" x1="100" y1="90"  x2="320" y2="80" />
+          <line class="c-line" x1="100" y1="90"  x2="55"  y2="190" />
+          <line class="c-line" x1="320" y1="80"  x2="360" y2="220" />
+          <line class="c-line" x1="360" y1="220" x2="290" y2="310" />
+          <line class="c-line" x1="290" y1="310" x2="100" y2="300" />
+          <line class="c-line" x1="100" y1="300" x2="55"  y2="190" />
+          <!-- Nós satélites pequenos -->
+          <line class="c-line c-line-faint" x1="100" y1="90"  x2="60"  y2="40" />
+          <line class="c-line c-line-faint" x1="320" y1="80"  x2="390" y2="40" />
+          <line class="c-line c-line-faint" x1="360" y1="220" x2="410" y2="290" />
+          <line class="c-line c-line-faint" x1="100" y1="300" x2="50"  y2="350" />
+
+          <!-- Nó central (REC) -->
+          <circle class="c-node c-node-center" cx="210" cy="190" r="14" />
+          <circle class="c-node-ring" cx="210" cy="190" r="22" />
+
+          <!-- Nós principais -->
+          <circle class="c-node c-node-main" cx="100" cy="90"  r="9" style="animation-delay: 0.2s" />
+          <circle class="c-node c-node-main" cx="320" cy="80"  r="9" style="animation-delay: 0.5s" />
+          <circle class="c-node c-node-main" cx="360" cy="220" r="9" style="animation-delay: 0.8s" />
+          <circle class="c-node c-node-main" cx="290" cy="310" r="9" style="animation-delay: 1.1s" />
+          <circle class="c-node c-node-main" cx="100" cy="300" r="9" style="animation-delay: 1.4s" />
+          <circle class="c-node c-node-main" cx="55"  cy="190" r="9" style="animation-delay: 1.7s" />
+
+          <!-- Nós satélites -->
+          <circle class="c-node c-node-small" cx="60"  cy="40"  r="5" style="animation-delay: 0.4s" />
+          <circle class="c-node c-node-small" cx="390" cy="40"  r="5" style="animation-delay: 0.7s" />
+          <circle class="c-node c-node-small" cx="410" cy="290" r="5" style="animation-delay: 1.0s" />
+          <circle class="c-node c-node-small" cx="50"  cy="350" r="5" style="animation-delay: 1.3s" />
+
+          <!-- Label central -->
+          <text class="c-label" x="210" y="222" text-anchor="middle">REC</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRÊS PILARES -->
+  <section class="com-pillars" id="pilares">
+    <div class="com-pillars-inner">
+      <header class="com-pillars-header" data-reveal>
+        <span class="uppercase-label" style="color: var(--rec-teal)">como funciona</span>
+        <h2>Três pilares, <em>uma rede.</em></h2>
+        <p class="com-pillars-sub">A estrutura por trás de uma comunidade que move negócios há 8 anos.</p>
+      </header>
+      <div class="com-pillars-grid">
+        <article class="com-pillar" data-reveal>
+          <div class="com-pillar-num">01</div>
+          <div class="com-pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
           <h3>Eventos</h3>
-          <p>Encontros mensais nos formatos feminino - masculino - misto - corporativo. Cada um pensado pra um momento de jornada empreendedora.</p>
+          <p>Encontros mensais em todos os formatos, reunindo empreendedores, marcas e oportunidades em experiências organizadas para fortalecer relações e movimentar negócios.</p>
+          <ul class="com-pillar-list">
+            <li>Networking qualificado</li>
+            <li>Conexões presenciais</li>
+            <li>Formatos variados</li>
+          </ul>
         </article>
-        <article class="pillar">
+        <article class="com-pillar com-pillar-featured" data-reveal>
+          <div class="com-pillar-num">02</div>
+          <div class="com-pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="4" cy="6" r="2"/>
+              <circle cx="20" cy="6" r="2"/>
+              <circle cx="4" cy="18" r="2"/>
+              <circle cx="20" cy="18" r="2"/>
+              <line x1="6" y1="7" x2="10" y2="11"/>
+              <line x1="18" y1="7" x2="14" y2="11"/>
+              <line x1="6" y1="17" x2="10" y2="13"/>
+              <line x1="18" y1="17" x2="14" y2="13"/>
+            </svg>
+          </div>
           <h3>Rede</h3>
-          <p>84 empresas parceiras - mais de 370 mulheres no Network Entre Elas. Cada conexão dentro da rede é uma porta que abre.</p>
+          <p>Empresas conectadas por uma visão em comum: crescer por meio de relações estratégicas, conexões reais e oportunidades construídas em comunidade.</p>
+          <ul class="com-pillar-list">
+            <li>Rede empresarial ativa</li>
+            <li>Conexões reais</li>
+            <li>Parcerias que evoluem</li>
+          </ul>
         </article>
-        <article class="pillar">
+        <article class="com-pillar" data-reveal>
+          <div class="com-pillar-num">03</div>
+          <div class="com-pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.8 5.8,21 7,14 2,9.3 9,8.5"/>
+            </svg>
+          </div>
           <h3>Benefícios</h3>
-          <p>Descontos exclusivos com parceiros - mentorias - acesso a serviços do HUB com condições especiais pra membros.</p>
+          <p>Benefícios exclusivos com parceiros, condições especiais em experiências da rede e acesso a oportunidades criadas para fortalecer o crescimento de cada empresa.</p>
+          <ul class="com-pillar-list">
+            <li>Vantagens para membros</li>
+            <li>Conexões estratégicas</li>
+            <li>Relacionamentos que geram valor</li>
+          </ul>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="comunidade-testimonials">
-    <div class="testimonials-inner">
-      <h2>O que dizem as <em>membras.</em></h2>
-      <Testimonial
-        name="Andiara Bohrer"
-        company="Tenax Marcas"
-        quote="[depoimento original a confirmar - puxar do recolaborativo.com.br atual]"
-        pending
-      />
-      <Testimonial
-        name="Aline Freitas"
-        company="Farmácia do Povo"
-        quote="[depoimento original a confirmar - puxar do recolaborativo.com.br atual]"
-        pending
-      />
-      <Testimonial
-        name="Érica Ponce"
-        company="Érica Ponce Solução"
-        quote="[depoimento estava truncado no site atual - aguardando texto completo da Érica]"
-        pending
-      />
+  <!-- PARA QUEM É -->
+  <section class="com-forwho">
+    <div class="com-forwho-inner">
+      <header class="com-forwho-header" data-reveal>
+        <span class="uppercase-label" style="color: var(--rec-teal)">para quem é</span>
+        <h2>Para quem quer crescer <em>com intenção.</em></h2>
+        <p class="com-forwho-sub">A comunidade é para empresários e empreendedores que entendem que crescimento real acontece através de relações verdadeiras, estratégias consistentes e um ecossistema que apoia cada passo da jornada.</p>
+        <a href="/planos" class="com-cta-primary com-forwho-cta-desktop">ver planos →</a>
+      </header>
+
+      <div class="com-forwho-grid">
+        <div class="com-forwho-card" data-reveal>
+          <div class="com-forwho-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <h3>Ampliar sua rede</h3>
+          <p>Empresas que querem expandir o alcance e abrir novas frentes de negócio.</p>
+        </div>
+
+        <div class="com-forwho-card" data-reveal>
+          <div class="com-forwho-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Parcerias estratégicas</h3>
+          <p>Empreendedores que buscam construir alianças que geram resultados reais.</p>
+        </div>
+
+        <div class="com-forwho-card" data-reveal>
+          <div class="com-forwho-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Crescimento estruturado</h3>
+          <p>Quem quer evoluir com consistência, planejamento e visão de longo prazo.</p>
+        </div>
+
+        <div class="com-forwho-card" data-reveal>
+          <div class="com-forwho-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <h3>Propósito em comum</h3>
+          <p>Marcas alinhadas com o valor da colaboração e do movimento coletivo.</p>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <section class="comunidade-cta">
-    <div class="cta-inner">
-      <h2>Pronta pra entrar na rede?</h2>
-      <p>Os planos da comunidade começam em R$ 47,90/mês.</p>
-      <a href="/planos" class="cta-primary">ver planos comunidade →</a>
+  <!-- DEPOIMENTOS -->
+  <section class="com-testimonials">
+    <div class="com-testimonials-inner" data-reveal>
+      <header class="com-test-header">
+        <span class="uppercase-label" style="color: var(--rec-teal)">quem já faz parte</span>
+        <h2>O que dizem os <em>associados.</em></h2>
+      </header>
+      <div class="com-testimonials-grid">
+        <Testimonial
+          name="Patrícia Flores"
+          company="AHS Consórcios"
+          quote="Através dessa rede colaborativa já pude ter mais de 3 milhões em crédito vendidos."
+          video="/video/patricia.mp4"
+        />
+        <Testimonial
+          name="João Pedro"
+          company="Advogado"
+          quote="Em apenas duas semanas fazendo parte dessa comunidade me rendeu fechar um contrato de honorários de R$7.500."
+          video="/video/joao.mp4"
+        />
+        <Testimonial
+          name="Angélica"
+          company="Terapeuta Capilar / Spa"
+          quote="Em uma semana já deu um resultado maravilhoso, por exemplo só hoje eu vendi mais de dez voucher..."
+          video="/video/angelica.mp4"
+        />
+        <Testimonial
+          name="Joice"
+          company="Foco Personalizados"
+          quote="Temos vários insights e sempre que a gente faz um encontro saímos transformado(a)."
+          video="/video/Joice.mp4"
+        />
+      </div>
     </div>
   </section>
+
+  <!-- VIDEO MODAL (global) -->
+  <VideoModal />
+
+  <!-- CTA FINAL -->
+  <section class="com-final" data-reveal>
+    <!-- decorativo canto superior direito — igual ao sg-bars-sm da home -->
+    <div class="com-final-bars" aria-hidden="true" data-reveal>
+      <span></span><span></span><span></span>
+    </div>
+    <div class="com-final-inner">
+      <h2><em>Pronto pra</em> entrar no <span class="com-final-light">movimento?</span></h2>
+      <p>Fale com a gente e descubra se a Comunidade REC é o próximo passo da sua empresa.</p>
+      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="com-final-cta">Entrar na comunidade →</a>
+    </div>
+  </section>
+
 </BaseLayout>
 
 <style>
-.comunidade-hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); padding: var(--space-16) var(--space-6); max-width: var(--container-max); margin: 0 auto; align-items: center; }
-.comunidade-hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
-.comunidade-hero h1 em { color: var(--rec-teal); font-style: normal; }
-.lead { font-size: var(--type-body); color: #556; line-height: 1.7; }
-.comunidade-pillars { padding: var(--space-16) var(--space-6); background: var(--grad-soft-teal); }
-.pillars-inner { max-width: var(--container-max); margin: 0 auto; }
-.pillars-inner h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
-.pillars-inner h2 em { color: var(--rec-teal); font-style: normal; }
-.pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-top: var(--space-8); }
-.pillar { padding: var(--space-6); border: 1px solid rgba(37,52,57,0.08); border-radius: 12px; background: #fff; }
-.pillar h3 { color: var(--rec-purple); margin-bottom: var(--space-3); font-size: var(--type-h3); }
-.pillar p { font-size: var(--type-small); color: #556; line-height: 1.6; }
-.comunidade-testimonials { padding: var(--space-16) var(--space-6); }
-.testimonials-inner { max-width: 760px; margin: 0 auto; }
-.testimonials-inner h2 { margin-bottom: var(--space-8); font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
-.testimonials-inner h2 em { color: var(--rec-teal); font-style: normal; }
-.comunidade-cta { padding: var(--space-16) var(--space-6); background: var(--grad-footer); color: #fff; text-align: center; }
-.comunidade-cta h2 { color: #fff; margin-bottom: var(--space-3); }
-.comunidade-cta p { color: rgba(255,255,255,0.7); margin-bottom: var(--space-6); }
-.cta-primary { display: inline-block; background: var(--rec-teal); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-@media (max-width: 768px) { .comunidade-hero { grid-template-columns: 1fr; } .pillars-grid { grid-template-columns: 1fr; } }
+/* REVEAL */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing); }
+[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+/* ===================================
+   BACKGROUND DECORATIVE GRAPHICS
+   =================================== */
+.com-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+  overflow: hidden;
+}
+.com-bg > * {
+  position: absolute;
+  opacity: 0;
+  animation: bgFadeIn 1.4s ease-out forwards;
+}
+@keyframes bgFadeIn {
+  to { opacity: 1; }
+}
+
+/* Three-bar marks */
+.com-about-logo { position: absolute; left: calc((100vw - var(--container-max)) / 2 + var(--space-6) - 62px); top: -70px; width: 160px; height: auto; opacity: 0.6; z-index: 2; }
+
+/* Dot ring with rotation */
+.com-bg-ring {
+  right: -110px;
+  top: 172vh;
+  color: rgba(1,38,89,0.18);
+  animation: bgFadeIn 1.4s ease-out 0.4s forwards, slowRotate 80s linear infinite;
+}
+@keyframes slowRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Soft blob */
+.com-bg-blob {
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  animation: bgFadeIn 1.6s ease-out 0.3s forwards, blobFloat 8s ease-in-out infinite;
+}
+.com-bg-blob-1 {
+  left: -100px;
+  top: 200vh;
+  background: radial-gradient(circle at 35% 35%, rgba(184,224,221,0.85), rgba(184,224,221,0) 70%);
+}
+.com-bg-blob-2 {
+  right: -120px;
+  top: 320vh;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle at 30% 30%, rgba(0,161,152,0.18), rgba(0,161,152,0) 70%);
+  animation: bgFadeIn 1.6s ease-out 0.6s forwards, blobFloat 10s ease-in-out infinite reverse;
+}
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -25px); }
+}
+
+/* Squiggle */
+.com-bg-squiggle {
+  left: -30px;
+  top: 273vh;
+  color: rgba(0,161,152,0.5);
+  animation: bgFadeIn 1.4s ease-out 0.5s forwards, gentleDrift 7s ease-in-out infinite;
+}
+@keyframes gentleDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(15px); }
+}
+
+/* Diamond grid */
+.com-bg-diamonds {
+  left: 4vw;
+  top: 380vh;
+  color: rgba(0,161,152,0.4);
+  animation: bgFadeIn 1.4s ease-out 0.7s forwards;
+}
+
+/* ===================================
+   HERO
+   =================================== */
+.com-hero { position: relative; padding: var(--space-20) var(--space-6) var(--space-24); overflow: hidden; }
+.com-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(0,161,152,0.10) 0%, transparent 55%),
+              radial-gradient(ellipse at 10% 90%, rgba(184,224,221,0.18) 0%, transparent 55%);
+  z-index: 0;
+  pointer-events: none;
+}
+.com-hero-inner { position: relative; z-index: 5; max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--space-16); align-items: center; }
+.com-hero-text { display: flex; flex-direction: column; gap: var(--space-5); }
+
+.com-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  font-size: var(--type-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  color: var(--rec-teal);
+}
+.com-eyebrow-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rec-teal);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,161,152,0.6); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(0,161,152,0); }
+}
+
+.com-hero-text h1 {
+  font-size: clamp(2.4rem, 5.8vw, 4rem);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: var(--letter-tight);
+  color: var(--rec-blue);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.com-h1-line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+.com-word {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: wordRise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.com-h1-line:nth-child(1) .com-word:nth-child(1) { animation-delay: 0.05s; }
+.com-h1-line:nth-child(1) .com-word:nth-child(2) { animation-delay: 0.12s; }
+.com-h1-line:nth-child(1) .com-word:nth-child(3) { animation-delay: 0.19s; }
+.com-h1-line:nth-child(1) .com-word:nth-child(4) { animation-delay: 0.26s; }
+.com-h1-line:nth-child(1) .com-word:nth-child(5) { animation-delay: 0.33s; }
+.com-h1-line:nth-child(2) .com-word:nth-child(1) { animation-delay: 0.42s; }
+.com-h1-line:nth-child(2) .com-word:nth-child(2) { animation-delay: 0.50s; }
+.com-word-thin { color: var(--rec-teal); font-weight: 300; font-style: italic; }
+.com-word-em em { color: var(--rec-teal); font-style: italic; }
+@keyframes wordRise {
+  to { transform: translateY(0); }
+}
+
+.com-lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: #1d3a55; line-height: 1.6; max-width: 540px; font-weight: 500; }
+.com-lead-secondary { font-size: var(--type-body); color: #3a4a55; line-height: 1.75; max-width: 540px; }
+
+.com-hero-ctas { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; margin-top: var(--space-2); }
+.com-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  background: var(--rec-teal);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--type-small);
+  transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing);
+  box-shadow: 0 6px 20px rgba(0,161,152,0.32);
+  position: relative;
+  overflow: hidden;
+}
+.com-cta-primary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+.com-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,161,152,0.5); }
+.com-cta-primary:hover::after { left: 100%; }
+
+.com-cta-secondary {
+  color: var(--rec-blue);
+  font-weight: 600;
+  font-size: var(--type-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1.5px solid var(--rec-teal);
+  padding-bottom: 4px;
+  transition: color var(--motion-fast) var(--easing);
+}
+.com-cta-secondary:hover { color: var(--rec-teal); }
+
+/* Hero image */
+.com-hero-img { position: relative; }
+.com-hero-img-frame {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(1,38,89,0.22);
+  animation: imgFloat 6s ease-in-out infinite;
+}
+@keyframes imgFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.com-hero-img-badge {
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  background: #fff;
+  padding: var(--space-4) var(--space-5);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(1,38,89,0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 4px solid var(--rec-teal);
+  animation: badgeBob 5s ease-in-out infinite;
+}
+@keyframes badgeBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.com-badge-val { font-size: 1.8rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); line-height: 1; }
+.com-badge-label { font-size: var(--type-micro); color: #556; text-transform: uppercase; letter-spacing: 0.1em; }
+
+@media (max-width: 800px) {
+  .com-hero-inner { grid-template-columns: 1fr; gap: var(--space-10); }
+  .com-hero-img-badge { left: 10px; bottom: -15px; }
+}
+
+/* ===================================
+   NUMBERS STRIP
+   =================================== */
+.com-numbers { position: relative; z-index: 5; background: linear-gradient(135deg, var(--rec-blue) 0%, #042050 100%); padding: var(--space-8) var(--space-6); overflow: hidden; }
+.com-numbers::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,161,152,0.12) 0%, transparent 60%);
+}
+.com-numbers-inner { position: relative; max-width: var(--container-max); margin: 0 auto; display: flex; align-items: center; justify-content: space-around; gap: var(--space-6); flex-wrap: wrap; }
+.com-num { text-align: center; padding: var(--space-2) var(--space-4); }
+.com-num-val { display: block; font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 800; color: var(--rec-teal); letter-spacing: var(--letter-tight); line-height: 1; }
+.com-num-label { display: block; font-size: var(--type-micro); color: rgba(255,255,255,0.72); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 8px; font-weight: 600; }
+.com-num-divider { width: 1px; height: 50px; background: linear-gradient(180deg, transparent, rgba(255,255,255,0.2), transparent); }
+@media (max-width: 700px) { .com-num-divider { display: none; } .com-numbers-inner { gap: var(--space-4); } }
+
+/* ===================================
+   ABOUT
+   =================================== */
+.com-about { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, #fff 0%, rgba(184,224,221,0.10) 100%); overflow: visible; }
+.com-about-wrap { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center; }
+.com-about-inner { display: flex; flex-direction: column; gap: var(--space-5); }
+.com-about-inner h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin-top: var(--space-2); line-height: 1.05; }
+.com-about-inner h2 em { color: var(--rec-teal); font-style: normal; }
+.com-about-inner p { font-size: var(--type-body); color: #3a4a55; line-height: 1.8; }
+.com-about-inner p em { color: var(--rec-teal); font-style: italic; font-weight: 600; }
+
+/* CONSTELAÇÃO */
+.com-constellation { display: flex; align-items: center; justify-content: center; }
+.constellation-svg { width: 100%; max-width: 420px; height: auto; overflow: visible; }
+
+/* Linhas */
+.c-line { stroke: rgba(1,38,89,0.15); stroke-width: 1.2; stroke-dasharray: 400; stroke-dashoffset: 400; animation: drawLine 1.8s ease-out forwards; }
+.c-line-faint { stroke: rgba(1,38,89,0.07); }
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+.c-line:nth-child(1)  { animation-delay: 0.1s; }
+.c-line:nth-child(2)  { animation-delay: 0.25s; }
+.c-line:nth-child(3)  { animation-delay: 0.4s; }
+.c-line:nth-child(4)  { animation-delay: 0.55s; }
+.c-line:nth-child(5)  { animation-delay: 0.7s; }
+.c-line:nth-child(6)  { animation-delay: 0.85s; }
+.c-line:nth-child(7)  { animation-delay: 1.0s; }
+.c-line:nth-child(8)  { animation-delay: 1.1s; }
+.c-line:nth-child(9)  { animation-delay: 1.2s; }
+.c-line:nth-child(10) { animation-delay: 1.3s; }
+.c-line:nth-child(11) { animation-delay: 1.4s; }
+.c-line:nth-child(12) { animation-delay: 1.5s; }
+.c-line:nth-child(13) { animation-delay: 1.6s; }
+.c-line:nth-child(14) { animation-delay: 1.7s; }
+.c-line:nth-child(15) { animation-delay: 1.8s; }
+.c-line:nth-child(16) { animation-delay: 1.9s; }
+
+/* Nó central */
+.c-node-center { fill: var(--rec-teal); filter: drop-shadow(0 0 8px rgba(0,161,152,0.5)); animation: nodePop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+.c-node-ring { fill: none; stroke: var(--rec-teal); stroke-width: 1.5; opacity: 0; animation: ringExpand 2s ease-out 0.3s infinite; }
+@keyframes ringExpand { 0% { r: 18px; opacity: 0.6; } 100% { r: 36px; opacity: 0; } }
+
+/* Nós principais */
+.c-node-main { fill: var(--rec-blue); opacity: 0; animation: nodePop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes nodePop { from { transform-origin: center; transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Nós satélites */
+.c-node-small { fill: rgba(0,161,152,0.55); opacity: 0; animation: nodePop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* Label REC */
+.c-label { fill: #fff; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; font-family: var(--font-sans); }
+
+@media (max-width: 860px) { .com-about-wrap { grid-template-columns: 1fr; } .com-constellation { display: none; } }
+
+/* ===================================
+   PILARES
+   =================================== */
+.com-pillars { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.10) 0%, rgba(184,224,221,0.30) 100%); }
+.com-pillars-inner { max-width: var(--container-max); margin: 0 auto; }
+.com-pillars-header { text-align: center; margin-bottom: var(--space-12); }
+.com-pillars-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin: var(--space-3) 0; line-height: 1.05; }
+.com-pillars-header h2 em { color: var(--rec-teal); font-style: normal; }
+.com-pillars-sub { color: #556; font-size: var(--type-body); max-width: 560px; margin: 0 auto; }
+.com-pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+.com-pillar {
+  position: relative;
+  padding: var(--space-8) var(--space-7);
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(37,52,57,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: transform 0.4s var(--easing), box-shadow 0.4s var(--easing), border-color 0.4s var(--easing);
+  overflow: hidden;
+}
+.com-pillar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rec-teal), var(--rec-blue));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--easing);
+}
+.com-pillar:hover { transform: translateY(-8px); box-shadow: 0 20px 48px rgba(1,38,89,0.14); border-color: rgba(0,161,152,0.25); }
+.com-pillar:hover::before { transform: scaleX(1); }
+.com-pillar-featured { border-color: rgba(0,161,152,0.35); background: linear-gradient(160deg, rgba(0,161,152,0.06) 0%, #fff 60%); transform: translateY(-12px); }
+.com-pillar-featured::before { transform: scaleX(1); }
+.com-pillar-featured:hover { transform: translateY(-18px); }
+.com-pillar-num { position: absolute; top: var(--space-5); right: var(--space-6); font-size: 3rem; font-weight: 800; color: rgba(1,38,89,0.06); line-height: 1; letter-spacing: var(--letter-tight); }
+.com-pillar-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0,161,152,0.12), rgba(0,161,152,0.04));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-2);
+  transition: transform 0.4s var(--easing);
+}
+.com-pillar-icon svg { width: 26px; height: 26px; }
+.com-pillar:hover .com-pillar-icon { transform: scale(1.1) rotate(-4deg); }
+.com-pillar h3 { font-size: 1.6rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); }
+.com-pillar-featured h3 { color: var(--rec-teal); }
+.com-pillar p { font-size: var(--type-small); color: #3a4a55; line-height: 1.65; }
+.com-pillar-list { list-style: none; padding: 0; margin-top: auto; padding-top: var(--space-4); border-top: 1px solid rgba(37,52,57,0.08); display: flex; flex-direction: column; gap: var(--space-2); }
+.com-pillar-list li { font-size: var(--type-small); color: #3a4a55; padding-left: 18px; position: relative; }
+.com-pillar-list li::before { content: ''; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--rec-teal); }
+@media (max-width: 900px) { .com-pillars-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; } .com-pillar-featured { transform: none; } }
+
+/* ===================================
+   PARA QUEM É
+   =================================== */
+.com-forwho { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.30) 0%, #fff 100%); }
+.com-forwho-inner { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--space-16); align-items: start; }
+.com-forwho-header { text-align: left; display: flex; flex-direction: column; gap: var(--space-3); }
+.com-forwho-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin: var(--space-2) 0 var(--space-3); line-height: 1.05; }
+.com-forwho-header h2 em { color: var(--rec-teal); font-style: normal; }
+.com-forwho-sub { font-size: var(--type-body); color: #3a4a55; line-height: 1.75; max-width: 460px; }
+.com-forwho-cta-desktop { margin-top: var(--space-5); align-self: flex-start; }
+
+.com-forwho-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: var(--space-5); }
+.com-forwho-card {
+  position: relative;
+  background: #fff;
+  padding: var(--space-6);
+  border-radius: 16px;
+  border: 1px solid rgba(37,52,57,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: transform 0.4s var(--easing), box-shadow 0.4s var(--easing), border-color 0.4s var(--easing);
+}
+.com-forwho-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(1,38,89,0.10); border-color: rgba(0,161,152,0.25); }
+.com-forwho-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0,161,152,0.12), rgba(0,161,152,0.04));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rec-teal);
+  transition: transform 0.4s var(--easing);
+  margin-bottom: var(--space-2);
+}
+.com-forwho-icon svg { width: 20px; height: 20px; }
+.com-forwho-card:hover .com-forwho-icon { transform: scale(1.1) rotate(-4deg); }
+.com-forwho-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); }
+.com-forwho-card p { font-size: var(--type-small); color: #3a4a55; line-height: 1.6; }
+
+@media (max-width: 900px) {
+  .com-forwho-inner { grid-template-columns: 1fr; gap: var(--space-10); }
+  .com-forwho-header { text-align: center; align-items: center; }
+}
+@media (max-width: 520px) { .com-forwho-grid { grid-template-columns: 1fr; } }
+
+/* ===================================
+   DEPOIMENTOS
+   =================================== */
+.com-testimonials { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.10) 0%, #fff 100%); }
+.com-testimonials-inner { max-width: var(--container-max); margin: 0 auto; }
+.com-test-header { text-align: center; margin-bottom: var(--space-10); }
+.com-test-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; margin: var(--space-3) 0 0; color: var(--rec-blue); letter-spacing: var(--letter-tight); line-height: 1.05; }
+.com-test-header h2 em { color: var(--rec-teal); font-style: normal; }
+.com-testimonials-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6); max-width: 980px; margin: 0 auto; }
+@media (max-width: 800px) { .com-testimonials-grid { grid-template-columns: 1fr; max-width: 500px; } }
+
+/* Noise overlay anti-banding */
+.com-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+/* Branco cobrindo topo — fusão com página */
+.com-final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 22%;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    #fbfcfe 0%,
+    #fbfcfe 30%,
+    rgba(251,252,254,0) 100%
+  );
+}
+
+/* ===================================
+   DECORATIVO FINAL — barras iguais à home (sg-bars-sm)
+   =================================== */
+.com-final-bars {
+  position: absolute;
+  top: 32px;
+  right: 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+}
+.com-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.com-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.com-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.com-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .com-final-bars { display: none; } }
+
+/* ===================================
+   FINAL CTA
+   =================================== */
+.com-final {
+  position: relative; z-index: 5; overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%,
+    #f5fafd  3%,
+    #eef6fc  6%,
+    #e4f0fa  9%,
+    #d6e9f7 12%,
+    #c5dff3 16%,
+    #b0d2ee 20%,
+    #97c3e7 24%,
+    #7ab0de 29%,
+    #5d9cd3 34%,
+    #4287c5 39%,
+    #2c73b6 45%,
+    #1a60a6 51%,
+    #0f4e95 57%,
+    #083e81 63%,
+    #052e6a 70%,
+    #031f52 79%,
+    #031548 89%,
+    #042050 100%
+  );
+  text-align: center;
+}
+.com-final-inner { position: relative; max-width: 680px; margin: 0 auto; }
+.com-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--rec-blue); }
+.com-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.com-final-light { font-weight: 400; }
+.com-final p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: var(--space-8); font-size: var(--type-body); }
+.com-final-cta {
+  display: inline-block;
+  background: transparent;
+  color: var(--rec-teal);
+  padding: 20px 60px;
+  border-radius: 999px;
+  border: 2px solid var(--rec-teal);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 1.05rem;
+  transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+  animation: cta-pulse 2.8s ease-in-out infinite;
+}
+.com-final-cta:hover { background: var(--rec-teal); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,161,152,0.45); animation: none; }
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); }
+  50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .com-word { animation: none; transform: none; }
+  .com-bg > * { animation: none; opacity: 1; }
+  .com-hero-img-frame, .com-final-cta { animation: none; }
+}
 </style>
+
+<script>
+  import { initReveal } from '../utils/reveal'
+  initReveal()
+</script>

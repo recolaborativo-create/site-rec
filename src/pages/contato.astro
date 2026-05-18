@@ -5,45 +5,164 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 ---
 <BaseLayout
   title="Contato"
-  description="Fale com a gente - WhatsApp ou Instagram. REC Colaborativo - Porto Alegre/RS."
+  description="Fale com a gente pelo WhatsApp ou Instagram. REC Colaborativo, Porto Alegre/RS."
   path="/contato"
   currentSection="Contato"
 >
-  <section class="contato">
-    <span class="uppercase-label" style="color: var(--rec-teal)">contato</span>
-    <h1>A gente <em>conversa.</em></h1>
-    <p class="lead">Bate no WhatsApp ou manda DM no Instagram. Respondemos rápido - sem script - sem chatbot.</p>
-    <div class="contact-options">
-      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="contact-cta whatsapp">
-        <span class="contact-label">whatsapp</span>
-        <span class="contact-value">{externalLinks.whatsapp.number}</span>
-        <span class="contact-sub">resposta em horário comercial</span>
-      </a>
-      <a href={externalLinks.instagram.url} target="_blank" rel="noopener" class="contact-cta instagram">
-        <span class="contact-label">instagram</span>
-        <span class="contact-value">{externalLinks.instagram.handle}</span>
-        <span class="contact-sub">DM aberto - bastidores e novidades</span>
-      </a>
-    </div>
-    <div class="contact-footer">
-      <p>Porto Alegre - Rio Grande do Sul</p>
+  <section class="contato-wrap">
+    <div class="contato">
+      <span class="uppercase-label" style="color: var(--rec-teal)">contato</span>
+      <h1>A gente <em>conversa.</em></h1>
+      <p class="lead">Bate no WhatsApp ou manda DM no Instagram. Respondemos rápido, sem script, sem chatbot. Aqui é gente conversando com gente.</p>
+
+      <div class="contact-options">
+        <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="contact-cta whatsapp">
+          <span class="contact-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+          </span>
+          <span class="contact-label">whatsapp</span>
+          <span class="contact-value">{externalLinks.whatsapp.number}</span>
+          <span class="contact-sub">resposta em horário comercial</span>
+        </a>
+        <a href={externalLinks.instagram.url} target="_blank" rel="noopener" class="contact-cta instagram">
+          <span class="contact-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </span>
+          <span class="contact-label">instagram</span>
+          <span class="contact-value">{externalLinks.instagram.handle}</span>
+          <span class="contact-sub">DM aberto, bastidores e novidades</span>
+        </a>
+      </div>
+
+      <div class="contato-locale">
+        <p>Porto Alegre, Rio Grande do Sul</p>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-.contato { max-width: 760px; margin: 0 auto; padding: var(--space-16) var(--space-6); text-align: center; }
-.contato h1 { font-size: clamp(2.4rem, 6vw, 3.5rem); margin: var(--space-4) 0 var(--space-6); font-weight: 800; line-height: 1.05; }
-.contato h1 em { color: var(--rec-teal); font-style: normal; }
-.lead { font-size: var(--type-body); color: #556; line-height: 1.7; margin-bottom: var(--space-12); max-width: 520px; margin-left: auto; margin-right: auto; }
-.contact-options { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-12); }
-.contact-cta { padding: var(--space-8); border: 1px solid rgba(37,52,57,0.1); border-radius: 16px; transition: all var(--motion-fast) var(--easing); text-align: left; display: flex; flex-direction: column; gap: var(--space-2); }
-.contact-cta:hover { border-color: var(--rec-purple); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(62,64,149,0.1); }
-.contact-cta.instagram:hover { border-color: var(--rec-teal); }
-.contact-label { font-size: var(--type-micro); letter-spacing: 0.15em; text-transform: uppercase; color: #667; }
-.contact-value { font-size: 1.3rem; color: var(--rec-purple); font-weight: 700; letter-spacing: var(--letter-tight); }
-.contact-cta.instagram .contact-value { color: var(--rec-teal); }
-.contact-sub { font-size: var(--type-small); color: #888; }
-.contact-footer { padding-top: var(--space-8); border-top: 1px solid rgba(37,52,57,0.05); color: #888; font-size: var(--type-small); letter-spacing: 0.1em; text-transform: uppercase; }
-@media (max-width: 600px) { .contact-options { grid-template-columns: 1fr; } }
+.contato-wrap {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-6);
+  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.04) 100%);
+}
+.contato {
+  max-width: 920px;
+  width: 100%;
+  text-align: center;
+}
+.contato h1 {
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  margin: var(--space-4) 0 var(--space-6);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: var(--letter-tight);
+}
+.contato h1 em {
+  color: var(--rec-teal);
+  font-style: italic;
+}
+.lead {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: #556;
+  line-height: 1.75;
+  margin-bottom: var(--space-12);
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.contact-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.contact-cta {
+  padding: var(--space-8) var(--space-6);
+  background: #fff;
+  border: 1px solid rgba(37,52,57,0.08);
+  border-radius: 18px;
+  transition: all var(--motion-medium) var(--easing);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(37,52,57,0.04);
+}
+.contact-cta:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(62,64,149,0.12);
+}
+.contact-cta.whatsapp:hover {
+  border-color: rgba(0,161,152,0.4);
+  box-shadow: 0 16px 40px rgba(0,161,152,0.18);
+}
+.contact-cta.instagram:hover {
+  border-color: rgba(108,90,178,0.4);
+  box-shadow: 0 16px 40px rgba(108,90,178,0.14);
+}
+.contact-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+  transition: all var(--motion-medium) var(--easing);
+}
+.contact-cta.whatsapp .contact-icon {
+  background: rgba(0,161,152,0.1);
+  color: var(--rec-teal);
+}
+.contact-cta.instagram .contact-icon {
+  background: rgba(108,90,178,0.1);
+  color: var(--rec-purple);
+}
+.contact-cta:hover .contact-icon {
+  transform: scale(1.08);
+}
+.contact-label {
+  font-size: var(--type-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #889;
+  font-weight: 700;
+}
+.contact-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: var(--letter-tight);
+  margin-top: 2px;
+}
+.contact-cta.whatsapp .contact-value { color: var(--rec-teal); }
+.contact-cta.instagram .contact-value { color: var(--rec-purple); }
+.contact-sub {
+  font-size: var(--type-small);
+  color: #889;
+  margin-top: 4px;
+}
+.contato-locale {
+  padding-top: var(--space-8);
+  border-top: 1px solid rgba(37,52,57,0.08);
+  color: #889;
+  font-size: var(--type-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .contato-wrap { min-height: auto; padding: var(--space-12) var(--space-5); }
+  .contact-options { grid-template-columns: 1fr; gap: var(--space-4); }
+  .contact-cta { padding: var(--space-6) var(--space-5); }
+  .contato h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
+}
 </style>

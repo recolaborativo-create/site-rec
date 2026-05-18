@@ -5,10 +5,10 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { label: 'HUB', href: '/hub', description: 'serviços digitais' },
   { label: 'Comunidade', href: '/comunidade', description: 'eventos - rede - benefícios' },
-  { label: 'Agenda', href: '/agenda', description: 'trajetória e próximos encontros' },
-  { label: 'Parceiros', href: '/parceiros', description: '84 empresas conectadas' },
+  { label: 'HUB', href: '/hub', description: 'serviços digitais' },
+  { label: 'Eventos', href: '/agenda', description: 'trajetória e próximos encontros' },
+  { label: 'Empresas', href: '/empresas', description: '84 empresas conectadas' },
   { label: 'Blog', href: '/blog', description: 'pensamento sem pressa' },
   { label: 'Planos', href: '/planos', description: 'adesão + serviços hub' },
   { label: 'Contato', href: '/contato', description: 'fale com a gente' },

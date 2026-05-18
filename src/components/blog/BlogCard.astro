@@ -1,0 +1,260 @@
+---
+import { getCategoryInfo, readingTime, type Pillar } from '../../utils/blog-category'
+
+interface Props {
+  slug: string
+  title: string
+  excerpt: string
+  pillar: Pillar
+  publishedAt: Date
+  cover?: string
+  coverAlt?: string
+  body?: string
+  /** Variante visual — controla o tamanho/posição */
+  variant?: 'standard' | 'wide'
+  /** Index para delay sequencial de reveal */
+  index?: number
+}
+
+const {
+  slug, title, excerpt, pillar, publishedAt,
+  cover, coverAlt, body = '',
+  variant = 'standard', index = 0
+} = Astro.props
+
+const cat = getCategoryInfo(pillar)
+const dateStr = publishedAt.toLocaleDateString('pt-BR', {
+  day: '2-digit', month: 'short', year: 'numeric',
+})
+const minutes = body ? readingTime(body) : 4
+---
+
+<a
+  href={`/blog/${slug}`}
+  class:list={['blog-card', `blog-card--${variant}`, `blog-card--${cat.slug}`]}
+  data-category={cat.slug}
+  data-reveal
+  style={`--cat-color: ${cat.color}; --reveal-delay: ${index * 80}ms;`}
+  aria-label={title}
+>
+  <!-- TOPO: imagem real ou placeholder colorido por categoria -->
+  <div class="blog-card-top">
+    {cover ? (
+      <img src={cover} alt={coverAlt ?? ''} loading="lazy" decoding="async" class="blog-card-img" />
+    ) : (
+      <div class="blog-card-placeholder" aria-hidden="true">
+        <div class="blog-card-placeholder-noise"></div>
+        <span class="blog-card-placeholder-watermark">{cat.label}</span>
+        <div class="blog-card-placeholder-bar"></div>
+      </div>
+    )}
+    <span class="blog-card-cat">
+      <span class="blog-card-cat-dot" aria-hidden="true"></span>
+      {cat.label}
+    </span>
+  </div>
+
+  <div class="blog-card-body">
+    <h3 class="blog-card-title">{title}</h3>
+    {variant === 'wide' && <p class="blog-card-excerpt">{excerpt}</p>}
+    <div class="blog-card-meta">
+      <time datetime={publishedAt.toISOString()}>{dateStr}</time>
+      <span class="blog-card-meta-sep" aria-hidden="true">·</span>
+      <span>{minutes} min de leitura</span>
+    </div>
+  </div>
+</a>
+
+<style>
+.blog-card {
+  --cat-color: var(--rec-teal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+}
+.blog-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* TOP — contenedor unificado para imagem ou placeholder */
+.blog-card-top {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  aspect-ratio: var(--card-aspect, 16/10);
+  background: rgba(1,38,89,0.08);
+}
+
+/* Imagem real */
+.blog-card-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.blog-card:hover .blog-card-img {
+  transform: scale(1.045);
+}
+
+/* Placeholder colorido (sem imagem) */
+.blog-card-placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--rec-navy);
+  overflow: hidden;
+}
+
+/* Faixa colorida de categoria na base */
+.blog-card-placeholder-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--cat-color);
+  opacity: 0.9;
+}
+
+/* Watermark grande em texto (categoria) */
+.blog-card-placeholder-watermark {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--cat-color);
+  opacity: 0.1;
+  line-height: 1;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Ruído sutil */
+.blog-card-placeholder-noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.04;
+  mix-blend-mode: screen;
+}
+
+/* Hover: leve glow no placeholder */
+.blog-card:hover .blog-card-placeholder {
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.07);
+}
+.blog-card:hover .blog-card-placeholder-bar {
+  opacity: 1;
+}
+
+/* Pill de categoria — sobre o top (imagem ou placeholder) */
+.blog-card-cat {
+  position: absolute;
+  top: 14px; left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--cat-color);
+  z-index: 2;
+}
+.blog-card-cat-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--cat-color);
+}
+
+/* BODY */
+.blog-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.blog-card-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--rec-blue);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.blog-card--wide .blog-card-title {
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  -webkit-line-clamp: 3;
+}
+
+.blog-card-excerpt {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgba(1,38,89,0.65);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(1,38,89,0.5);
+  text-transform: lowercase;
+  margin-top: 4px;
+}
+.blog-card-meta-sep { opacity: 0.5; }
+
+/* Underline animada no título no hover */
+.blog-card::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: var(--cat-color);
+  transition: width 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.blog-card:hover::after {
+  width: calc(100% - 8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-card { opacity: 1; transform: none; transition: none; }
+  .blog-card:hover .blog-card-img { transform: none; }
+}
+
+/* Variante wide */
+.blog-card--wide {
+  gap: var(--space-5);
+}
+</style>

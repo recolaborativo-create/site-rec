@@ -1,32 +1,1024 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import BlogList from '../../components/blog/BlogList.astro'
+import FeaturedCard from '../../components/blog/FeaturedCard.astro'
+import BlogCard from '../../components/blog/BlogCard.astro'
+import ArchivalRow from '../../components/blog/ArchivalRow.astro'
+import NewsletterBanner from '../../components/blog/NewsletterBanner.astro'
+import { whatsappLink, messages } from '../../utils/whatsapp'
+import { pillarToCategory, type Category, CATEGORIES } from '../../utils/blog-category'
 import { getCollection } from 'astro:content'
 
-const posts = (await getCollection('blog')).sort(
+// ── Posts ordenados por data (mais recente primeiro) ─────────
+const allPosts = (await getCollection('blog')).sort(
   (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
 )
+
+// ── Featured: o mais recente ─────────────────────────────────
+const featured = allPosts[0]
+// ── Mini-cards: 2º e 3º mais recentes ────────────────────────
+const mini1 = allPosts[1]
+const mini2 = allPosts[2]
+// ── Arquivo: o resto ─────────────────────────────────────────
+const archive = allPosts.slice(3)
+const totalCount = allPosts.length
+
+// Categorias presentes
+const categoriesPresent = new Set<Category>(
+  allPosts.map(p => pillarToCategory(p.data.pillar))
+)
+const FILTERS: { value: 'all' | Category; label: string; show: boolean }[] = [
+  { value: 'all',              label: 'todos',           show: true },
+  { value: 'eventos',          label: 'eventos',         show: categoriesPresent.has('eventos') },
+  { value: 'educacional',      label: 'educacional',     show: categoriesPresent.has('educacional') },
+  { value: 'historias',        label: 'histórias',       show: categoriesPresent.has('historias') },
+  { value: 'empreendedorismo', label: 'empreendedorismo',show: categoriesPresent.has('empreendedorismo') },
+]
+const visibleFilters = FILTERS.filter(f => f.show)
+
+// Data atualização
+const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
+  day: '2-digit', month: 'short', year: 'numeric',
+})
 ---
+
 <BaseLayout
   title="Blog"
-  description="Pensamento sem a pressa do feed - REC. Empreendedorismo, comunidade, estratégia digital."
+  description="Ideias, eventos e histórias que movem negócios. Conteúdo estratégico para empreendedores."
   path="/blog"
   currentSection="Blog"
 >
-  <section class="blog-intro">
-    <div class="intro-inner">
-      <span class="uppercase-label" style="color: var(--rec-teal)">blog rec</span>
-      <h1>Pensamento - <em>sem a pressa do feed.</em></h1>
-      <p class="lead">Conteúdo pensado pra durar mais que um stories. Filtra pelo pilar que interessa.</p>
+
+  <!-- ============================================
+       BARRA DE PROGRESSO DE LEITURA GLOBAL
+       ============================================ -->
+  <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+
+  <!-- ============================================
+       1. HERO EDITORIAL (90vh)
+       ============================================ -->
+  <section class="blog-hero" data-reveal>
+    <div class="blog-hero-noise" aria-hidden="true"></div>
+    <div class="blog-hero-inner">
+      <span class="blog-hero-eyebrow">blog rec</span>
+      <h1 class="blog-hero-title">
+        <span class="blog-hero-title-line"><span class="blog-hero-word">Ideias</span></span>
+        <span class="blog-hero-title-line"><span class="blog-hero-word">que <em>movem</em></span></span>
+        <span class="blog-hero-title-line"><span class="blog-hero-word"><em>negócios.</em></span></span>
+      </h1>
+      <p class="blog-hero-lead">
+        Estratégia, eventos e histórias reais da comunidade REC.<br/>
+        Conteúdo pensado pra durar mais que um stories.
+      </p>
+
+      <!-- Contador editorial -->
+      <div class="blog-hero-counter">
+        <span class="counter-item">
+          <span class="counter-num" data-target={totalCount}>0</span>
+          <span class="counter-label">artigos</span>
+        </span>
+        <span class="counter-sep" aria-hidden="true"></span>
+        <span class="counter-item">
+          <span class="counter-num" data-target={visibleFilters.length - 1}>0</span>
+          <span class="counter-label">categorias</span>
+        </span>
+        <span class="counter-sep" aria-hidden="true"></span>
+        <span class="counter-item">
+          <span class="counter-update-label">atualizado em</span>
+          <span class="counter-date">{lastUpdate}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="blog-hero-scroll" aria-hidden="true">
+      <span class="scroll-label">role pra explorar</span>
+      <span class="scroll-line"></span>
     </div>
   </section>
-  <BlogList posts={posts} />
+
+  <!-- ============================================
+       2. FEATURED + 2 MINI CARDS
+       ============================================ -->
+  {featured && (
+    <section class="blog-featured-row" data-blog-section>
+      <div class="featured-main">
+        <FeaturedCard
+          slug={featured.id}
+          title={featured.data.title}
+          excerpt={featured.data.excerpt}
+          pillar={featured.data.pillar}
+          publishedAt={featured.data.publishedAt}
+          cover={featured.data.cover}
+          coverAlt={featured.data.coverAlt}
+          body={featured.body}
+        />
+      </div>
+
+      {(mini1 || mini2) && (
+        <div class="featured-mini-stack">
+          {mini1 && (
+            <div class="mini-cell">
+              <BlogCard
+                slug={mini1.id}
+                title={mini1.data.title}
+                excerpt={mini1.data.excerpt}
+                pillar={mini1.data.pillar}
+                publishedAt={mini1.data.publishedAt}
+                cover={mini1.data.cover}
+                coverAlt={mini1.data.coverAlt}
+                body={mini1.body}
+                variant="standard"
+                index={0}
+              />
+            </div>
+          )}
+          {mini2 && (
+            <div class="mini-cell">
+              <BlogCard
+                slug={mini2.id}
+                title={mini2.data.title}
+                excerpt={mini2.data.excerpt}
+                pillar={mini2.data.pillar}
+                publishedAt={mini2.data.publishedAt}
+                cover={mini2.data.cover}
+                coverAlt={mini2.data.coverAlt}
+                body={mini2.body}
+                variant="standard"
+                index={1}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  )}
+
+  <!-- ============================================
+       3. ARCHIVAL INDEX
+       ============================================ -->
+  <section class="archival-section" data-blog-section>
+    <header class="archival-header">
+      <div class="archival-header-left">
+        <span class="archival-eyebrow">arquivo · 2025</span>
+        <h2 class="archival-title">Índice de edições.</h2>
+      </div>
+
+      <!-- Filtros estilo abas de revista -->
+      <nav class="archival-tabs" id="archival-tabs" role="tablist" aria-label="Filtrar por categoria">
+        {visibleFilters.map((f, i) => (
+          <button
+            class:list={['archival-tab', { 'is-active': i === 0 }]}
+            data-category={f.value}
+            type="button"
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            style={f.value !== 'all' ? `--cat-color: ${CATEGORIES[f.value].color};` : ''}
+          >
+            {f.label}
+          </button>
+        ))}
+      </nav>
+    </header>
+
+    <!-- Flex: lista à esquerda, preview sticky à direita -->
+    <div class="archival-body">
+
+      <!-- Coluna da lista -->
+      <div class="archival-list-col">
+        <ol class="archival-list" id="archival-list">
+          {archive.map((p, i) => (
+            <li class="archival-item" data-category={pillarToCategory(p.data.pillar)}>
+              <ArchivalRow
+                slug={p.id}
+                title={p.data.title}
+                excerpt={p.data.excerpt}
+                pillar={p.data.pillar}
+                publishedAt={p.data.publishedAt}
+                cover={p.data.cover}
+                coverAlt={p.data.coverAlt}
+                body={p.body}
+                number={i + 1}
+                index={i}
+              />
+            </li>
+          ))}
+        </ol>
+        <p class="archival-empty" id="archival-empty" hidden>
+          Nenhum artigo nesta categoria ainda. Em breve.
+        </p>
+      </div>
+
+      <!-- Preview sticky — fica no mesmo lugar, só muda o conteúdo -->
+      <div class="archival-preview" id="archival-preview" aria-hidden="true">
+        <div class="archival-preview-inner">
+          <div class="archival-preview-cat-strip" id="archival-preview-strip"></div>
+          <div class="archival-preview-media">
+            <img class="archival-preview-img" id="archival-preview-img" src="" alt="" />
+            <div class="archival-preview-placeholder" id="archival-preview-placeholder" hidden>
+              <span class="archival-preview-watermark" id="archival-preview-watermark"></span>
+            </div>
+          </div>
+          <div class="archival-preview-info">
+            <span class="archival-preview-cat" id="archival-preview-cat"></span>
+            <p class="archival-preview-excerpt" id="archival-preview-excerpt"></p>
+            <span class="archival-preview-min" id="archival-preview-min"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================
+       4. NEWSLETTER
+       ============================================ -->
+  <NewsletterBanner />
+
+  <!-- ============================================
+       5. CTA FINAL
+       ============================================ -->
+  <section class="blog-final" data-reveal>
+    <div class="blog-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="blog-final-inner">
+      <h2>Faça parte da <em>comunidade</em> REC.</h2>
+      <p>Conexões, eventos e oportunidades que você não encontra em outro lugar.</p>
+      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="blog-final-cta">
+        quero entrar →
+      </a>
+    </div>
+  </section>
+
 </BaseLayout>
 
+<script>
+  // ── 1. Reveal sequencial ───────────────────────────────────
+  const revealItems = document.querySelectorAll<HTMLElement>('[data-reveal]')
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible')
+        entry.target.setAttribute('data-revealed', 'true')
+        io.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' })
+  revealItems.forEach(el => io.observe(el))
+
+  // ── 2. Barra de progresso de leitura global ────────────────
+  const progress = document.getElementById('reading-progress')
+  if (progress) {
+    let rafId = 0
+    const updateProgress = () => {
+      const scrolled = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const pct = docHeight > 0 ? Math.min(100, (scrolled / docHeight) * 100) : 0
+      progress.style.transform = `scaleX(${pct / 100})`
+    }
+    window.addEventListener('scroll', () => {
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        updateProgress()
+        rafId = 0
+      })
+    }, { passive: true })
+    updateProgress()
+  }
+
+  // ── 3. Contador animado do hero ────────────────────────────
+  const counterNums = document.querySelectorAll<HTMLElement>('.counter-num')
+  const animateCounter = (el: HTMLElement) => {
+    const target = parseInt(el.dataset.target || '0', 10)
+    const duration = 1400
+    const start = performance.now()
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - t, 3) // easeOutCubic
+      el.textContent = String(Math.round(target * eased))
+      if (t < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target as HTMLElement)
+        counterIO.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.5 })
+  counterNums.forEach(el => counterIO.observe(el))
+
+  // ── 4. Filtro por categoria (abas) ─────────────────────────
+  const tabs  = document.querySelectorAll<HTMLButtonElement>('#archival-tabs .archival-tab')
+  const items = document.querySelectorAll<HTMLElement>('.archival-item')
+  const empty = document.getElementById('archival-empty')
+  const list  = document.getElementById('archival-list')
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.category || 'all'
+      tabs.forEach(t => {
+        const active = t === tab
+        t.classList.toggle('is-active', active)
+        t.setAttribute('aria-selected', active ? 'true' : 'false')
+      })
+
+      if (list) list.classList.add('is-filtering')
+
+      setTimeout(() => {
+        let visible = 0
+        items.forEach(item => {
+          const matches = target === 'all' || item.dataset.category === target
+          item.hidden = !matches
+          if (matches) visible++
+        })
+        if (empty) empty.hidden = visible !== 0
+        if (list) list.classList.remove('is-filtering')
+      }, 200)
+    })
+  })
+
+  // ── 5. Preview lateral no hover ────────────────────────────
+  const preview        = document.getElementById('archival-preview')
+  const previewImg     = document.getElementById('archival-preview-img') as HTMLImageElement
+  const previewPh      = document.getElementById('archival-preview-placeholder')
+  const previewWm      = document.getElementById('archival-preview-watermark')
+  const previewCat     = document.getElementById('archival-preview-cat')
+  const previewExcerpt = document.getElementById('archival-preview-excerpt')
+  const previewMin     = document.getElementById('archival-preview-min')
+  const previewStrip   = document.getElementById('archival-preview-strip')
+  const rows = document.querySelectorAll<HTMLAnchorElement>('.archival-row')
+
+  // Preview: posição é 100% CSS (sticky).
+  // JS só atualiza o conteúdo e mostra/esconde.
+  rows.forEach(row => {
+    row.addEventListener('mouseenter', () => {
+      if (!preview) return
+      const cover    = row.dataset.cover || ''
+      const catLabel = row.dataset.catLabel || ''
+      const catColor = row.dataset.catColor || 'var(--rec-teal)'
+      const excerpt  = row.dataset.excerpt || ''
+      const minutes  = row.dataset.minutes || '4'
+
+      if (previewStrip)   previewStrip.style.background = catColor
+      if (previewCat)     { previewCat.textContent = catLabel; previewCat.style.color = catColor }
+      if (previewExcerpt) previewExcerpt.textContent = excerpt
+      if (previewMin)     previewMin.textContent = `${minutes} min de leitura`
+
+      if (cover && previewImg && previewPh) {
+        previewImg.src = cover
+        previewImg.hidden = false
+        previewPh.hidden = true
+      } else if (previewPh && previewImg && previewWm) {
+        previewImg.hidden = true
+        previewPh.hidden = false
+        previewWm.textContent = catLabel
+        previewWm.style.color = catColor
+      }
+
+      preview.classList.add('is-visible')
+    })
+
+    row.addEventListener('mouseleave', () => {
+      if (preview) preview.classList.remove('is-visible')
+    })
+  })
+
+  // ── 6. Mobile: tap pra expandir cover inline ───────────────
+  if (window.matchMedia('(max-width: 700px)').matches) {
+    rows.forEach(row => {
+      let tapped = false
+      row.addEventListener('click', (e) => {
+        if (!tapped) {
+          e.preventDefault()
+          row.classList.add('is-expanded')
+          tapped = true
+          setTimeout(() => { tapped = false }, 600)
+        }
+      })
+    })
+  }
+</script>
+
 <style>
-.blog-intro { padding: var(--space-16) var(--space-6) var(--space-8); }
-.intro-inner { max-width: 760px; margin: 0 auto; }
-.blog-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
-.blog-intro h1 em { color: var(--rec-teal); font-style: normal; }
-.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
+:global(main) { overflow: visible !important; }
+
+/* ============================================
+   BARRA DE PROGRESSO GLOBAL
+   ============================================ */
+.reading-progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--rec-teal) 0%, var(--rec-blue) 100%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: 9999;
+  pointer-events: none;
+  transition: transform 80ms linear;
+}
+
+/* ============================================
+   1. HERO 90vh
+   ============================================ */
+.blog-hero {
+  position: relative;
+  min-height: 90vh;
+  background: var(--rec-navy);
+  color: #fff;
+  padding: var(--space-24) var(--space-6) var(--space-16);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 600ms var(--easing);
+}
+.blog-hero.is-visible { opacity: 1; }
+
+/* Gradiente animado de fundo */
+.blog-hero::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 50% at 18% 60%, rgba(0,161,152,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 50% at 78% 30%, rgba(0,196,184,0.30) 0%, transparent 50%);
+  animation: hero-breathe 7s ease-in-out infinite alternate;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+@keyframes hero-breathe {
+  from { transform: scale(0.92) translate(-2%, 2%); opacity: 0.5; }
+  to   { transform: scale(1.08) translate(2%, -2%); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-hero::before { animation: none; opacity: 0.75; }
+}
+
+.blog-hero-noise {
+  position: absolute; inset: 0; z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.04;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.blog-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.blog-hero-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--rec-teal);
+  padding: 7px 16px;
+  border: 1px solid rgba(0,161,152,0.4);
+  border-radius: 999px;
+  margin-bottom: var(--space-8);
+}
+
+.blog-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 9vw, 7.5rem);
+  line-height: 0.95;
+  font-weight: 200;
+  letter-spacing: -0.035em;
+  color: #fff;
+  margin: 0 0 var(--space-8);
+}
+.blog-hero-title-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.05em;
+}
+.blog-hero-word {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.blog-hero.is-visible .blog-hero-title-line:nth-child(1) .blog-hero-word { transform: translateY(0); transition-delay: 150ms; }
+.blog-hero.is-visible .blog-hero-title-line:nth-child(2) .blog-hero-word { transform: translateY(0); transition-delay: 320ms; }
+.blog-hero.is-visible .blog-hero-title-line:nth-child(3) .blog-hero-word { transform: translateY(0); transition-delay: 490ms; }
+
+.blog-hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--rec-teal);
+}
+
+.blog-hero-lead {
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  line-height: 1.6;
+  color: rgba(255,255,255,0.72);
+  max-width: 560px;
+  margin: 0 0 var(--space-12);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 800ms var(--easing) 700ms, transform 800ms var(--easing) 700ms;
+}
+.blog-hero.is-visible .blog-hero-lead { opacity: 1; transform: translateY(0); }
+
+/* Contador */
+.blog-hero-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 14px 22px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 800ms var(--easing) 900ms, transform 800ms var(--easing) 900ms;
+  flex-wrap: wrap;
+}
+.blog-hero.is-visible .blog-hero-counter { opacity: 1; transform: translateY(0); }
+.counter-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-ui);
+  color: rgba(255,255,255,0.85);
+}
+.counter-num {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--rec-teal);
+  font-feature-settings: 'tnum';
+}
+.counter-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.counter-update-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.counter-date {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.85);
+  margin-left: 4px;
+}
+.counter-sep {
+  width: 1px; height: 22px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* Scroll indicator */
+.blog-hero-scroll {
+  position: absolute;
+  bottom: var(--space-8);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 800ms var(--easing) 1200ms;
+}
+.blog-hero.is-visible .blog-hero-scroll { opacity: 1; }
+.scroll-label {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.scroll-line {
+  display: block;
+  width: 1px; height: 56px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.6));
+  position: relative;
+  overflow: hidden;
+}
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: 0;
+  width: 1px; height: 50%;
+  background: var(--rec-teal);
+  animation: scroll-drop 2.2s ease-in-out infinite;
+}
+@keyframes scroll-drop {
+  0%   { top: -50%; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ============================================
+   2. FEATURED ROW (featured + 2 mini)
+   ============================================ */
+.blog-featured-row {
+  max-width: var(--container-max);
+  margin: -32px auto 0;
+  padding: 0 var(--space-6);
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-6);
+  align-items: stretch;
+}
+.featured-main {
+  display: flex;
+}
+.featured-main :global(.featured-card) {
+  min-height: 100%;
+  width: 100%;
+}
+.featured-mini-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.mini-cell {
+  display: flex;
+  flex: 1;
+}
+.mini-cell :global(.blog-card) {
+  width: 100%;
+  height: 100%;
+}
+.mini-cell :global(.blog-card-top) {
+  aspect-ratio: 16/10;
+  min-height: 140px;
+}
+.mini-cell :global(.blog-card-title) {
+  font-size: 1.05rem;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 1024px) {
+  .blog-featured-row { grid-template-columns: 1fr; }
+  .featured-mini-stack { flex-direction: row; }
+  .mini-cell { flex: 1; }
+}
+@media (max-width: 700px) {
+  .featured-mini-stack { flex-direction: column; }
+}
+
+/* ============================================
+   3. ARCHIVAL SECTION
+   ============================================ */
+.archival-section {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-20) var(--space-6) var(--space-12);
+  position: relative;
+}
+
+.archival-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
+  padding-bottom: var(--space-5);
+  border-bottom: 2px solid var(--rec-blue);
+  flex-wrap: wrap;
+}
+.archival-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.archival-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--rec-teal);
+}
+.archival-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: var(--rec-blue);
+  margin: 0;
+}
+
+/* Filtros estilo abas de revista */
+.archival-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: center;
+  padding-bottom: 4px;
+}
+.archival-tab {
+  --cat-color: var(--rec-blue);
+  background: transparent;
+  border: none;
+  padding: 6px 0;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  font-weight: 500;
+  color: rgba(1,38,89,0.5);
+  cursor: pointer;
+  position: relative;
+  transition: color 280ms var(--easing);
+}
+.archival-tab::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0; height: 2px;
+  background: var(--cat-color);
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.archival-tab:hover {
+  color: var(--rec-blue);
+}
+.archival-tab.is-active {
+  color: var(--rec-blue);
+  font-weight: 700;
+}
+.archival-tab.is-active::after {
+  width: 100%;
+}
+
+/* Body do arquivo */
+/* archival-body = flex: lista + preview lado a lado */
+.archival-body {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+/* Coluna da lista — cresce e ocupa o espaço disponível */
+.archival-list-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.archival-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(1,38,89,0.10);
+  transition: opacity 200ms var(--easing);
+}
+.archival-list.is-filtering { opacity: 0.35; }
+
+.archival-item[hidden] { display: none; }
+
+.archival-empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  font-family: var(--font-body);
+  color: rgba(1,38,89,0.5);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ============================================
+   PREVIEW LATERAL — sticky dentro da seção
+   Fica sempre no mesmo lugar, não vaza pro
+   próximo bloco, só muda o conteúdo.
+   ============================================ */
+.archival-preview {
+  /* Largura fixa — não encolhe */
+  flex-shrink: 0;
+  width: 360px;
+  /* Sticky: prende no topo enquanto lista está em vista */
+  position: sticky;
+  top: 100px;
+  /* Invisível por padrão */
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+  transition:
+    opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.archival-preview.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Em telas menores que 1200px oculta o preview */
+@media (max-width: 1200px) {
+  .archival-body { display: block; }
+  .archival-preview { display: none; }
+}
+
+.archival-preview-inner {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 24px 60px rgba(1,14,42,0.18),
+    0 4px 16px rgba(1,14,42,0.10);
+}
+
+/* Faixa colorida no topo do preview */
+.archival-preview-cat-strip {
+  height: 4px;
+  background: var(--rec-teal);
+  transition: background 280ms var(--easing);
+}
+
+.archival-preview-media {
+  position: relative;
+  aspect-ratio: 16/10;
+  background: var(--rec-navy);
+  overflow: hidden;
+}
+.archival-preview-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.archival-preview-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rec-navy);
+}
+.archival-preview-watermark {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.archival-preview-info {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.archival-preview-cat {
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.archival-preview-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: rgba(1,38,89,0.7);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.archival-preview-min {
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: rgba(1,38,89,0.45);
+  align-self: flex-start;
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(1,38,89,0.08);
+  margin-top: var(--space-1);
+  width: 100%;
+}
+
+/* (preview já tratado acima com sticky + @media 1200px) */
+
+@media (prefers-reduced-motion: reduce) {
+  .archival-preview { transition: none; }
+}
+
+/* ============================================
+   RESPONSIVO GERAL
+   ============================================ */
+@media (max-width: 768px) {
+  .blog-hero {
+    min-height: 88vh;
+    padding: var(--space-20) var(--space-5) var(--space-12);
+  }
+  .blog-hero-counter {
+    gap: var(--space-3);
+    padding: 12px 16px;
+  }
+  .counter-sep { display: none; }
+  .archival-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .archival-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: var(--space-2);
+    margin: 0 calc(-1 * var(--space-5));
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+    -webkit-overflow-scrolling: touch;
+  }
+  .archival-tab { white-space: nowrap; }
+}
+
+/* ============================================
+   5. CTA FINAL — igual hub.astro
+   ============================================ */
+.blog-final {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%, #f5fafd  3%, #eef6fc  6%, #eef6fc  9%, #e4f0fa 12%,
+    #d6e9f7 16%, #c5dff3 20%, #b0d2ee 24%, #97c3e7 29%, #7ab0de 34%,
+    #5d9cd3 39%, #4287c5 45%, #2c73b6 51%, #1a60a6 57%, #0f4e95 63%,
+    #083e81 70%, #052e6a 79%, #031f52 89%, #042050 100%
+  );
+  margin-top: var(--space-12);
+}
+.blog-final::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 22%;
+  pointer-events: none; z-index: 1;
+  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+}
+.blog-final::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.06; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+.blog-final-bars {
+  position: absolute; top: 32px; right: 5vw;
+  display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none; z-index: 1; mix-blend-mode: multiply;
+}
+.blog-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.blog-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.blog-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.blog-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .blog-final-bars { display: none; } }
+
+.blog-final-inner { position: relative; max-width: 680px; margin: 0 auto; z-index: 2; }
+.blog-final h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: var(--space-4);
+  color: var(--rec-blue);
+}
+.blog-final h2 em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
+.blog-final p { color: rgba(1,38,89,0.7); line-height: 1.65; margin-bottom: var(--space-8); font-size: var(--type-body); }
+
+.blog-final-cta {
+  display: inline-block;
+  background: transparent;
+  color: var(--rec-teal);
+  padding: 20px 60px;
+  border: 1px solid var(--rec-teal);
+  border-radius: 100px;
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: all var(--motion-base) var(--easing);
+}
+.blog-final-cta:hover {
+  background: var(--rec-teal);
+  color: #fff;
+  transform: translateY(-2px);
+}
 </style>

@@ -1,5 +1,6 @@
 ---
-import { partners } from '../../data/partners'
+import { loadAllPartners } from '../../data/partners-merged'
+const partners = await loadAllPartners()
 const sorted = [...partners].sort((a, b) => b.reach - a.reach)
 ---
 <div class="partners-grid">

@@ -1,0 +1,235 @@
+---
+import { getCategoryInfo, type Pillar } from '../../utils/blog-category'
+import { events } from '../../data/events'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  related: CollectionEntry<'blog'>[]
+}
+
+const { related } = Astro.props
+
+// Próximos 2 eventos (não encerrados, em ordem cronológica)
+const upcoming = events
+  .filter(e => e.status !== 'encerrado')
+  .sort((a, b) => a.date.localeCompare(b.date))
+  .slice(0, 2)
+
+const fmt = (iso: string) => {
+  const [y, m, d] = iso.split('-')
+  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']
+  return { day: d, month: months[parseInt(m,10)-1], year: y }
+}
+---
+
+<aside class="article-sidebar" aria-label="Conteúdo relacionado">
+  <!-- TOC: gerado dinamicamente via JS a partir dos H2s do artigo -->
+  <div class="sidebar-block sidebar-block--toc" id="article-toc" hidden>
+    <span class="sidebar-eyebrow">neste artigo</span>
+    <nav class="toc-list" id="article-toc-list"></nav>
+  </div>
+
+  <!-- Próximos eventos -->
+  {upcoming.length > 0 && (
+    <div class="sidebar-block">
+      <span class="sidebar-eyebrow">próximos eventos</span>
+      <ul class="events-mini">
+        {upcoming.map(ev => {
+          const { day, month } = fmt(ev.date)
+          return (
+            <li>
+              <a href="/agenda#proximos" class="event-mini">
+                <span class="event-date">
+                  <span class="event-date-day">{day}</span>
+                  <span class="event-date-month">{month}</span>
+                </span>
+                <span class="event-info">
+                  <span class="event-name">{ev.name}</span>
+                  <span class="event-city">{ev.city}</span>
+                </span>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )}
+
+  <!-- Artigos relacionados -->
+  {related.length > 0 && (
+    <div class="sidebar-block">
+      <span class="sidebar-eyebrow">leia também</span>
+      <ul class="related-list">
+        {related.map(p => {
+          const cat = getCategoryInfo(p.data.pillar)
+          return (
+            <li>
+              <a href={`/blog/${p.id}`} class="related-link" style={`--cat-color: ${cat.color}`}>
+                <span class="related-cat">
+                  <span class="related-cat-dot" aria-hidden="true"></span>
+                  {cat.label}
+                </span>
+                <span class="related-title">{p.data.title}</span>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )}
+</aside>
+
+<script>
+  // Gera índice (TOC) a partir dos H2s dentro de .article-body
+  const tocBlock = document.getElementById('article-toc')
+  const tocList  = document.getElementById('article-toc-list')
+  const body     = document.querySelector('.article-body')
+  if (tocBlock && tocList && body) {
+    const headings = body.querySelectorAll<HTMLHeadingElement>('h2')
+    if (headings.length >= 2) {
+      headings.forEach((h, i) => {
+        if (!h.id) h.id = `sec-${i+1}-${(h.textContent || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)}`
+        const a = document.createElement('a')
+        a.href = `#${h.id}`
+        a.className = 'toc-link'
+        a.textContent = h.textContent || ''
+        tocList.appendChild(a)
+      })
+      tocBlock.hidden = false
+
+      // Destaque do link ativo conforme o scroll
+      const links = tocList.querySelectorAll<HTMLAnchorElement>('.toc-link')
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const id = entry.target.id
+          const link = tocList.querySelector(`a[href="#${id}"]`)
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('is-active'))
+            link?.classList.add('is-active')
+          }
+        })
+      }, { rootMargin: '-30% 0px -60% 0px' })
+      headings.forEach(h => io.observe(h))
+    }
+  }
+</script>
+
+<style>
+.article-sidebar {
+  display: none; /* só desktop */
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 4px;
+}
+.article-sidebar::-webkit-scrollbar { width: 4px; }
+.article-sidebar::-webkit-scrollbar-thumb { background: rgba(1,38,89,0.15); border-radius: 999px; }
+
+@media (min-width: 1100px) {
+  .article-sidebar { display: block; }
+}
+
+.sidebar-block {
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid rgba(1,38,89,0.08);
+}
+.sidebar-block:last-child { border-bottom: none; }
+
+.sidebar-eyebrow {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-3);
+}
+
+/* TOC */
+.toc-list { display: flex; flex-direction: column; gap: 6px; }
+.toc-link {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: rgba(1,38,89,0.6);
+  text-decoration: none;
+  padding: 4px 0 4px 12px;
+  border-left: 1.5px solid rgba(1,38,89,0.1);
+  transition: color 220ms var(--easing), border-color 220ms var(--easing);
+}
+.toc-link:hover { color: var(--rec-blue); border-color: var(--rec-teal); }
+.toc-link.is-active {
+  color: var(--rec-teal);
+  border-color: var(--rec-teal);
+  font-weight: 600;
+}
+
+/* Eventos mini */
+.events-mini { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.event-mini {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--rec-blue);
+  padding: 8px;
+  border-radius: 10px;
+  transition: background 220ms var(--easing);
+}
+.event-mini:hover { background: rgba(0,161,152,0.06); }
+
+.event-date {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--rec-blue);
+  color: #fff;
+}
+.event-date-day { font-family: var(--font-display); font-size: 1.2rem; line-height: 1; font-weight: 500; }
+.event-date-month { font-family: var(--font-ui); font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rec-teal); margin-top: 2px; font-weight: 700; }
+
+.event-info { display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+.event-name { font-family: var(--font-display); font-size: 0.92rem; font-weight: 500; color: var(--rec-blue); }
+.event-city { font-family: var(--font-ui); font-size: 0.7rem; color: rgba(1,38,89,0.55); letter-spacing: 0.04em; }
+
+/* Related */
+.related-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.related-link {
+  --cat-color: var(--rec-teal);
+  display: block;
+  text-decoration: none;
+  padding: 6px 0;
+}
+.related-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--cat-color);
+  margin-bottom: 4px;
+}
+.related-cat-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cat-color); }
+.related-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.96rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--rec-blue);
+  transition: color 220ms var(--easing);
+}
+.related-link:hover .related-title { color: var(--cat-color); }
+</style>

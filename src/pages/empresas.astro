@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Constellation from '../components/partners/Constellation.astro'
+import PartnersGridFallback from '../components/partners/PartnersGridFallback.astro'
+import PartnerCard from '../components/partners/PartnerCard.astro'
+import SegmentFilter from '../components/partners/SegmentFilter.astro'
+import { loadAllPartners } from '../data/partners-merged'
+const partners = await loadAllPartners()
+const total = partners.length
+const sectors = Array.from(new Set(partners.map((p) => p.sector))).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+---
+<BaseLayout
+  title="Empresas"
+  description={`${total} empresas conectadas. Explore a rede REC.`}
+  path="/empresas"
+  currentSection="Empresas"
+>
+  <section class="empresas-intro">
+    <div class="intro-inner">
+      <span class="uppercase-label" style="color: var(--rec-teal)">rede de empresas</span>
+      <h1>{total} empresas, uma <em>constelação</em>.</h1>
+      <p class="lead">Cada ponto é uma empresa parceira. Cada linha é uma conexão real: parceria, evento, negócio fechado dentro da rede. Arrasta, explora, clica.</p>
+    </div>
+  </section>
+
+  <SegmentFilter sectors={sectors} />
+  <Constellation />
+  <PartnerCard />
+
+  <details class="grid-fallback">
+    <summary>Ver em formato grid</summary>
+    <PartnersGridFallback />
+  </details>
+</BaseLayout>
+
+<style>
+.empresas-intro { padding: var(--space-16) var(--space-6) var(--space-6); }
+.intro-inner { max-width: 760px; margin: 0 auto; }
+.empresas-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
+.empresas-intro h1 em { color: var(--rec-teal); font-style: normal; }
+.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
+.grid-fallback { max-width: var(--container-max); margin: var(--space-8) auto; padding: 0 var(--space-3); }
+.grid-fallback summary { cursor: pointer; font-size: var(--type-small); color: var(--rec-purple); padding: var(--space-3); font-weight: 700; letter-spacing: 0.05em; }
+.grid-fallback summary:hover { color: var(--rec-teal); }
+</style>

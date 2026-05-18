@@ -1,14 +1,32 @@
 :root {
-  /* Brand colors (locked spec section 4.1) */
-  --rec-purple: #3e4095;
-  --rec-teal: #00a198;
-  --rec-dark: #253439;
-  --rec-navy: #012659;
-  --rec-bg: #ffffff;
+  /* ===== Brand colors — REC 2026 rebrand ===== */
+  --rec-blue: #012659;          /* primary */
+  --rec-blue-2: #02377A;        /* primary lighter */
+  --rec-teal: #00a198;          /* primary accent */
+  --rec-teal-soft: #B8E0DD;     /* secondary, soft */
+  --rec-white: #FFFFFF;         /* primary */
+  --rec-cream: #F4EFE6;         /* secondary, warm bg */
+  --rec-ink: #0E1116;           /* secondary, near-black */
 
-  /* Subtle gradients (no hard color cuts) */
-  --grad-soft-teal: linear-gradient(135deg, #fff 0%, #fff 60%, rgba(0,161,152,0.07) 100%);
-  --grad-footer: linear-gradient(135deg, #253439 0%, #012659 100%);
+  /* Backwards-compat aliases (so older CSS still resolves) */
+  --rec-purple: var(--rec-blue);
+  --rec-navy: var(--rec-blue);
+  --rec-dark: var(--rec-blue);
+  --rec-bg: var(--rec-white);
+
+  /* Subtle gradients */
+  --grad-soft-teal: linear-gradient(135deg, #fff 0%, #fff 55%, rgba(0,161,152,0.08) 100%);
+  --grad-hero-teal: linear-gradient(135deg, #012659 0%, #02377A 55%, #00a198 110%);
+  --grad-footer: linear-gradient(135deg, #012659 0%, #0E1116 100%);
+
+  /* ===== Typography (REC 2026 rebrand) =====
+     Fraunces  — display / serif (h1/h2/h3 grandes, eyebrows italic)
+     Space Grotesk — logo/UI accents
+     Manrope    — body / small UI
+  */
+  --font-display: 'Fraunces', 'Times New Roman', serif;
+  --font-ui: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
 
   /* Typography scale */
   --type-display: 2.6rem;
@@ -34,11 +52,17 @@
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
+  --space-7: 28px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
+  --space-14: 56px;
   --space-16: 64px;
+  --space-20: 80px;
   --space-24: 96px;
+  --space-32: 128px;
 }
 
 @media (prefers-reduced-motion: reduce) {

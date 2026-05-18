@@ -3,21 +3,114 @@ interface Props {
   name: string
   company: string
   quote: string
+  avatar?: string
+  video?: string
   pending?: boolean
 }
-const { name, company, quote, pending = false } = Astro.props
+const { name, company, quote, avatar, video, pending = false } = Astro.props
+const hasVideo = !!video
 ---
-<blockquote class:list={['testimonial', { pending }]}>
-  <p class="quote">"{quote}"</p>
-  <footer><strong>{name}</strong> <span>{company}</span></footer>
-  {pending && <small class="pending-note">depoimento aguardando confirmação no site original</small>}
-</blockquote>
+<article class:list={['testimonial', { pending, 'has-video': hasVideo }]}>
+  <div class="t-author">
+    <strong>{name}</strong>
+    <span>{company}</span>
+  </div>
+
+  <p class="t-quote">"{quote}"</p>
+
+  {hasVideo && (
+    <button class="t-cta" type="button" data-video-src={video} data-video-name={name} data-video-company={company}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      <span>Ver vídeo do depoimento</span>
+      <svg class="t-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </button>
+  )}
+
+  {pending && <small class="t-pending">depoimento aguardando confirmação</small>}
+</article>
 
 <style>
-.testimonial { background: rgba(0,161,152,0.04); border-left: 3px solid var(--rec-teal); padding: var(--space-6); border-radius: 0 12px 12px 0; margin-bottom: var(--space-6); }
-.testimonial.pending { opacity: 0.7; border-left-color: rgba(0,161,152,0.4); border-left-style: dashed; }
-.quote { font-size: var(--type-body); color: var(--rec-dark); line-height: 1.6; font-style: italic; margin-bottom: var(--space-3); }
-.testimonial footer strong { color: var(--rec-purple); font-weight: 700; }
-.testimonial footer span { color: #667; font-size: var(--type-small); margin-left: var(--space-2); }
-.pending-note { display: block; font-size: var(--type-micro); color: #999; letter-spacing: 0.1em; text-transform: uppercase; margin-top: var(--space-3); }
+.testimonial {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(37,52,57,0.08);
+  border-radius: 20px;
+  padding: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: transform 0.4s var(--easing), box-shadow 0.4s var(--easing), border-color 0.4s var(--easing);
+  overflow: hidden;
+}
+.testimonial::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rec-teal), var(--rec-blue));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--easing);
+}
+.testimonial:hover { transform: translateY(-6px); box-shadow: 0 18px 44px rgba(1,38,89,0.12); border-color: rgba(0,161,152,0.25); }
+.testimonial:hover::before { transform: scaleX(1); }
+.testimonial.pending { opacity: 0.7; border-style: dashed; }
+
+/* Play icon decorativo */
+.testimonial::after {
+  content: '▶';
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  font-size: 2rem;
+  line-height: 1;
+  color: rgba(0,161,152,0.13);
+  pointer-events: none;
+}
+
+.t-author { display: flex; flex-direction: column; gap: 2px; }
+.t-author strong { color: var(--rec-blue); font-weight: 800; font-size: 1rem; letter-spacing: var(--letter-tight); }
+.t-author span { color: #667; font-size: var(--type-small); }
+
+.t-quote {
+  font-size: var(--type-body);
+  color: #2c3e50;
+  line-height: 1.7;
+  font-style: italic;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+/* CTA do vídeo */
+.t-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--rec-teal);
+  font-weight: 700;
+  font-size: var(--type-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 8px 0;
+  border-bottom: 1.5px solid var(--rec-teal);
+  transition: color 0.25s var(--easing), gap 0.25s var(--easing);
+}
+.t-cta svg { width: 14px; height: 14px; transition: transform 0.25s var(--easing); }
+.t-cta .t-arrow { width: 16px; height: 16px; }
+.t-cta:hover { color: var(--rec-blue); gap: 14px; }
+.t-cta:hover .t-arrow { transform: translateX(3px); }
+.t-cta:hover svg:first-child { transform: scale(1.15); }
+
+.t-pending { display: block; font-size: var(--type-micro); color: #999; letter-spacing: 0.1em; text-transform: uppercase; margin-top: auto; }
 </style>
