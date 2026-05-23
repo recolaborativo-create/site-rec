@@ -4,7 +4,7 @@
 const BREVO_API_KEY = process.env.BREVO_API_KEY
 const TO_EMAIL = process.env.BLOG_NOTIFY_EMAIL || 'henrique.callefi@gmail.com'
 const FROM_EMAIL = process.env.CONTATO_FROM_EMAIL || 'site@somosrecoficial.com.br'
-const SITE_URL = 'https://recolaborativo.com.br'
+const SITE_URL = 'https://somosrecoficial.com.br'
 
 const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
 

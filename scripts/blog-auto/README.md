@@ -78,7 +78,7 @@ node scripts/blog-auto/generate-monthly-drafts.mjs --month 2026-06
 ```bash
 curl -X GET \
   -H "Authorization: Bearer $CRON_SECRET" \
-  https://recolaborativo.com.br/api/cron/generate-blog-drafts
+  https://somosrecoficial.com.br/api/cron/generate-blog-drafts
 ```
 
 ## Como editar as regras de escrita

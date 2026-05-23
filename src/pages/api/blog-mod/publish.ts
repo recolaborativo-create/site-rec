@@ -8,7 +8,7 @@ export const prerender = false
 // Body: { batchMonth: '2026-06' }
 // Pega TODOS os drafts com status='approved' do batch e commita como arquivos
 // .md no repositório via GitHub API. Vercel rebuilda automaticamente e os posts
-// aparecem em recolaborativo.com.br/blog em ~2-3 minutos.
+// aparecem em somosrecoficial.com.br/blog em ~2-3 minutos.
 //
 // Marca como status='published' após commit OK.
 export const POST: APIRoute = async ({ request }) => {

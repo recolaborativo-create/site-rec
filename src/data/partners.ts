@@ -1,5 +1,5 @@
 // Partner directory — 84 companies in the REC ecosystem.
-// Display names and Instagram handles refined from the current recolaborativo.com.br/nossa-rede page.
+// Display names and Instagram handles refined from the current somosrecoficial.com.br/nossa-rede page.
 // Sectors are best-guess; refine as Henrique provides metadata.
 
 export type PartnerSector =

@@ -5,7 +5,7 @@ backend:
   name: github
   repo: HenriqueCallefi/REC-HUB-COMPLETO  # ⚠️ ATUALIZE com seu owner/repo do GitHub real
   branch: main
-  base_url: https://recolaborativo.com.br
+  base_url: https://somosrecoficial.com.br
   auth_endpoint: /api/auth
 
 # When true, all changes are committed directly. When false, they go through
@@ -17,9 +17,9 @@ media_folder: site/public/partners
 public_folder: /partners
 
 # Branding shown in the Decap CMS UI
-site_url: https://recolaborativo.com.br
-display_url: https://recolaborativo.com.br
-logo_url: https://recolaborativo.com.br/logo-text.png
+site_url: https://somosrecoficial.com.br
+display_url: https://somosrecoficial.com.br
+logo_url: https://somosrecoficial.com.br/logo-text.png
 
 locale: pt
 

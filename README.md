@@ -1,6 +1,6 @@
 # REC site
 
-Rebuild of recolaborativo.com.br on Astro.
+Rebuild of somosrecoficial.com.br on Astro.
 
 - Spec: `../docs/superpowers/specs/2026-04-25-rec-site-rebuild-design.md`
 - Plan: `../docs/superpowers/plans/2026-04-25-rec-site-rebuild.md`

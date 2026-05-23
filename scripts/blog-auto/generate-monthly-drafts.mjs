@@ -136,7 +136,7 @@ async function main() {
   console.log(`   ✅ ${rows.length} drafts inseridos.`)
 
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log(`✨ Pronto. Revisar em: https://recolaborativo.com.br/aprovacao-blog/${batchMonth}`)
+  console.log(`✨ Pronto. Revisar em: https://somosrecoficial.com.br/aprovacao-blog/${batchMonth}`)
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
   return { batchMonth, count: rows.length }

@@ -7,7 +7,7 @@ import vercel from '@astrojs/vercel'
 // Mostly static, with a couple of on-demand routes (e.g. /api/reviews) that
 // run on Vercel Functions. Static pages keep their CDN cache benefits.
 export default defineConfig({
-  site: 'https://recolaborativo.com.br',
+  site: 'https://somosrecoficial.com.br',
   output: 'static',
   adapter: vercel({
     webAnalytics: { enabled: false },

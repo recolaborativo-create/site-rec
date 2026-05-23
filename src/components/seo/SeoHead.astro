@@ -10,7 +10,7 @@ interface Props {
   schemas?: Array<Record<string, unknown>>
 }
 const { title, description, path, ogImage = '/NORMAL - FT.png', schemas = [] } = Astro.props
-const SITE_URL = 'https://recolaborativo.com.br'
+const SITE_URL = 'https://somosrecoficial.com.br'
 const canonical = `${SITE_URL}${path}`
 const ogImageAbs = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
 
