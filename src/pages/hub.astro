@@ -413,17 +413,23 @@ const method = [
   import { initReveal } from '../utils/reveal'
   initReveal()
 
-  // No mobile, duplica os chips do hero pra animação marquee ficar contínua
+  // No mobile, duplica os chips do hero 2x pra animação marquee ficar
+  // verdadeiramente seamless (6 originais + 12 clones = 18). Quando o transform
+  // chega em -50% (que é após os 6 originais + 6 clones, ou seja, 12 itens),
+  // o que mostra na tela é a sequência inicial dos clones, idêntica à original.
+  // O clone extra cria buffer pra evitar qualquer flash de "salto".
   if (window.matchMedia('(max-width: 640px)').matches) {
     const chipsList = document.querySelector<HTMLElement>('.hub-hero-chips')
     if (chipsList) {
       const originalChips = Array.from(chipsList.children)
-      // Duplica os chips uma vez (12 chips no total)
-      originalChips.forEach(chip => {
-        const clone = chip.cloneNode(true) as HTMLElement
-        clone.setAttribute('aria-hidden', 'true')
-        chipsList.appendChild(clone)
-      })
+      // Duplica os chips DUAS vezes (6 originais + 12 clones = 18)
+      for (let i = 0; i < 2; i++) {
+        originalChips.forEach(chip => {
+          const clone = chip.cloneNode(true) as HTMLElement
+          clone.setAttribute('aria-hidden', 'true')
+          chipsList.appendChild(clone)
+        })
+      }
     }
   }
 </script>
@@ -1165,34 +1171,42 @@ const method = [
 }
 
 @media (max-width: 640px) {
-  /* HERO — altura mais baixa, padding lateral menor, CTA full-width.
-     IMPORTANTE: padding-bottom maior pra dar espaço pros chips fixados no bottom. */
+  /* HERO — altura mais alta + padding-bottom grande pros chips marquee
+     ficarem abaixo do botão (não sobrepondo).
+     - padding-bottom: 100px → garante 64px de gap entre botão e início dos chips
+     - min-height: 96dvh → mais respiro pro título crescido */
   .hub-hero {
-    min-height: 88dvh;
-    padding: var(--space-10) var(--space-4) 64px;
+    min-height: 96dvh;
+    padding: var(--space-10) var(--space-4) 100px;
     overflow: hidden;
     position: relative;
     justify-content: flex-start;
   }
-  /* Inner expande pra ocupar a altura toda, distribuindo título no topo e CTA mais pra baixo */
+  /* Inner: título no topo, foot logo abaixo (sem space-between vazio gigante).
+     gap controla o respiro entre as duas blocos visualmente. */
   .hub-hero-inner {
     flex: 1;
     display: flex !important;
     flex-direction: column !important;
     grid-template-columns: none !important;
     grid-template-rows: none !important;
-    justify-content: space-between !important;
-    gap: var(--space-8) !important;
+    justify-content: flex-start !important;
+    gap: var(--space-7) !important;
   }
-  .hub-hero-title { font-size: clamp(2.4rem, 9vw, 3.4rem); }
+  /* Título maior — preenche melhor o topo e reduz sensação de vazio */
+  .hub-hero-title {
+    font-size: clamp(3rem, 11vw, 4.2rem);
+    line-height: 1.0;
+  }
   /* Bug do sublinhado verde atravessando "faturamento" no mobile: desativa */
   .hub-blink::after { display: none; }
-  .hub-hero-lead { font-size: 0.95rem; line-height: 1.5; }
-  /* Foot (lead + CTA) empurrado pra baixo, próximo dos chips */
+  .hub-hero-lead { font-size: 1rem; line-height: 1.55; }
+  /* Foot: agora cola após o título sem margin-top auto que criava o vazio.
+     margin-top: auto foi removido — gap do inner já cuida do respiro. */
   .hub-hero-foot {
     gap: var(--space-4);
     max-width: 100%;
-    margin-top: auto;
+    margin-top: 0;
   }
   .hub-hero-cta { width: 100%; flex-direction: column; align-items: stretch; }
   .hub-btn-primary {
@@ -1213,8 +1227,12 @@ const method = [
     justify-content: center;
   }
 
-  /* Chips: ANCORADOS no bottom absoluto do hero (onde azul vira branco da próxima seção).
-     Loop horizontal seamless (margin-right em vez de gap para alinhar -50% sem jump). */
+  /* Chips: ANCORADOS no bottom absoluto do hero. Marquee SEAMLESS verdadeiro.
+     - 6 originais + 12 clones (via JS) = 18 chips totais
+     - mover translateX -33.333% alinha o início do 1º bloco de clones
+       no espaço dos originais → loop perfeito sem jump
+     - mask suave nas bordas evita o "termina/começa" visual
+     - duração 22s pra movimento contínuo, calmo e elegante */
   .hub-hero-chips {
     display: flex !important;
     flex-direction: row !important;
@@ -1224,7 +1242,7 @@ const method = [
     position: absolute !important;
     left: 0;
     right: 0;
-    bottom: 16px;
+    bottom: 18px;
     margin: 0 !important;
     padding: var(--space-2) 0;
     width: 100vw !important;
@@ -1233,9 +1251,10 @@ const method = [
     grid-column: auto !important;
     grid-row: auto !important;
     z-index: 3;
-    mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
-    animation: hub-chips-marquee 14s linear infinite;
+    mask-image: linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    animation: hub-chips-marquee 22s linear infinite;
+    will-change: transform;
   }
   .hub-hero-chips li {
     flex: 0 0 auto !important;
@@ -1251,10 +1270,12 @@ const method = [
     background: rgba(1,38,89,0.32) !important;
     border-color: rgba(100,160,255,0.22) !important;
   }
-  /* Marquee SEAMLESS: como cada chip tem margin-right igual, mover -50% alinha perfeitamente */
+  /* Marquee verdadeiramente seamless: 18 chips (6 orig + 12 clones).
+     Mover -33.333% = avançar 6 chips (um terço do total) → mostra o 1º
+     bloco de clones onde antes estavam os originais. Sem salto visível. */
   @keyframes hub-chips-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-33.333%, 0, 0); }
   }
   @media (prefers-reduced-motion: reduce) {
     .hub-hero-chips { animation: none; mask-image: none; -webkit-mask-image: none; overflow-x: auto; }

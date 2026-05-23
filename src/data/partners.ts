@@ -279,4 +279,17 @@ export const partners: Partner[] = [
     hideGoogle: true,
     city: 'Canoas',
   },
+  {
+    id: 'santameson',
+    name: 'Santameson Consultoria',
+    instagram: '@santameson.consult',
+    whatsapp: '5551982374877',
+    phone: '5551982374877',
+    sector: 'consultoria',
+    reach: 3,
+    logo: '/partners/LOGOS-SITE-santameson-200x120.png',
+    description: 'Consultoria em licitações pra pequenos e médios empresários. Apoio também na implantação do setor de licitação dentro de empresas.',
+    website: 'https://www.santameson.com.br/',
+    hideGoogle: true,
+  },
 ]

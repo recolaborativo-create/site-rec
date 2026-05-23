@@ -72,7 +72,7 @@ const sectorCount = sectors.length
   <!-- ============================================
        VIEWS — constelação / grade / por segmento
        ============================================ -->
-  <p class="constellation-hint" aria-hidden="true">toque para ver detalhes</p>
+  <p class="constellation-hint" aria-hidden="true">clique pra ver mais</p>
 
   <section class="empresas-viewport">
     <Constellation />
@@ -111,14 +111,13 @@ const sectorCount = sectors.length
 </BaseLayout>
 
 <script>
-  // Reveal on scroll
-  // Hint "toque para ver detalhes" — só aparece na view da constelação
+  // Hint "clique pra ver mais" — aparece em TODAS as views (constelação, grade, segmento, região)
+  // pra que o user saiba que os cards/itens são clicáveis e abrem detalhes da empresa.
   const constellationHint = document.querySelector('.constellation-hint') as HTMLElement | null
-  function updateHint(view: string) {
-    if (constellationHint) constellationHint.style.display = view === 'constellation' ? '' : 'none'
+  function updateHint(_view: string) {
+    if (constellationHint) constellationHint.style.display = ''
   }
   window.addEventListener('partners-view-change', (e: any) => updateHint(e.detail?.view ?? 'constellation'))
-  // Estado inicial: constelação é a default
   updateHint('constellation')
 
   const reveal = document.querySelectorAll('[data-reveal]')
