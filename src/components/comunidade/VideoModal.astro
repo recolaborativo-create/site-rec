@@ -122,9 +122,11 @@
   if (overlay && video && nameEl && companyEl && closeBtn) {
     const nav = document.querySelector<HTMLElement>('[data-adaptive-nav]')
 
-    function open(src: string, name: string, company: string) {
+    function open(src: string, name: string, company: string, poster?: string) {
       nameEl!.textContent = name
       companyEl!.textContent = company
+      if (poster) video!.setAttribute('poster', poster)
+      else video!.removeAttribute('poster')
       video!.src = src
       overlay!.classList.add('open')
       overlay!.setAttribute('aria-hidden', 'false')
@@ -151,7 +153,8 @@
         const src = btn.dataset.videoSrc || ''
         const name = btn.dataset.videoName || ''
         const company = btn.dataset.videoCompany || ''
-        if (src) open(src, name, company)
+        const poster = btn.dataset.videoPoster || ''
+        if (src) open(src, name, company, poster)
       })
     })
 

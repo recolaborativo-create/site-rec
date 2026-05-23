@@ -5,9 +5,10 @@ interface Props {
   quote: string
   avatar?: string
   video?: string
+  poster?: string
   pending?: boolean
 }
-const { name, company, quote, avatar, video, pending = false } = Astro.props
+const { name, company, quote, avatar, video, poster, pending = false } = Astro.props
 const hasVideo = !!video
 ---
 <article class:list={['testimonial', { pending, 'has-video': hasVideo }]}>
@@ -19,7 +20,7 @@ const hasVideo = !!video
   <p class="t-quote">"{quote}"</p>
 
   {hasVideo && (
-    <button class="t-cta" type="button" data-video-src={video} data-video-name={name} data-video-company={company}>
+    <button class="t-cta" type="button" data-video-src={video} data-video-poster={poster} data-video-name={name} data-video-company={company}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="5 3 19 12 5 21 5 3"/>
       </svg>
