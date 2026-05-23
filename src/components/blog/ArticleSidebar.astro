@@ -38,7 +38,7 @@ const fmt = (iso: string) => {
           const { day, month } = fmt(ev.date)
           return (
             <li>
-              <a href="/agenda#proximos" class="event-mini">
+              <a href="/eventos#proximos" class="event-mini">
                 <span class="event-date">
                   <span class="event-date-day">{day}</span>
                   <span class="event-date-month">{month}</span>
@@ -123,6 +123,7 @@ const fmt = (iso: string) => {
   top: 100px;
   align-self: flex-start;
   max-height: calc(100vh - 120px);
+  max-height: calc(100dvh - 120px);
   overflow-y: auto;
   scrollbar-width: thin;
   padding-right: 4px;

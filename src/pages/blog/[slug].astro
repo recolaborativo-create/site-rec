@@ -21,8 +21,8 @@ const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', {
 })
 const minutes = readingTime(post.body || '')
 
-// Variante do hero: Eventos com imagem, demais texto-puro
-const hasImageHero = catSlug === 'eventos' && !!post.data.cover
+// Variante do hero: todos os posts com imagem ganham o hero visual
+const hasImageHero = !!post.data.cover
 
 // Artigos relacionados (mesma categoria visual, exceto o atual)
 const allPosts = await getCollection('blog')
@@ -34,6 +34,38 @@ const related = allPosts
 // URL canônica para compartilhamento
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://somosrecoficial.com.br'
 const fullUrl = `${siteUrl}/blog/${post.id}`
+
+// JSON-LD: BlogPosting + Breadcrumb (rich results no Google)
+const articleSchemas: Array<Record<string, unknown>> = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.excerpt,
+    image: post.data.cover ? `${siteUrl}${post.data.cover}` : `${siteUrl}/NORMAL - FT.png`,
+    datePublished: post.data.publishedAt.toISOString(),
+    author: post.data.author
+      ? { '@type': 'Person', name: post.data.author }
+      : { '@type': 'Organization', name: 'REC Colaborativo' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'REC Colaborativo',
+      logo: { '@type': 'ImageObject', url: `${siteUrl}/logo-icon-white.png` },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': fullUrl },
+    articleSection: cat.label,
+    wordCount: (post.body || '').split(/\s+/).length,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog` },
+      { '@type': 'ListItem', position: 3, name: post.data.title, item: fullUrl },
+    ],
+  },
+]
 ---
 
 <BaseLayout
@@ -41,6 +73,7 @@ const fullUrl = `${siteUrl}/blog/${post.id}`
   description={post.data.excerpt}
   path={`/blog/${post.id}`}
   currentSection="Blog"
+  schemas={articleSchemas}
 >
 
   <ReadingProgress />
@@ -105,27 +138,26 @@ const fullUrl = `${siteUrl}/blog/${post.id}`
   </div>
 
   <!-- ============================================
-       SHARE BAR + FOOTER
+       SHARE BAR
        ============================================ -->
   <ShareBar url={fullUrl} title={post.data.title} />
 
-  <footer class="article-footer">
-    <span class="article-footer-eyebrow">obrigado pela leitura</span>
-    <h2 class="article-footer-title">
-      Quer continuar a conversa <em>com a gente</em>?
-    </h2>
-    <p class="article-footer-lead">
-      O conteúdo aqui é uma amostra — a comunidade REC é onde as conexões viram negócio.
-    </p>
-    <div class="article-footer-actions">
-      <a href="/blog" class="article-footer-btn article-footer-btn--ghost">
-        ver mais artigos
-      </a>
-      <a href="/agenda#proximos" class="article-footer-btn">
-        próximos eventos →
-      </a>
+  <!-- ============================================
+       CTA FINAL — padrão das outras páginas
+       ============================================ -->
+  <section class="article-final" data-reveal>
+    <div class="article-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
     </div>
-  </footer>
+    <div class="article-final-inner">
+      <h2>Quer continuar a conversa <em>com a gente?</em></h2>
+      <p>O conteúdo aqui é uma amostra. A comunidade REC é onde as conexões viram negócio.</p>
+      <div class="article-final-actions">
+        <a href="/blog" class="article-final-btn article-final-btn--ghost">ver mais artigos</a>
+        <a href="/eventos#proximos" class="article-final-btn">próximos eventos →</a>
+      </div>
+    </div>
+  </section>
 
 </BaseLayout>
 
@@ -412,86 +444,144 @@ const fullUrl = `${siteUrl}/blog/${post.id}`
 .article-body :global(pre code) { background: none; color: inherit; padding: 0; }
 
 /* ============================================
-   ARTICLE FOOTER
+   CTA FINAL — mesmo padrão de comunidade/hub
    ============================================ */
-.article-footer {
+.article-final {
   position: relative;
+  z-index: 5;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%,
+    #f5fafd  3%,
+    #eef6fc  6%,
+    #e4f0fa  9%,
+    #d6e9f7 12%,
+    #c5dff3 16%,
+    #b0d2ee 20%,
+    #97c3e7 24%,
+    #7ab0de 29%,
+    #5d9cd3 34%,
+    #4287c5 39%,
+    #2c73b6 45%,
+    #1a60a6 51%,
+    #0f4e95 57%,
+    #083e81 63%,
+    #052e6a 70%,
+    #031f52 79%,
+    #031548 89%,
+    #042050 100%
+  );
   text-align: center;
-  padding: var(--space-20) var(--space-6) var(--space-24);
-  max-width: 760px;
+}
+.article-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+.article-final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 22%;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+}
+
+.article-final-bars {
+  position: absolute;
+  top: 32px;
+  right: 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+}
+.article-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.article-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.article-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.article-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .article-final-bars { display: none; } }
+
+.article-final-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
   margin: 0 auto;
-  border-top: 1px solid rgba(1,38,89,0.08);
 }
-
-.article-footer-eyebrow {
-  display: inline-block;
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: var(--rec-teal);
-  margin-bottom: var(--space-4);
-}
-
-.article-footer-title {
+.article-final h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 300;
-  line-height: 1.1;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--space-4);
   color: var(--rec-blue);
-  margin: 0 0 var(--space-4);
 }
-.article-footer-title em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
-
-.article-footer-lead {
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: rgba(1,38,89,0.65);
-  max-width: 520px;
-  margin: 0 auto var(--space-8);
+.article-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.article-final p {
+  color: rgba(255,255,255,0.85);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+  font-size: var(--type-body);
 }
-
-.article-footer-actions {
+.article-final-actions {
   display: flex;
   gap: var(--space-3);
   justify-content: center;
   flex-wrap: wrap;
 }
-
-.article-footer-btn {
+.article-final-btn {
   display: inline-block;
-  padding: 14px 32px;
+  padding: 18px 48px;
   border-radius: 999px;
   font-family: var(--font-ui);
-  font-size: 0.88rem;
+  font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: lowercase;
   text-decoration: none;
-  background: var(--rec-teal);
-  color: #fff;
+  background: transparent;
+  color: var(--rec-teal);
   border: 2px solid var(--rec-teal);
   transition:
     background var(--motion-fast) var(--easing),
     color var(--motion-fast) var(--easing),
+    box-shadow var(--motion-fast) var(--easing),
     transform var(--motion-fast) var(--easing);
+  animation: cta-pulse 2.8s ease-in-out infinite;
 }
-.article-footer-btn:hover {
-  background: var(--rec-blue);
-  border-color: var(--rec-blue);
-  transform: translateY(-2px);
-}
-.article-footer-btn--ghost {
-  background: transparent;
-  color: var(--rec-blue);
-  border-color: rgba(1,38,89,0.2);
-}
-.article-footer-btn--ghost:hover {
-  background: var(--rec-blue);
+.article-final-btn:hover {
+  background: var(--rec-teal);
   color: #fff;
-  border-color: var(--rec-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,161,152,0.45);
+  animation: none;
+}
+.article-final-btn--ghost {
+  color: rgba(255,255,255,0.7);
+  border-color: rgba(255,255,255,0.3);
+  animation: none;
+}
+.article-final-btn--ghost:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: none;
+}
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); }
+  50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); }
 }
 
 @media (max-width: 600px) {
@@ -501,7 +591,12 @@ const fullUrl = `${siteUrl}/blog/${post.id}`
   .article-body { font-size: 1.02rem; }
   .article-body :global(p:first-of-type) { font-size: 1.1rem; }
   .article-body :global(blockquote) { font-size: 1.2rem; padding-left: var(--space-5); margin: var(--space-8) 0; }
-  .article-footer { padding: var(--space-16) var(--space-5) var(--space-24); }
+  .article-final { padding: var(--space-16) var(--space-5); }
+  .article-final-actions { flex-direction: column; align-items: center; }
+  .article-final-btn { width: 100%; max-width: 320px; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .article-final-btn { animation: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

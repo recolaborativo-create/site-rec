@@ -16,7 +16,9 @@ export const GET: APIRoute = async ({ url, request }) => {
   const state = url.searchParams.get('state')
   if (!code) return new Response('Missing code', { status: 400 })
 
-  // Verify CSRF state matches the cookie set during /api/auth
+  // Verify CSRF state matches the cookie set during /api/auth.
+  // OBRIGATÓRIO: ausência de state ou de cookie é rejeitada (antes permitia bypass
+  // se o atacante simplesmente removesse o param state da URL).
   const cookieHeader = request.headers.get('cookie') ?? ''
   const cookies = Object.fromEntries(
     cookieHeader.split(';').map((c) => {
@@ -24,7 +26,7 @@ export const GET: APIRoute = async ({ url, request }) => {
       return [k, v.join('=')]
     }),
   )
-  if (state && cookies.oauth_state && cookies.oauth_state !== state) {
+  if (!state || !cookies.oauth_state || cookies.oauth_state !== state) {
     return new Response('Invalid state', { status: 400 })
   }
 

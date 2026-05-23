@@ -49,7 +49,7 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
     name: 'REC Colaborativo',
     sector: 'outro',
     reach: 5,
-    logo: '/logo-text.png',
+    logo: '/NORMAL - FT.png',
     isCenter: true,
     fx: cx,
     fy: cy,
@@ -169,38 +169,8 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
   })
 
   function openCard(n: Node) {
-    const card = document.querySelector<HTMLElement>('[data-partner-card]')
-    if (!card) return
-    const logoEl = card.querySelector<HTMLImageElement>('.card-logo')!
-    logoEl.src = n.logo
-    logoEl.alt = n.name
-    card.querySelector<HTMLElement>('.card-name')!.textContent = n.name
-    card.querySelector<HTMLElement>('.card-sector')!.textContent = n.sector === 'outro' ? '' : n.sector
-    const ig = card.querySelector<HTMLAnchorElement>('.card-instagram')!
-    if (n.instagram) {
-      const handle = n.instagram.replace('@', '')
-      ig.href = `https://instagram.com/${handle}`
-      ig.textContent = n.instagram.startsWith('@') ? n.instagram : `@${handle}`
-      ig.style.display = 'inline-block'
-    } else {
-      ig.style.display = 'none'
-    }
-    // Description block
-    const descEl = card.querySelector<HTMLElement>('.card-description')
-    if (descEl) {
-      if (n.description && n.description.trim()) {
-        descEl.textContent = n.description.trim()
-        descEl.classList.remove('is-empty')
-      } else {
-        descEl.textContent = 'descrição em breve'
-        descEl.classList.add('is-empty')
-      }
-    }
-    // Reset reviews UI for this partner; the reviews module will repopulate
-    card.dataset.partnerId = n.id
-    document.dispatchEvent(new CustomEvent('partner-card-opened', { detail: { id: n.id, name: n.name } }))
-    card.classList.add('open')
-    card.setAttribute('aria-hidden', 'false')
+    // Modal centralizado (PartnerModal.astro) escuta esse evento.
+    document.dispatchEvent(new CustomEvent('partner-modal-open', { detail: n }))
   }
 
   // Render loop — throttled via rAF, batches DOM writes
@@ -255,13 +225,6 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
     attachPinchZoom(container)
   }
 
-  // Card close handler
-  const card = document.querySelector<HTMLElement>('[data-partner-card]')
-  card?.querySelector<HTMLButtonElement>('.card-close')?.addEventListener('click', () => {
-    card.classList.remove('open')
-    card.setAttribute('aria-hidden', 'true')
-  })
-
   // Re-center on resize (debounced)
   let resizeTimer: ReturnType<typeof setTimeout> | null = null
   function onResize() {
@@ -285,13 +248,25 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
 
   // Filter via CustomEvent — keeps SegmentFilter component decoupled
   // detail: { sectors: string[] | null }  null/empty = show all
-  function applyFilter(sectors: string[] | null) {
-    const showAll = !sectors || sectors.length === 0
-    const sectorSet = new Set(sectors ?? [])
+  let activeSectors: string[] | null = null
+  let activeQuery = ''
+  const norm = (s: string) => (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .trim()
+
+  function applyFilter() {
+    const showAllSectors = !activeSectors || activeSectors.length === 0
+    const sectorSet = new Set(activeSectors ?? [])
+    const q = norm(activeQuery)
+    const hasQuery = q.length > 0
     let visibleCount = 0
     nodeEls.forEach(({ el, node }) => {
       if (node.isCenter) return
-      const matches = showAll || sectorSet.has(node.sector)
+      const matchesSector = showAllSectors || sectorSet.has(node.sector)
+      const matchesName = !hasQuery || norm(node.name).includes(q)
+      const matches = matchesSector && matchesName
       el.style.display = matches ? '' : 'none'
       el.style.pointerEvents = matches ? '' : 'none'
       if (matches) visibleCount++
@@ -300,33 +275,48 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
     lineEls.forEach(({ el, edge }) => {
       const targetId = typeof edge.target === 'string' ? edge.target : edge.target.id
       const node = partnerNodes.find(p => p.id === targetId)
-      const matches = !node ? true : showAll || sectorSet.has(node.sector)
-      el.style.display = matches ? '' : 'none'
+      if (!node) { el.style.display = ''; return }
+      const matchesSector = showAllSectors || sectorSet.has(node.sector)
+      const matchesName = !hasQuery || norm(node.name).includes(q)
+      el.style.display = (matchesSector && matchesName) ? '' : 'none'
     })
 
-    // When filtered: tighten link distance & boost centering forces so visible
-    // nodes cluster snugly around the REC center within the viewport.
+    // Rebalanceia forças pra que os nós visíveis se reorganizem suavemente.
+    // IMPORTANTE: manter alpha baixo (≤0.25) pra evitar o "tremor" onde nodes
+    // se apertam no centro e depois se abrem bruscamente.
     const w = container.clientWidth
     const h = container.clientHeight
     const minDim = Math.min(w, h)
-    const targetRadius = showAll
+    const filtered = !showAllSectors || hasQuery
+
+    // Raio alvo: quando filtrado, mantém distância próxima ao padrão (180-220)
+    // pra evitar colapso dos nós no centro. Só comprime levemente.
+    const targetRadius = !filtered
       ? 200
-      : Math.max(110, Math.min(minDim * 0.32, 110 + visibleCount * 8))
+      : Math.max(150, Math.min(minDim * 0.28, 150 + visibleCount * 6))
 
     sim.force(
       'link',
       forceLink(edges as any)
         .id((d: any) => d.id)
-        .distance(() => targetRadius + Math.random() * 40)
-        .strength(0.18),
+        .distance(() => targetRadius + Math.random() * 30)
+        .strength(0.1), // mesma força do estado inicial — não aumenta pra não "puxar" bruscamente
     )
-    const centerStrength = showAll ? 0.06 : 0.18
+    // centerStrength: pequeno boost quando filtrado, mas sem exagerar (0.08 vs 0.06)
+    const centerStrength = filtered ? 0.08 : 0.06
     sim.force('x', forceX(w / 2).strength(centerStrength))
     sim.force('y', forceY(h / 2).strength(centerStrength))
-    sim.alpha(0.6).restart()
+
+    // alpha baixo = transição suave sem tremor; alphaTarget garante que pare naturalmente
+    sim.alphaTarget(0).alpha(0.2).restart()
   }
   document.addEventListener('partners-filter' as any, (ev: any) => {
-    applyFilter(ev.detail?.sectors ?? null)
+    activeSectors = ev.detail?.sectors ?? null
+    applyFilter()
+  })
+  document.addEventListener('partners-search' as any, (ev: any) => {
+    activeQuery = ev.detail?.query ?? ''
+    applyFilter()
   })
 
   return () => {

@@ -18,9 +18,40 @@ const featured = allPosts[0]
 // ── Mini-cards: 2º e 3º mais recentes ────────────────────────
 const mini1 = allPosts[1]
 const mini2 = allPosts[2]
-// ── Arquivo: o resto ─────────────────────────────────────────
-const archive = allPosts.slice(3)
+// ── Arquivo: o resto, intercalado por categoria ──────────────
+const archiveRaw = allPosts.slice(3)
 const totalCount = allPosts.length
+
+// Interleave round-robin: agrupa por categoria, distribui alternado
+// para máxima diversidade visual (eventos não ficam todos no fim)
+function interleaveByCategory<T extends { data: { pillar: string } }>(posts: T[]): T[] {
+  // Ordem de prioridade dos grupos (garante que eventos apareça cedo)
+  const ORDER: Category[] = ['educacional', 'empreendedorismo', 'historias', 'eventos']
+  const buckets = new Map<Category, T[]>()
+  for (const cat of ORDER) buckets.set(cat, [])
+
+  for (const p of posts) {
+    const cat = pillarToCategory(p.data.pillar as any)
+    if (!buckets.has(cat)) buckets.set(cat, [])
+    buckets.get(cat)!.push(p)
+  }
+
+  const result: T[] = []
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const cat of ORDER) {
+      const bucket = buckets.get(cat)!
+      if (bucket.length > 0) {
+        result.push(bucket.shift()!)
+        changed = true
+      }
+    }
+  }
+  return result
+}
+
+const archive = interleaveByCategory(archiveRaw)
 
 // Categorias presentes
 const categoriesPresent = new Set<Category>(
@@ -180,52 +211,29 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
       </nav>
     </header>
 
-    <!-- Flex: lista à esquerda, preview sticky à direita -->
+    <!-- Lista centralizada -->
     <div class="archival-body">
-
-      <!-- Coluna da lista -->
-      <div class="archival-list-col">
-        <ol class="archival-list" id="archival-list">
-          {archive.map((p, i) => (
-            <li class="archival-item" data-category={pillarToCategory(p.data.pillar)}>
-              <ArchivalRow
-                slug={p.id}
-                title={p.data.title}
-                excerpt={p.data.excerpt}
-                pillar={p.data.pillar}
-                publishedAt={p.data.publishedAt}
-                cover={p.data.cover}
-                coverAlt={p.data.coverAlt}
-                body={p.body}
-                number={i + 1}
-                index={i}
-              />
-            </li>
-          ))}
-        </ol>
-        <p class="archival-empty" id="archival-empty" hidden>
-          Nenhum artigo nesta categoria ainda. Em breve.
-        </p>
-      </div>
-
-      <!-- Preview sticky — fica no mesmo lugar, só muda o conteúdo -->
-      <div class="archival-preview" id="archival-preview" aria-hidden="true">
-        <div class="archival-preview-inner">
-          <div class="archival-preview-cat-strip" id="archival-preview-strip"></div>
-          <div class="archival-preview-media">
-            <img class="archival-preview-img" id="archival-preview-img" src="" alt="" />
-            <div class="archival-preview-placeholder" id="archival-preview-placeholder" hidden>
-              <span class="archival-preview-watermark" id="archival-preview-watermark"></span>
-            </div>
-          </div>
-          <div class="archival-preview-info">
-            <span class="archival-preview-cat" id="archival-preview-cat"></span>
-            <p class="archival-preview-excerpt" id="archival-preview-excerpt"></p>
-            <span class="archival-preview-min" id="archival-preview-min"></span>
-          </div>
-        </div>
-      </div>
-
+      <ol class="archival-list" id="archival-list">
+        {archive.map((p, i) => (
+          <li class="archival-item" data-category={pillarToCategory(p.data.pillar)}>
+            <ArchivalRow
+              slug={p.id}
+              title={p.data.title}
+              excerpt={p.data.excerpt}
+              pillar={p.data.pillar}
+              publishedAt={p.data.publishedAt}
+              cover={p.data.cover}
+              coverAlt={p.data.coverAlt}
+              body={p.body}
+              number={i + 1}
+              index={i}
+            />
+          </li>
+        ))}
+      </ol>
+      <p class="archival-empty" id="archival-empty" hidden>
+        Nenhum artigo nesta categoria ainda. Em breve.
+      </p>
     </div>
   </section>
 
@@ -242,9 +250,12 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
       <span></span><span></span><span></span>
     </div>
     <div class="blog-final-inner">
-      <h2>Faça parte da <em>comunidade</em> REC.</h2>
+      <span class="blog-final-eyebrow">faz parte do movimento</span>
+      <h2>
+        <strong>Faça parte da</strong> <em>comunidade</em> <strong>REC.</strong>
+      </h2>
       <p>Conexões, eventos e oportunidades que você não encontra em outro lugar.</p>
-      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="blog-final-cta">
+      <a href={whatsappLink(messages.blog)} target="_blank" rel="noopener" class="blog-final-cta">
         quero entrar →
       </a>
     </div>
@@ -340,57 +351,12 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
     })
   })
 
-  // ── 5. Preview lateral no hover ────────────────────────────
-  const preview        = document.getElementById('archival-preview')
-  const previewImg     = document.getElementById('archival-preview-img') as HTMLImageElement
-  const previewPh      = document.getElementById('archival-preview-placeholder')
-  const previewWm      = document.getElementById('archival-preview-watermark')
-  const previewCat     = document.getElementById('archival-preview-cat')
-  const previewExcerpt = document.getElementById('archival-preview-excerpt')
-  const previewMin     = document.getElementById('archival-preview-min')
-  const previewStrip   = document.getElementById('archival-preview-strip')
-  const rows = document.querySelectorAll<HTMLAnchorElement>('.archival-row')
-
-  // Preview: posição é 100% CSS (sticky).
-  // JS só atualiza o conteúdo e mostra/esconde.
-  rows.forEach(row => {
-    row.addEventListener('mouseenter', () => {
-      if (!preview) return
-      const cover    = row.dataset.cover || ''
-      const catLabel = row.dataset.catLabel || ''
-      const catColor = row.dataset.catColor || 'var(--rec-teal)'
-      const excerpt  = row.dataset.excerpt || ''
-      const minutes  = row.dataset.minutes || '4'
-
-      if (previewStrip)   previewStrip.style.background = catColor
-      if (previewCat)     { previewCat.textContent = catLabel; previewCat.style.color = catColor }
-      if (previewExcerpt) previewExcerpt.textContent = excerpt
-      if (previewMin)     previewMin.textContent = `${minutes} min de leitura`
-
-      if (cover && previewImg && previewPh) {
-        previewImg.src = cover
-        previewImg.hidden = false
-        previewPh.hidden = true
-      } else if (previewPh && previewImg && previewWm) {
-        previewImg.hidden = true
-        previewPh.hidden = false
-        previewWm.textContent = catLabel
-        previewWm.style.color = catColor
-      }
-
-      preview.classList.add('is-visible')
-    })
-
-    row.addEventListener('mouseleave', () => {
-      if (preview) preview.classList.remove('is-visible')
-    })
-  })
-
-  // ── 6. Mobile: tap pra expandir cover inline ───────────────
+  // ── 5. Mobile: tap pra expandir cover inline ───────────────
   if (window.matchMedia('(max-width: 700px)').matches) {
-    rows.forEach(row => {
+    const rows = document.querySelectorAll<HTMLAnchorElement>('.archival-row')
+    rows.forEach((row: HTMLAnchorElement) => {
       let tapped = false
-      row.addEventListener('click', (e) => {
+      row.addEventListener('click', (e: Event) => {
         if (!tapped) {
           e.preventDefault()
           row.classList.add('is-expanded')
@@ -427,6 +393,7 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
 .blog-hero {
   position: relative;
   min-height: 90vh;
+  min-height: 90dvh;
   background: var(--rec-navy);
   color: #fff;
   padding: var(--space-24) var(--space-6) var(--space-16);
@@ -587,11 +554,11 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
 
 /* Scroll indicator */
 .blog-hero-scroll {
+  display: none;
   position: absolute;
   bottom: var(--space-8);
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
@@ -764,18 +731,10 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
   width: 100%;
 }
 
-/* Body do arquivo */
-/* archival-body = flex: lista + preview lado a lado */
+/* Body do arquivo — lista centralizada, sem preview lateral */
 .archival-body {
-  display: flex;
-  gap: 48px;
-  align-items: flex-start;
-}
-
-/* Coluna da lista — cresce e ocupa o espaço disponível */
-.archival-list-col {
-  flex: 1;
-  min-width: 0;
+  max-width: var(--container-max);
+  margin: 0 auto;
 }
 
 .archival-list {
@@ -798,124 +757,6 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
   font-style: italic;
 }
 
-/* ============================================
-   PREVIEW LATERAL — sticky dentro da seção
-   Fica sempre no mesmo lugar, não vaza pro
-   próximo bloco, só muda o conteúdo.
-   ============================================ */
-.archival-preview {
-  /* Largura fixa — não encolhe */
-  flex-shrink: 0;
-  width: 360px;
-  /* Sticky: prende no topo enquanto lista está em vista */
-  position: sticky;
-  top: 100px;
-  /* Invisível por padrão */
-  opacity: 0;
-  transform: translateX(12px);
-  pointer-events: none;
-  transition:
-    opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.archival-preview.is-visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Em telas menores que 1200px oculta o preview */
-@media (max-width: 1200px) {
-  .archival-body { display: block; }
-  .archival-preview { display: none; }
-}
-
-.archival-preview-inner {
-  position: relative;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    0 24px 60px rgba(1,14,42,0.18),
-    0 4px 16px rgba(1,14,42,0.10);
-}
-
-/* Faixa colorida no topo do preview */
-.archival-preview-cat-strip {
-  height: 4px;
-  background: var(--rec-teal);
-  transition: background 280ms var(--easing);
-}
-
-.archival-preview-media {
-  position: relative;
-  aspect-ratio: 16/10;
-  background: var(--rec-navy);
-  overflow: hidden;
-}
-.archival-preview-img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.archival-preview-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--rec-navy);
-}
-.archival-preview-watermark {
-  font-family: var(--font-display);
-  font-size: 2.2rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  opacity: 0.5;
-}
-
-.archival-preview-info {
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.archival-preview-cat {
-  font-family: var(--font-ui);
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-.archival-preview-excerpt {
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  line-height: 1.55;
-  color: rgba(1,38,89,0.7);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.archival-preview-min {
-  font-family: var(--font-ui);
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: lowercase;
-  color: rgba(1,38,89,0.45);
-  align-self: flex-start;
-  padding-top: var(--space-2);
-  border-top: 1px solid rgba(1,38,89,0.08);
-  margin-top: var(--space-1);
-  width: 100%;
-}
-
-/* (preview já tratado acima com sticky + @media 1200px) */
-
-@media (prefers-reduced-motion: reduce) {
-  .archival-preview { transition: none; }
-}
 
 /* ============================================
    RESPONSIVO GERAL
@@ -990,6 +831,16 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
 @media (max-width: 768px) { .blog-final-bars { display: none; } }
 
 .blog-final-inner { position: relative; max-width: 680px; margin: 0 auto; z-index: 2; }
+.blog-final-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
 .blog-final h2 {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.5vw, 3.8rem);
@@ -999,26 +850,103 @@ const lastUpdate = featured.data.publishedAt.toLocaleDateString('pt-BR', {
   margin-bottom: var(--space-4);
   color: var(--rec-blue);
 }
+.blog-final h2 strong { font-weight: 800; color: var(--rec-blue); }
 .blog-final h2 em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
-.blog-final p { color: rgba(1,38,89,0.7); line-height: 1.65; margin-bottom: var(--space-8); font-size: var(--type-body); }
+.blog-final p {
+  color: rgba(255,255,255,0.78);
+  line-height: 1.65;
+  margin-bottom: var(--space-8);
+  font-size: var(--type-body);
+}
 
 .blog-final-cta {
   display: inline-block;
   background: transparent;
   color: var(--rec-teal);
-  padding: 20px 60px;
-  border: 1px solid var(--rec-teal);
-  border-radius: 100px;
+  padding: 18px 48px;
+  border: 2px solid var(--rec-teal);
+  border-radius: 999px;
   font-family: var(--font-ui);
-  font-size: var(--type-body);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
   text-decoration: none;
-  transition: all var(--motion-base) var(--easing);
+  animation: blog-cta-pulse 2.8s ease-in-out infinite;
+  transition:
+    background var(--motion-fast) var(--easing),
+    color var(--motion-fast) var(--easing),
+    box-shadow var(--motion-fast) var(--easing),
+    transform var(--motion-fast) var(--easing);
 }
 .blog-final-cta:hover {
   background: var(--rec-teal);
   color: #fff;
   transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 161, 152, 0.45);
+  animation: none;
+}
+@keyframes blog-cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 161, 152, 0); }
+  50%      { box-shadow: 0 0 0 10px rgba(0, 161, 152, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-final-cta { animation: none; }
+}
+
+/* =========================================================
+   MOBILE — adaptações finais do Blog
+   ========================================================= */
+@media (max-width: 640px) {
+  .blog-hero {
+    min-height: 70dvh;
+    padding: var(--space-14) var(--space-4) var(--space-10);
+  }
+  .blog-hero-title { font-size: clamp(2.4rem, 10vw, 3.4rem); }
+  .blog-hero-lead { font-size: 1rem; }
+
+  /* Counter — empilhar vertical com items alinhados, mais legível */
+  .blog-hero-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 18px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+  .counter-item {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .counter-sep { display: none; }
+  .counter-item:nth-child(3) {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+  .counter-num { font-size: 1.2rem; }
+  .counter-label, .counter-update-label { font-size: 0.62rem; }
+
+  /* CTA Final */
+  .blog-final { padding: var(--space-14) var(--space-5); }
+  .blog-final h2 { font-size: clamp(2rem, 7vw, 2.4rem); }
+  .blog-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .blog-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 }
 </style>

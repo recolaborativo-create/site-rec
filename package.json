@@ -13,14 +13,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "astro check"
+    "lint": "astro check",
+    "fetch:google": "node scripts/fetch-google-reviews.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.98.0",
     "@astrojs/check": "^0.9.8",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/vercel": "^10.0.7",
     "@notionhq/client": "^5.21.0",
+    "@supabase/supabase-js": "^2.106.1",
     "@vercel/kv": "^3.0.0",
     "astro": "^6.1.9",
     "d3-force": "^3.0.0"

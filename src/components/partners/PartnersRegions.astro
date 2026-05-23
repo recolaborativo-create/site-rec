@@ -1,0 +1,404 @@
+---
+import { loadAllPartners } from '../../data/partners-merged'
+import { SECTOR_LABEL } from '../../data/sector-labels'
+import { safeJson } from '../../utils/safe-json'
+import type { Partner } from '../../data/partners'
+
+const partners = await loadAllPartners()
+
+// Extrai cidade do endereço quando disponível (formato BR: "..., Cidade - UF, CEP, Brasil")
+function extractCity(p: Partner): string {
+  // 1. Campo city explícito do partner (ex: "Porto Alegre, RS")
+  if (p.city) {
+    const beforeComma = p.city.split(',')[0].trim()
+    return beforeComma
+  }
+  // 2. Extrai do address (formato típico: "R. X, 123 - Bairro, Canoas - RS, 92020-000, Brasil")
+  if (p.address) {
+    const m = p.address.match(/,\s*([^,-]+?)\s*-\s*[A-Z]{2}/)
+    if (m) return m[1].trim()
+  }
+  return 'Sem localização'
+}
+
+function extractNeighborhood(p: Partner): string | null {
+  if (!p.address) return null
+  // Padrão: "Rua X, 123 - Bairro, Cidade - UF"
+  const m = p.address.match(/-\s*([^,]+?),\s*[^,]+\s*-\s*[A-Z]{2}/)
+  return m ? m[1].trim() : null
+}
+
+// Agrupa por cidade
+const grouped = new Map<string, Partner[]>()
+partners.forEach(p => {
+  const city = extractCity(p)
+  if (!grouped.has(city)) grouped.set(city, [])
+  grouped.get(city)!.push(p)
+})
+
+// Ordena: Canoas e Porto Alegre primeiro (HQ do REC), depois por count desc, "Sem localização" sempre por último
+const PRIORITY = ['Canoas', 'Porto Alegre']
+const regions = [...grouped.entries()]
+  .map(([city, list]) => ({
+    city,
+    count: list.length,
+    partners: list.sort((a, b) => (b.reach - a.reach) || a.name.localeCompare(b.name, 'pt-BR')),
+  }))
+  .sort((a, b) => {
+    if (a.city === 'Sem localização') return 1
+    if (b.city === 'Sem localização') return -1
+    const ai = PRIORITY.indexOf(a.city)
+    const bi = PRIORITY.indexOf(b.city)
+    if (ai !== -1 && bi !== -1) return ai - bi
+    if (ai !== -1) return -1
+    if (bi !== -1) return 1
+    return b.count - a.count || a.city.localeCompare(b.city, 'pt-BR')
+  })
+---
+<div class="partners-regions" data-partners-regions hidden>
+  <div class="regions-empty" data-regions-empty hidden>
+    <span class="regions-empty-icon" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <p class="regions-empty-title">nenhuma empresa encontrada</p>
+    <p class="regions-empty-sub">tenta outro nome ou limpa os filtros</p>
+  </div>
+
+  <div class="regions-container">
+    {regions.map((region) => (
+      <section class="region-block" data-region-block={region.city}>
+        <header class="region-header">
+          <div class="region-title-row">
+            <span class="region-pin" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            <h3 class="region-title">{region.city}</h3>
+            <span class="region-count">{region.count} {region.count === 1 ? 'empresa' : 'empresas'}</span>
+          </div>
+          <div class="region-line" aria-hidden="true"></div>
+        </header>
+
+        <div class="region-strip">
+          {region.partners.map(p => (
+            <button
+              class="region-card"
+              data-partner-id={p.id}
+              data-sector={p.sector}
+              data-name={p.name}
+              type="button"
+              aria-label={`Ver detalhes de ${p.name}`}
+            >
+              <div class="region-card-logo">
+                <img src={p.logo} alt={p.name} loading="lazy" decoding="async" />
+              </div>
+              <div class="region-card-info">
+                <span class="region-card-name">{p.name}</span>
+                <span class="region-card-sector">{SECTOR_LABEL[p.sector] ?? p.sector}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</div>
+
+<script type="application/json" data-regions-partners-json set:html={safeJson(partners.map(p => ({
+  ...p,
+  sectorLabel: SECTOR_LABEL[p.sector] ?? p.sector,
+})))}></script>
+
+<script>
+  import type { PartnerLite } from '../../data/partners'
+  const root = document.querySelector<HTMLElement>('[data-partners-regions]')
+  const dataEl = document.querySelector<HTMLElement>('[data-regions-partners-json]')
+  if (root && dataEl) {
+    let partners: PartnerLite[] = []
+    try { partners = JSON.parse(dataEl.textContent || '[]') } catch {}
+    const byId = new Map(partners.map(p => [p.id, p]))
+
+    root.addEventListener('click', (e) => {
+      const card = (e.target as HTMLElement).closest<HTMLElement>('.region-card')
+      if (!card) return
+      const id = card.dataset.partnerId
+      if (!id) return
+      const partner = byId.get(id)
+      if (!partner) return
+      document.dispatchEvent(new CustomEvent('partner-modal-open', { detail: partner }))
+    })
+
+    const emptyEl = root.querySelector<HTMLElement>('[data-regions-empty]')
+    const containerEl = root.querySelector<HTMLElement>('.regions-container')
+    let activeSectors: string[] = []
+    let activeQuery = ''
+
+    const norm = (s: string) => (s || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .trim()
+
+    function applyFilters() {
+      const showAllSectors = activeSectors.length === 0
+      const q = norm(activeQuery)
+      const blocks = root.querySelectorAll<HTMLElement>('.region-block')
+      let totalVisible = 0
+      blocks.forEach(b => {
+        const cards = b.querySelectorAll<HTMLElement>('.region-card')
+        let blockVisible = 0
+        cards.forEach(c => {
+          const sectorMatch = showAllSectors || activeSectors.includes(c.dataset.sector || '')
+          const matchesName = !q || norm(c.dataset.name || '').includes(q)
+          const ok = sectorMatch && matchesName
+          c.style.display = ok ? '' : 'none'
+          if (ok) blockVisible++
+        })
+        b.style.display = blockVisible > 0 ? '' : 'none'
+        totalVisible += blockVisible
+      })
+      if (emptyEl) emptyEl.hidden = totalVisible > 0
+      if (containerEl) containerEl.style.display = totalVisible > 0 ? '' : 'none'
+    }
+
+    document.addEventListener('partners-filter' as any, (ev: any) => {
+      activeSectors = ev.detail?.sectors ?? []
+      applyFilters()
+    })
+    document.addEventListener('partners-search' as any, (ev: any) => {
+      activeQuery = ev.detail?.query ?? ''
+      applyFilters()
+    })
+
+    document.addEventListener('partners-view-change' as any, (ev: any) => {
+      const mode = ev.detail?.mode
+      root.hidden = mode !== 'regions'
+    })
+  }
+</script>
+
+<style>
+.partners-regions {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-10);
+}
+
+.regions-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.regions-empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  max-width: 360px;
+  margin: 0 auto;
+}
+.regions-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 161, 152, 0.08);
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
+.regions-empty-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--rec-blue);
+  margin: 0 0 6px;
+}
+.regions-empty-sub {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: rgba(1, 38, 89, 0.55);
+  margin: 0;
+}
+
+.region-block {
+  position: relative;
+}
+
+.region-header {
+  margin-bottom: var(--space-4);
+}
+.region-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.region-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0, 161, 152, 0.12) 0%, rgba(0, 161, 152, 0.04) 100%);
+  color: var(--rec-teal);
+  flex-shrink: 0;
+}
+.region-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--rec-blue);
+  margin: 0;
+  /* Cidades em capitalize (Porto Alegre, Canoas, etc) */
+}
+.region-count {
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  background: rgba(0, 161, 152, 0.08);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.region-line {
+  height: 1px;
+  background: linear-gradient(to right, rgba(0, 161, 152, 0.32) 0%, rgba(0, 161, 152, 0) 80%);
+  margin-left: 44px;
+}
+
+.region-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.region-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: #fff;
+  border: 1px solid rgba(1, 38, 89, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition:
+    transform 320ms var(--easing),
+    border-color 320ms var(--easing),
+    box-shadow 320ms var(--easing);
+}
+.region-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 161, 152, 0.32);
+  box-shadow: 0 10px 24px rgba(1, 38, 89, 0.08);
+}
+.region-card:focus-visible {
+  outline: none;
+  border-color: var(--rec-teal);
+  box-shadow: 0 0 0 3px rgba(0, 161, 152, 0.22);
+}
+
+.region-card-logo {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: linear-gradient(135deg, #fafcfc 0%, rgba(0, 161, 152, 0.04) 100%);
+  border-radius: 8px;
+}
+.region-card-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.region-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.region-card-name {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(1, 38, 89, 0.85);
+  /* 2 linhas */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.region-card-sector {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+}
+
+@media (max-width: 1023px) {
+  .partners-regions { padding: var(--space-4) var(--space-4) var(--space-8); }
+  /* Strip vira GRID DE 3 LINHAS rolando lateralmente (swipe horizontal) */
+  .region-strip {
+    display: grid;
+    grid-template-rows: repeat(3, auto);
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 230px;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-1) 0 var(--space-2);
+  }
+  .region-strip::-webkit-scrollbar { display: none; }
+  .region-card {
+    scroll-snap-align: start;
+    padding: var(--space-2) var(--space-3);
+  }
+  .region-card-logo { width: 40px; height: 40px; }
+  .region-line { display: none; }
+
+  /* SETINHA de swipe (indicador animado lado direito) — só mobile */
+  .region-block::after {
+    content: '';
+    position: absolute;
+    top: 60%;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-right: 2.5px solid var(--rec-teal);
+    border-top: 2.5px solid var(--rec-teal);
+    transform: translateY(-50%) rotate(45deg);
+    animation: region-swipe-hint 1.6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(0 1px 4px rgba(0,161,152,0.35));
+  }
+  @keyframes region-swipe-hint {
+    0%, 100% { transform: translateY(-50%) translateX(0) rotate(45deg); opacity: 0.4; }
+    50%      { transform: translateY(-50%) translateX(5px) rotate(45deg); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .region-block::after { animation: none; opacity: 0.55; }
+  }
+}
+</style>

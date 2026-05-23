@@ -1,45 +1,464 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Constellation from '../components/partners/Constellation.astro'
-import PartnersGridFallback from '../components/partners/PartnersGridFallback.astro'
-import PartnerCard from '../components/partners/PartnerCard.astro'
+import PartnersGrid from '../components/partners/PartnersGrid.astro'
+import PartnersSegments from '../components/partners/PartnersSegments.astro'
+import PartnersRegions from '../components/partners/PartnersRegions.astro'
 import SegmentFilter from '../components/partners/SegmentFilter.astro'
+import ViewToggle from '../components/partners/ViewToggle.astro'
+import PartnerModal from '../components/partners/PartnerModal.astro'
+import { whatsappLink, messages } from '../utils/whatsapp'
 import { loadAllPartners } from '../data/partners-merged'
+
 const partners = await loadAllPartners()
 const total = partners.length
 const sectors = Array.from(new Set(partners.map((p) => p.sector))).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+// Métricas pro hero
+const sectorCount = sectors.length
 ---
 <BaseLayout
   title="Empresas"
-  description={`${total} empresas conectadas. Explore a rede REC.`}
+  description={`${total} empresas conectadas no ecossistema REC. Explora a rede, descobre conexões reais.`}
   path="/empresas"
   currentSection="Empresas"
 >
-  <section class="empresas-intro">
-    <div class="intro-inner">
-      <span class="uppercase-label" style="color: var(--rec-teal)">rede de empresas</span>
-      <h1>{total} empresas, uma <em>constelação</em>.</h1>
-      <p class="lead">Cada ponto é uma empresa parceira. Cada linha é uma conexão real: parceria, evento, negócio fechado dentro da rede. Arrasta, explora, clica.</p>
+
+  <!-- ============================================
+       HERO — padrão das outras páginas
+       ============================================ -->
+  <section class="empresas-hero" data-reveal>
+    <div class="hero-bg" aria-hidden="true">
+      <span class="hero-orb hero-orb-1"></span>
+      <span class="hero-orb hero-orb-2"></span>
+    </div>
+
+    <div class="hero-inner">
+      <span class="hero-eyebrow">rede de empresas</span>
+      <h1 class="hero-title">
+        Uma rede viva.<br/>
+        <em>Uma constelação.</em>
+      </h1>
+      <p class="hero-lead">
+        Cada ponto é uma empresa parceira. Cada linha, uma conexão real: parceria fechada, evento conjunto, indicação que virou negócio. Arrasta, explora, abre.
+      </p>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num">{sectorCount}</span>
+          <span class="hero-stat-label">segmentos</span>
+        </div>
+        <div class="hero-stat-sep" aria-hidden="true"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">+10 mil</span>
+          <span class="hero-stat-label">conexões geradas</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <SegmentFilter sectors={sectors} />
-  <Constellation />
-  <PartnerCard />
+  <!-- ============================================
+       CONTROLS — toggle de view + filtros
+       ============================================ -->
+  <section class="empresas-controls">
+    <div class="controls-inner">
+      <ViewToggle />
+      <SegmentFilter
+        sectors={sectors}
+        partners={partners.map((p) => ({ id: p.id, name: p.name, sector: p.sector }))}
+      />
+    </div>
+  </section>
 
-  <details class="grid-fallback">
-    <summary>Ver em formato grid</summary>
-    <PartnersGridFallback />
-  </details>
+  <!-- ============================================
+       VIEWS — constelação / grade / por segmento
+       ============================================ -->
+  <p class="constellation-hint" aria-hidden="true">toque para ver detalhes</p>
+
+  <section class="empresas-viewport">
+    <Constellation />
+    <PartnersGrid />
+    <PartnersSegments />
+    <PartnersRegions />
+  </section>
+
+  <!-- ============================================
+       CTA FINAL — padrão consistente com outras páginas
+       ============================================ -->
+  <section class="empresas-final" data-reveal>
+    <div class="empresas-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="empresas-final-inner">
+      <span class="empresas-final-eyebrow">faz parte do movimento</span>
+      <h2>
+        Quer a sua marca<br/>
+        <em>nessa constelação?</em>
+      </h2>
+      <p>Conversa rápida no WhatsApp pra ver se o seu momento combina.</p>
+      <a
+        href={whatsappLink(messages.empresas)}
+        target="_blank"
+        rel="noopener"
+        class="empresas-final-cta"
+      >
+        falar com a equipe →
+      </a>
+    </div>
+  </section>
+
+  <!-- MODAL CENTRALIZADO (escuta evento global 'partner-modal-open') -->
+  <PartnerModal />
 </BaseLayout>
 
+<script>
+  // Reveal on scroll
+  // Hint "toque para ver detalhes" — só aparece na view da constelação
+  const constellationHint = document.querySelector('.constellation-hint') as HTMLElement | null
+  function updateHint(view: string) {
+    if (constellationHint) constellationHint.style.display = view === 'constellation' ? '' : 'none'
+  }
+  window.addEventListener('partners-view-change', (e: any) => updateHint(e.detail?.view ?? 'constellation'))
+  // Estado inicial: constelação é a default
+  updateHint('constellation')
+
+  const reveal = document.querySelectorAll('[data-reveal]')
+  if (reveal.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target) } })
+    }, { threshold: 0.12 })
+    reveal.forEach(el => io.observe(el))
+  } else {
+    reveal.forEach(el => el.classList.add('in-view'))
+  }
+
+</script>
+
 <style>
-.empresas-intro { padding: var(--space-16) var(--space-6) var(--space-6); }
-.intro-inner { max-width: 760px; margin: 0 auto; }
-.empresas-intro h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); font-weight: 800; }
-.empresas-intro h1 em { color: var(--rec-teal); font-style: normal; }
-.lead { font-size: var(--type-body); color: #556; line-height: 1.7; max-width: 580px; }
-.grid-fallback { max-width: var(--container-max); margin: var(--space-8) auto; padding: 0 var(--space-3); }
-.grid-fallback summary { cursor: pointer; font-size: var(--type-small); color: var(--rec-purple); padding: var(--space-3); font-weight: 700; letter-spacing: 0.05em; }
-.grid-fallback summary:hover { color: var(--rec-teal); }
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing);
+}
+[data-reveal].in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.empresas-hero {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-20) var(--space-6) var(--space-10);
+  background: linear-gradient(180deg, #fbfcfe 0%, #ffffff 100%);
+  text-align: center;
+}
+.hero-bg { position: absolute; inset: 0; pointer-events: none; }
+.hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+.hero-orb-1 {
+  width: 380px; height: 380px;
+  top: -100px; right: -120px;
+  background: radial-gradient(circle, rgba(0,161,152,0.32) 0%, transparent 70%);
+  opacity: 0.55;
+}
+.hero-orb-2 {
+  width: 320px; height: 320px;
+  top: 30%; left: -80px;
+  background: radial-gradient(circle, rgba(1,38,89,0.22) 0%, transparent 70%);
+  opacity: 0.45;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  padding: 6px 16px;
+  border: 1px solid rgba(0, 161, 152, 0.3);
+  border-radius: 999px;
+  margin-bottom: var(--space-5);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6.4vw, 4.6rem);
+  font-weight: 200;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--rec-blue);
+  margin: 0 0 var(--space-5);
+}
+.hero-title em { color: var(--rec-teal); font-style: italic; font-weight: 300; }
+.hero-lead {
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.65;
+  color: rgba(1, 38, 89, 0.72);
+  max-width: 580px;
+  margin: 0 auto var(--space-8);
+}
+
+.hero-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-6);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 161, 152, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(1, 38, 89, 0.05);
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--rec-blue);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.hero-stat-label {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(1, 38, 89, 0.6);
+}
+.hero-stat-sep {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 161, 152, 0.32), transparent);
+}
+
+/* ============================================
+   CONTROLS — toggle + filters
+   ============================================ */
+.empresas-controls {
+  position: sticky;
+  top: 64px;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 161, 152, 0.1);
+  padding: var(--space-3) 0;
+}
+.controls-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+@media (max-width: 900px) {
+  .empresas-controls { position: static; }
+}
+
+/* SegmentFilter component já tem padding/max-width próprio — sobrepor pra alinhar */
+.empresas-controls :global(.segment-filter) {
+  padding: 0;
+}
+.empresas-controls :global(.filter-inner) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: var(--space-2) 0 0;
+}
+.empresas-controls :global(.filter-header) {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+}
+
+/* ============================================
+   VIEWPORT — área onde as 3 views aparecem
+   ============================================ */
+.constellation-hint {
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(1, 38, 89, 0.38);
+  margin: 0 0 var(--space-2);
+  padding: 0 var(--space-6);
+}
+
+
+.empresas-viewport {
+  min-height: 600px;
+  padding: var(--space-4) 0 var(--space-10);
+}
+
+/* ============================================
+   CTA FINAL — espelha planos/hub
+   ============================================ */
+.empresas-final {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%, #f5fafd  3%, #eef6fc  6%, #e4f0fa  9%,
+    #d6e9f7 12%, #c5dff3 16%, #b0d2ee 20%, #97c3e7 24%,
+    #7ab0de 29%, #5d9cd3 34%, #4287c5 39%, #2c73b6 45%,
+    #1a60a6 51%, #0f4e95 57%, #083e81 63%, #052e6a 70%,
+    #031f52 79%, #031548 89%, #042050 100%
+  );
+  text-align: center;
+}
+.empresas-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+.empresas-final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 22%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+}
+.empresas-final-bars {
+  position: absolute;
+  top: 32px; right: 5vw;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+}
+.empresas-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.empresas-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.empresas-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.empresas-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .empresas-final-bars { display: none; } }
+
+.empresas-final-inner { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
+.empresas-final-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
+.empresas-final h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--space-4);
+  color: var(--rec-blue);
+}
+.empresas-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.empresas-final p {
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+  font-size: var(--type-body);
+}
+.empresas-final-cta {
+  display: inline-block;
+  padding: 18px 48px;
+  background: transparent;
+  color: var(--rec-teal);
+  border: 2px solid var(--rec-teal);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: lowercase;
+  animation: cta-pulse 2.8s ease-in-out infinite;
+  transition:
+    background var(--motion-fast) var(--easing),
+    color var(--motion-fast) var(--easing),
+    box-shadow var(--motion-fast) var(--easing),
+    transform var(--motion-fast) var(--easing);
+}
+.empresas-final-cta:hover {
+  background: var(--rec-teal); color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 161, 152, 0.45);
+  animation: none;
+}
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 161, 152, 0); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 161, 152, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .empresas-final-cta { animation: none; }
+}
+
+/* Mobile: PartnersSegments e Regions aparecem mas com layout próprio horizontal */
+@media (max-width: 1023px) {
+  /* Constelação removida no mobile a pedido do usuário */
+  :global([data-constellation-wrap]) { display: none !important; }
+  /* Hint "toque para ver detalhes" também some — só fazia sentido na constelação */
+  .constellation-hint { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  .empresas-hero { padding: var(--space-12) var(--space-4) var(--space-6); }
+  .hero-eyebrow { margin-bottom: var(--space-3); }
+  .hero-title { font-size: clamp(2.2rem, 9vw, 3rem); margin-bottom: var(--space-3); }
+  /* Subtítulo do hero reduzido */
+  .hero-lead {
+    margin-bottom: var(--space-5);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 320px;
+  }
+  .hero-stats { padding: var(--space-3) var(--space-4); gap: var(--space-3); flex-wrap: wrap; justify-content: center; }
+  .hero-stat-sep { display: none; }
+  .controls-inner { padding: 0 var(--space-4); gap: var(--space-2); }
+  .constellation-hint { padding: 0 var(--space-4); }
+  .empresas-final { padding: var(--space-14) var(--space-5); }
+  .empresas-final h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .empresas-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .empresas-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+}
 </style>

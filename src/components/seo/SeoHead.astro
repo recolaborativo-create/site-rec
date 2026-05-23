@@ -1,42 +1,72 @@
 ---
+import { safeJson } from '../../utils/safe-json'
+
 interface Props {
   title: string
   description: string
   path: string
   ogImage?: string
+  /** Schemas adicionais opcionais (Event, BlogPosting, Breadcrumb…) que ficam ao lado do LocalBusiness padrão */
+  schemas?: Array<Record<string, unknown>>
 }
-const { title, description, path, ogImage = '/logo-text.png' } = Astro.props
-const canonical = `https://recolaborativo.com.br${path}`
+const { title, description, path, ogImage = '/NORMAL - FT.png', schemas = [] } = Astro.props
+const SITE_URL = 'https://recolaborativo.com.br'
+const canonical = `${SITE_URL}${path}`
+const ogImageAbs = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
+
+const baseSchemas: Array<Record<string, unknown>> = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'REC Colaborativo',
+    alternateName: 'REC',
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo-icon-white.png`,
+    email: 'henrique@somosrecoficial.com.br',
+    sameAs: ['https://instagram.com/somosrecoficial'],
+    description: 'Ecossistema de empresas conectadas no Rio Grande do Sul.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'REC',
+    alternateName: 'REC Colaborativo',
+    url: SITE_URL,
+    telephone: '+5551984632545',
+    sameAs: ['https://instagram.com/somosrecoficial'],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Porto Alegre',
+      addressRegion: 'RS',
+      addressCountry: 'BR',
+    },
+    areaServed: ['Porto Alegre', 'Canoas', 'Esteio', 'Rio Grande do Sul'],
+    description: 'Ecossistema de empresas conectadas. Eventos, rede e serviços digitais.',
+  },
+]
+
+const allSchemas = [...baseSchemas, ...schemas]
 ---
 <title>{title} · REC</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={ogImage} />
+<meta property="og:image" content={ogImageAbs} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={title} />
 <meta property="og:url" content={canonical} />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="REC Colaborativo" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
-<meta name="twitter:image" content={ogImage} />
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="apple-touch-icon" href="/logo-mark.png" />
+<meta name="twitter:image" content={ogImageAbs} />
+<link rel="icon" href="/logo-icon-white.png" type="image/png" />
+<link rel="apple-touch-icon" href="/logo-icon-white.png" />
 
-<script type="application/ld+json" set:html={JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'REC',
-  alternateName: 'REC Colaborativo',
-  url: 'https://recolaborativo.com.br',
-  telephone: '+5551984632545',
-  sameAs: ['https://instagram.com/somosrecoficial'],
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Porto Alegre',
-    addressRegion: 'RS',
-    addressCountry: 'BR',
-  },
-  description: 'Ecossistema de empresas conectadas. Eventos, rede e serviços digitais.',
-})} />
+{allSchemas.map(schema => (
+  <script type="application/ld+json" set:html={safeJson(schema)} />
+))}

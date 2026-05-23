@@ -127,7 +127,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
       <header class="com-pillars-header" data-reveal>
         <span class="uppercase-label" style="color: var(--rec-teal)">como funciona</span>
         <h2>Três pilares, <em>uma rede.</em></h2>
-        <p class="com-pillars-sub">A estrutura por trás de uma comunidade que move negócios há 8 anos.</p>
+        <p class="com-pillars-sub">A estrutura por trás de uma comunidade que move negócios há quase uma década.</p>
       </header>
       <div class="com-pillars-grid">
         <article class="com-pillar" data-reveal>
@@ -295,8 +295,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
     </div>
     <div class="com-final-inner">
       <h2><em>Pronto pra</em> entrar no <span class="com-final-light">movimento?</span></h2>
-      <p>Fale com a gente e descubra se a Comunidade REC é o próximo passo da sua empresa.</p>
-      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="com-final-cta">Entrar na comunidade →</a>
+      <p>Fale com a gente e descubra se a Comunidade REC é o seu próximo passo.</p>
+      <a href={whatsappLink(messages.comunidadeJoin)} target="_blank" rel="noopener" class="com-final-cta">Entrar na comunidade →</a>
     </div>
   </section>
 
@@ -834,6 +834,139 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   .com-word { animation: none; transform: none; }
   .com-bg > * { animation: none; opacity: 1; }
   .com-hero-img-frame, .com-final-cta { animation: none; }
+}
+
+/* ============================================
+   MOBILE — adaptações de Comunidade
+   ============================================ */
+@media (max-width: 640px) {
+  /* Esconde decorativos pesados — performance + foco no conteúdo */
+  .com-bg { display: none; }
+  .com-about-logo { display: none; }
+
+  /* HERO — padding reduzido, CTA full-width, imagem floats sem badge */
+  .com-hero { padding: var(--space-10) var(--space-4) var(--space-12); }
+  .com-hero-inner { gap: var(--space-6); }
+  .com-hero-text { gap: var(--space-3); }
+  .com-hero-text h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  /* Subtítulo do hero diminuído */
+  .com-lead {
+    font-size: 0.98rem;
+    line-height: 1.5;
+  }
+  .com-lead-secondary {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: rgba(58,74,85,0.85);
+  }
+  .com-hero-img-frame { animation: none; }
+  .com-cta-primary {
+    align-self: stretch;
+    text-align: center;
+    justify-content: center;
+    padding: 16px 28px;
+    min-height: 52px;
+    font-size: var(--type-body);
+  }
+  .com-hero-ctas { width: 100%; }
+
+  /* ABOUT — padding menor + sem constelação SVG (já hidden em <860) */
+  .com-about { padding: var(--space-16) var(--space-4); }
+  .com-about-wrap { gap: var(--space-8); }
+  .com-about-inner { gap: var(--space-4); }
+
+  /* PILARES — viram carrossel horizontal swipe */
+  .com-pillars { padding: var(--space-14) 0 var(--space-14) var(--space-4); }
+  .com-pillars-header { margin-bottom: var(--space-7); padding-right: var(--space-4); }
+  .com-pillars-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+    max-width: 100%;
+  }
+  .com-pillars-grid::-webkit-scrollbar { display: none; }
+  .com-pillar {
+    flex: 0 0 78vw;
+    max-width: 320px;
+    scroll-snap-align: start;
+    padding: var(--space-6) var(--space-5);
+    transform: none !important;
+  }
+  .com-pillar-featured { transform: none; }
+  .com-pillar h3 { font-size: 1.3rem; }
+  .com-pillar p { font-size: 0.9rem; line-height: 1.55; }
+  .com-pillar-num { font-size: 2.2rem; top: var(--space-3); right: var(--space-4); }
+  .com-pillar-icon { width: 44px; height: 44px; }
+  .com-pillar-icon svg { width: 22px; height: 22px; }
+  .com-pillar-list li { font-size: 0.82rem; }
+
+  /* FORWHO — removida no mobile (4 cards desnecessários a pedido do usuário) */
+  .com-forwho { padding: var(--space-12) var(--space-4); }
+  .com-forwho-inner { gap: var(--space-6); grid-template-columns: 1fr; }
+  .com-forwho-grid { display: none; }
+  .com-forwho-header { text-align: center; }
+  .com-forwho-header h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .com-forwho-sub { font-size: 0.95rem; }
+  .com-forwho-cta-desktop {
+    align-self: stretch;
+    text-align: center;
+    justify-content: center;
+    padding: 16px 28px;
+    min-height: 52px;
+    margin-top: var(--space-4);
+  }
+
+  /* TESTIMONIALS — carrossel horizontal com cards LARGOS (não comprimidos) */
+  .com-testimonials { padding: var(--space-14) 0 var(--space-14) var(--space-4); }
+  .com-test-header { padding-right: var(--space-4); margin-bottom: var(--space-7); }
+  .com-test-header h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .com-testimonials-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+    max-width: 100%;
+  }
+  .com-testimonials-grid::-webkit-scrollbar { display: none; }
+  /* Filhos do testimonial component — :global pq são components com classe própria */
+  .com-testimonials-grid :global(.testimonial) {
+    flex: 0 0 80vw !important;
+    width: 80vw !important;
+    max-width: 340px;
+    min-width: 260px;
+    scroll-snap-align: start;
+  }
+
+  /* FINAL — padding menor + CTA full-width + subtítulo discreto */
+  .com-final { padding: var(--space-14) var(--space-5); }
+  .com-final h2 { font-size: clamp(2rem, 8vw, 2.6rem); }
+  .com-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .com-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 }
 </style>
 

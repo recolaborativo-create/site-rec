@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>REC · Painel</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    /* REC palette */
+    :root {
+      --rec-purple: #6c5ab2;
+      --rec-teal: #00a198;
+      --rec-teal-deep: #006d68;
+      --rec-dark: #253439;
+      --rec-bg: #faf9f6;
+    }
+    /* Welcome screen — shown briefly before Decap CMS bootstraps */
+    body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--rec-bg); color: var(--rec-dark); }
+    .rec-admin-welcome {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--rec-teal-deep) 0%, var(--rec-teal) 60%, var(--rec-purple) 100%);
+      color: #fff;
+      transition: opacity 400ms ease;
+      z-index: 999;
+    }
+    .rec-admin-welcome.fade { opacity: 0; pointer-events: none; }
+    .rec-admin-welcome-inner { text-align: center; padding: 32px; max-width: 420px; }
+    .rec-admin-welcome img { width: 96px; height: auto; margin-bottom: 24px; filter: brightness(0) invert(1); opacity: 0.95; }
+    .rec-admin-welcome h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 8px; }
+    .rec-admin-welcome p { font-size: 0.95rem; opacity: 0.9; line-height: 1.5; margin: 0 0 28px; }
+    .rec-admin-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: rec-spin 800ms linear infinite;
+    }
+    @keyframes rec-spin { to { transform: rotate(360deg); } }
+
+    /* Decap CMS theme overrides — applied once decap-cms boots */
+    .nc-app-header,
+    [class*="HeaderBar"],
+    [class*="NavToolbar"] {
+      background: linear-gradient(90deg, var(--rec-purple) 0%, var(--rec-teal-deep) 100%) !important;
+    }
+    [class*="MainView"],
+    [class*="AppMainContainer"] {
+      background: var(--rec-bg) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="rec-admin-welcome" id="rec-welcome">
+    <div class="rec-admin-welcome-inner">
+      <img src="/logo-text.png" alt="REC" />
+      <h1>Painel REC</h1>
+      <p>Carregando o painel — só uma fundadora pode entrar aqui.</p>
+      <div class="rec-admin-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Decap CMS — git-based content management, hidden from public navigation -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    // Hide the welcome splash once Decap mounts its login screen
+    if (window.CMS) {
+      window.CMS.registerEventListener({
+        name: 'preSave',
+        handler: () => {},
+      });
+    }
+    // Fallback: fade welcome after 1.5s regardless of Decap state
+    setTimeout(() => {
+      const w = document.getElementById('rec-welcome');
+      if (w) w.classList.add('fade');
+      setTimeout(() => { if (w) w.remove(); }, 500);
+    }, 1500);
+  </script>
+</body>
+</html>

@@ -3,7 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import HeroManifesto from '../components/hero/HeroManifesto.astro'
 import IllustrativeImg from '../components/ui/IllustrativeImg.astro'
 import InstagramFeed from '../components/instagram/InstagramFeed.astro'
-import IllustrativeImg2 from '../components/ui/IllustrativeImg.astro'
 import PillarChip from '../components/blog/PillarChip.astro'
 import ScrollGraphics from '../components/ui/ScrollGraphics.astro'
 import { whatsappLink, messages } from '../utils/whatsapp'
@@ -25,6 +24,14 @@ const recentPosts = allPosts
   <!-- TRES PORTAS: Comunidade + HUB Digital + Eventos -->
   <section class="home-paths">
     <div class="paths-inner">
+      <!-- Stats compactos — só mobile, em cima do título -->
+      <div class="paths-stats-mobile" aria-hidden="false">
+        <div class="paths-stat"><span class="paths-stat-num">+10mil</span><span class="paths-stat-label">conexões</span></div>
+        <div class="paths-stat"><span class="paths-stat-num">+90</span><span class="paths-stat-label">empresas</span></div>
+        <div class="paths-stat"><span class="paths-stat-num">8</span><span class="paths-stat-label">anos</span></div>
+        <div class="paths-stat"><span class="paths-stat-num">+R$30M</span><span class="paths-stat-label">receita</span></div>
+      </div>
+
       <header class="paths-header" data-reveal>
         <span class="uppercase-label" style="color: var(--rec-teal)">três portas, um movimento</span>
         <h2>Como você quer <em>se mover?</em></h2>
@@ -35,7 +42,8 @@ const recentPosts = allPosts
           <span class="path-num">01</span>
           <span class="path-tag">comunidade</span>
           <h3>Entrar na rede.</h3>
-          <p>Empresas conectadas por um mesmo propósito: crescer através de relações verdadeiras, networking qualificado, parcerias estratégicas e oportunidades que geram resultados reais.</p>
+          <p class="path-text-long">Empresas conectadas por um mesmo propósito: crescer através de relações verdadeiras, networking qualificado, parcerias estratégicas e oportunidades que geram resultados reais.</p>
+          <p class="path-text-short">Empresas conectadas pra crescer: networking, parcerias e resultados reais.</p>
           <ul class="path-bullets">
             <li>Realização de negócios</li>
             <li>Acesso a diversas empresas</li>
@@ -48,7 +56,8 @@ const recentPosts = allPosts
           <span class="path-num">02</span>
           <span class="path-tag">hub</span>
           <h3>Soluções empresariais.</h3>
-          <p>Desenvolvido para auxiliar empresas no fortalecimento do crescimento estruturado e aumento de faturamento através de estratégias inteligentes e alinhadas ao mercado atual.</p>
+          <p class="path-text-long">Desenvolvido para auxiliar empresas no fortalecimento do crescimento estruturado e aumento de faturamento através de estratégias inteligentes e alinhadas ao mercado atual.</p>
+          <p class="path-text-short">Soluções pra crescer com estratégia e aumentar faturamento.</p>
           <ul class="path-bullets">
             <li>Social Media estratégico</li>
             <li>Tráfego pago Meta + Google</li>
@@ -61,13 +70,14 @@ const recentPosts = allPosts
           <span class="path-num">03</span>
           <span class="path-tag">eventos</span>
           <h3>Viver o movimento.</h3>
-          <p>Eventos presenciais pensados para aproximar empresários, criar soluções estratégicas e transformar encontros em oportunidades reais de negócio. Confira a agenda e faça parte.</p>
+          <p class="path-text-long">Eventos presenciais pensados para aproximar empresários, criar soluções estratégicas e transformar encontros em oportunidades reais de negócio. Confira a agenda e faça parte.</p>
+          <p class="path-text-short">Encontros presenciais que viram oportunidades reais de negócio.</p>
           <ul class="path-bullets">
             <li>Conexões de negócios</li>
             <li>Mentoria e workshops</li>
             <li>Relacionamento entre marcas</li>
           </ul>
-          <a href="/agenda" class="path-cta">ver a agenda →</a>
+          <a href="/eventos" class="path-cta">ver a agenda →</a>
         </article>
       </div>
     </div>
@@ -76,30 +86,48 @@ const recentPosts = allPosts
   <!-- FUNDADORA -->
   <section class="home-fundadora" data-reveal>
     <div class="fund-inner">
-      <div class="fund-image">
-        <picture>
-          <img src="/fundadora/fundadora-home.jpg" alt="Francielle Caleffi, fundadora REC" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('fund-image-fallback'); this.style.display='none'" />
-        </picture>
-      </div>
-      <div class="fund-text">
+      <!-- HEADER (aparece acima da imagem no mobile) -->
+      <div class="fund-header">
         <span class="uppercase-label" style="color: var(--rec-teal)">fundadora</span>
         <h2>Francielle Caleffi.</h2>
         <p class="fund-role">CEO e fundadora REC Colaborativo</p>
-        <p>Empreendedora, conectora e idealizadora do REC. Em 2018 começou um movimento de empresas no Rio Grande do Sul que virou um ecossistema. Hoje conectando mais de 90 empresas e com mais de 10 mil conexões geradas.</p>
+      </div>
+
+      <div class="fund-image" data-fund-image>
+        <picture>
+          <img src="/fundadora/fundadora-home.jpg" alt="Francielle Caleffi, fundadora REC" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('fund-image-fallback'); this.style.display='none'" />
+        </picture>
+        <!-- Overlay com degradê + texto sobreposto + ver mais (só mobile)
+             ORDEM IMPORTA: text-2 fica no TOPO (cresce pra cima quando expande, não desloca text-1).
+             text-1, IG e botão ficam ancorados no bottom via justify-content: flex-end. -->
+        <div class="fund-overlay-mobile">
+          <p class="fund-overlay-text fund-overlay-text-2">Hoje conecta +90 empresas e +10 mil oportunidades reais. Acredita que <em>movimento gera movimento</em> — ecossistemas fortes nascem quando pessoas se conectam com intenção.</p>
+          <p class="fund-overlay-text fund-overlay-text-1">Empreendedora, visionária e idealizadora do REC. Em 2018 começou um movimento que virou ecossistema.</p>
+          <a class="fund-overlay-instagram" href="https://instagram.com/franciellecaleffi" target="_blank" rel="noopener">@franciellecaleffi →</a>
+          <button type="button" class="fund-expand-btn" data-fund-expand>ver mais →</button>
+        </div>
+      </div>
+
+      <!-- Texto longo: visível no desktop, expandível no mobile -->
+      <div class="fund-text" data-fund-text>
+        <span class="uppercase-label fund-header-desktop" style="color: var(--rec-teal)">fundadora</span>
+        <h2 class="fund-header-desktop">Francielle Caleffi.</h2>
+        <p class="fund-role fund-header-desktop">CEO e fundadora REC Colaborativo</p>
+        <p>Empreendedora, visionária e idealizadora do REC. Em 2018 começou um movimento de empresas no Rio Grande do Sul que virou um ecossistema. Hoje conectando mais de 90 empresas e com mais de 10 mil conexões geradas.</p>
         <p>Acredita que <em>movimento gera movimento</em>. Que ecossistemas fortes nascem quando pessoas, empresas e oportunidades se conectam com intenção, visão e confiança.</p>
         <a href="https://instagram.com/franciellecaleffi" target="_blank" rel="noopener" class="fund-cta">@franciellecaleffi →</a>
       </div>
     </div>
   </section>
 
-  <!-- IMPACT FEATURE WITH IMAGE -->
-  <section class="home-impact" data-reveal>
+  <!-- IMPACT FEATURE — removida no mobile a pedido do usuário; mantém no desktop -->
+  <section class="home-impact desktop-only" data-reveal>
     <div class="impact-inner">
       <div class="impact-text">
         <span class="uppercase-label" style="color: var(--rec-teal)">oito anos</span>
         <h2>O movimento <em>cresce</em> com quem se move.</h2>
         <p>Nascemos conectando empresas. Hoje, somos um ecossistema que envolve negócios, marketing, eventos e parcerias estratégicas impulsionando conexões que geram crescimento real.</p>
-        <a href="/agenda" class="impact-cta">ver a linha do tempo →</a>
+        <a href="/eventos" class="impact-cta">ver a linha do tempo →</a>
       </div>
       <div class="impact-image">
         <IllustrativeImg src="/illustrative/comunidade-hero.jpg" alt="Empresas REC reunidas em encontro presencial" ratio="4/5" mood="warm" />
@@ -125,7 +153,7 @@ const recentPosts = allPosts
             <a href={`/blog/${post.id}/`} class="home-post-card">
               {post.data.cover ? (
                 <div class="home-post-cover">
-                  <IllustrativeImg2 src={post.data.cover} alt={post.data.coverAlt || ''} ratio="16/9" mood="warm" />
+                  <IllustrativeImg src={post.data.cover} alt={post.data.coverAlt || ''} ratio="16/9" mood="warm" />
                 </div>
               ) : (
                 <div class="home-post-cover home-post-cover--placeholder" aria-hidden="true">
@@ -152,8 +180,8 @@ const recentPosts = allPosts
   <section class="home-final" data-reveal>
     <div class="final-inner">
       <h2><em>Pronto pra</em> entrar no <span class="final-light">movimento?</span></h2>
-      <p>Fale com a gente e descubra se o REC é o lugar certo para a próxima fase da sua empresa.</p>
-      <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="final-cta">Entrar no ecossistema →</a>
+      <p>Fale com a gente e descubra se o REC é o seu lugar.</p>
+      <a href={whatsappLink(messages.homeCta)} target="_blank" rel="noopener" class="final-cta">Entrar no ecossistema →</a>
     </div>
   </section>
 </BaseLayout>
@@ -174,6 +202,41 @@ const recentPosts = allPosts
 /* THREE PATHS */
 .home-paths { padding: var(--space-16) var(--space-6); background: linear-gradient(180deg, #ffffff 0%, rgba(184,224,221,0.18) 100%); }
 .paths-inner { max-width: var(--container-max); margin: 0 auto; }
+/* Stats compactos — APENAS mobile (desktop tem stats no hero do vídeo) */
+.paths-stats-mobile { display: none; }
+@media (max-width: 640px) {
+  .paths-stats-mobile {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2);
+    margin-bottom: var(--space-6);
+    border-bottom: 1px solid rgba(0,161,152,0.18);
+  }
+  .paths-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+  .paths-stat-num {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--rec-blue);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .paths-stat-label {
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(1,38,89,0.55);
+  }
+}
 .paths-header { text-align: center; margin-bottom: var(--space-12); }
 .paths-header h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); margin-top: var(--space-3); line-height: 1.1; color: var(--rec-blue); }
 .paths-header h2 em { color: var(--rec-teal); font-style: italic; }
@@ -208,6 +271,9 @@ const recentPosts = allPosts
 /* FUNDADORA */
 .home-fundadora { padding: var(--space-16) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.18) 0%, rgba(244,239,230,0.45) 100%); }
 .fund-inner { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--space-12); align-items: center; }
+/* Header e overlay mobile escondidos no desktop (default) */
+.fund-header { display: none; }
+.fund-overlay-mobile { display: none; }
 .fund-image { position: relative; aspect-ratio: 4/5; max-width: 440px; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #006d68 0%, #1cc4ba 100%); box-shadow: 0 16px 48px rgba(0,109,104,0.18); }
 .fund-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fund-image.fund-image-fallback::after {
@@ -290,7 +356,26 @@ const recentPosts = allPosts
 .home-post-cta { font-size: var(--type-micro); font-weight: 700; letter-spacing: 0.12em; color: var(--rec-purple); text-transform: uppercase; margin-top: auto; }
 .home-post-card:hover .home-post-cta { color: var(--rec-teal); }
 @media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+/* MOBILE — blog vira carrossel horizontal scroll-snap (1.15 cards visíveis) */
+@media (max-width: 640px) {
+  .home-blog { padding: var(--space-12) 0 var(--space-12) var(--space-4); }
+  .blog-header { padding-right: var(--space-4); margin-bottom: var(--space-6); }
+  .blog-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  }
+  .blog-grid::-webkit-scrollbar { display: none; }
+  .home-post-card {
+    flex: 0 0 82vw;
+    scroll-snap-align: start;
+  }
+}
 
 /* FINAL CTA — smooth gradient continues from blog (light blue) into deep navy.
    Transitions to dark fast so the white h2/p stay legible inside the section. */
@@ -333,15 +418,208 @@ const recentPosts = allPosts
 .home-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
 .home-final h2 .final-light { font-weight: 400; }
 .home-final p { color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: var(--space-8); }
-.final-cta { display: inline-block; background: transparent; color: var(--rec-teal); padding: 20px 60px; border-radius: 999px; border: 2px solid var(--rec-teal); font-weight: 700; letter-spacing: 0.08em; font-size: 1.05rem; transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing); animation: cta-pulse 2.8s ease-in-out infinite; }
+.final-cta { display: inline-block; background: transparent; color: var(--rec-teal); padding: 20px 60px; border-radius: 999px; border: 2px solid var(--rec-teal); font-weight: 700; letter-spacing: 0.08em; font-size: 1.05rem; transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing); animation: cta-pulse 2.8s ease-in-out infinite; min-height: 52px; }
 .final-cta:hover { background: var(--rec-teal); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,161,152,0.45); animation: none; }
 @keyframes cta-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); }
   50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); }
+}
+
+/* Textos longos vs curtos dos cards — alternam por viewport */
+.path-text-short { display: none; }
+@media (max-width: 640px) {
+  .path-text-long { display: none; }
+  .path-text-short { display: block; }
+}
+
+/* ============================================
+   MOBILE — padding lateral + CTAs full-width
+   ============================================ */
+@media (max-width: 640px) {
+  /* PATHS — carrossel horizontal swipe (1.05 cards visíveis) */
+  .home-paths { padding: var(--space-10) 0 var(--space-10) var(--space-4); }
+  .paths-header { padding-right: var(--space-4); margin-bottom: var(--space-6); text-align: left; }
+  .paths-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+    max-width: 100%;
+  }
+  .paths-grid::-webkit-scrollbar { display: none; }
+  .path {
+    flex: 0 0 78vw;
+    max-width: 320px;
+    scroll-snap-align: start;
+    padding: var(--space-6) var(--space-5) var(--space-5);
+    min-height: auto;
+  }
+  .path:hover { transform: none; }
+  .path-num { font-size: 2.4rem; top: var(--space-2); right: var(--space-4); }
+  .path h3 { font-size: 1.35rem; margin-top: var(--space-1); }
+  .path p { font-size: 0.92rem; line-height: 1.5; }
+  .path-bullets { gap: var(--space-1); margin: var(--space-2) 0; }
+  .path-bullets li { font-size: 0.85rem; padding-left: 14px; }
+  .path-bullets li::before { width: 6px; height: 6px; top: 7px; }
+  .path-cta { padding-top: var(--space-3); font-size: 0.7rem; }
+
+  .home-fundadora { padding: var(--space-10) var(--space-4); }
+  /* No mobile: inverte o layout — header em cima, imagem com overlay, texto escondido */
+  .fund-inner { grid-template-columns: 1fr; gap: var(--space-5); }
+  .fund-header { display: block; text-align: left; }
+  .fund-header h2 { font-size: clamp(2rem, 8vw, 2.8rem); margin: var(--space-2) 0 var(--space-1); line-height: 1; }
+  .fund-header .fund-role { margin-bottom: 0; font-size: 0.72rem; }
+  /* No mobile, header desktop oculto e bloco de texto longo oculto */
+  .fund-header-desktop { display: none; }
+  .fund-text { display: none; }
+
+  /* Imagem cresce ao expandir (aspect-ratio menor → mais altura).
+     Expansão agressiva (3/5.4) garante espaço pra text-2 sem mover text-1. */
+  .fund-image {
+    position: relative;
+    max-width: 100%;
+    margin: 0;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    transition: aspect-ratio 520ms cubic-bezier(0.22,1,0.36,1);
+  }
+  .fund-image.is-expanded {
+    aspect-ratio: 3/5.4;
+  }
+
+  /* Overlay com degradê branco — cobre os ~55% inferiores */
+  .fund-overlay-mobile {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: absolute;
+    inset: 0;
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 38%,
+      rgba(255,255,255,0.55) 56%,
+      rgba(255,255,255,0.92) 78%,
+      #fff 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+  .fund-overlay-text {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--rec-blue);
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    max-width: 100%;
+  }
+  .fund-overlay-text em {
+    color: var(--rec-teal);
+    font-style: italic;
+    font-weight: 600;
+  }
+  /* Texto secundário escondido até clicar ver mais */
+  .fund-overlay-text-2 {
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 480ms ease, opacity 380ms ease, margin 360ms ease;
+  }
+  .fund-image.is-expanded .fund-overlay-text-2 {
+    max-height: 200px;
+    opacity: 1;
+    margin: 0 0 var(--space-2);
+  }
+  /* Link Instagram só aparece quando expandido */
+  .fund-overlay-instagram {
+    pointer-events: auto;
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: var(--space-3);
+    color: var(--rec-purple);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 380ms ease, opacity 320ms ease, margin 320ms ease;
+  }
+  .fund-image.is-expanded .fund-overlay-instagram {
+    max-height: 40px;
+    opacity: 1;
+  }
+
+  .fund-expand-btn {
+    pointer-events: auto;
+    display: inline-flex;
+    align-self: flex-start;
+    background: var(--rec-teal);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+    min-height: 40px;
+  }
+  .fund-expand-btn:hover, .fund-expand-btn:focus-visible {
+    background: var(--rec-blue);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  /* BLOG — descrição mais curta */
+  .home-post-body p { -webkit-line-clamp: 2; font-size: 0.85rem; line-height: 1.45; }
+  .home-post-body { padding: var(--space-3) var(--space-4) var(--space-4); gap: var(--space-2); }
+  .home-post-body h3 { font-size: 1.02rem; line-height: 1.25; }
+
+  /* CTA FINAL — título mantém o peso, subtítulo discreto em 1 linha */
+  .home-final { padding: var(--space-14) var(--space-5); }
+  .home-final h2 { font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .home-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-6);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 }
 </style>
 
 <script>
   import { initReveal } from '../utils/reveal'
   initReveal()
+
+  // Fundadora mobile: "ver mais" expande a imagem com mais texto sobreposto
+  const fundBtn = document.querySelector<HTMLButtonElement>('[data-fund-expand]')
+  const fundImage = document.querySelector<HTMLElement>('[data-fund-image]')
+  if (fundBtn && fundImage) {
+    fundBtn.addEventListener('click', () => {
+      const expanded = fundImage.classList.toggle('is-expanded')
+      fundBtn.innerHTML = expanded ? 'ver menos ↑' : 'ver mais →'
+    })
+  }
 </script>

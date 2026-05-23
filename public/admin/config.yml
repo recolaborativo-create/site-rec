@@ -1,0 +1,88 @@
+# Decap CMS configuration — REC site
+# Beneath this is a custom GitHub OAuth proxy at /api/auth/* — see site/src/pages/api/auth/
+
+backend:
+  name: github
+  repo: HenriqueCallefi/REC-HUB-COMPLETO  # ⚠️ ATUALIZE com seu owner/repo do GitHub real
+  branch: main
+  base_url: https://recolaborativo.com.br
+  auth_endpoint: /api/auth
+
+# When true, all changes are committed directly. When false, they go through
+# an editorial workflow (PR-based). Simple is fine for a single-editor setup.
+publish_mode: simple
+
+# Where uploaded media lives in the repo, and how the site references it.
+media_folder: site/public/partners
+public_folder: /partners
+
+# Branding shown in the Decap CMS UI
+site_url: https://recolaborativo.com.br
+display_url: https://recolaborativo.com.br
+logo_url: https://recolaborativo.com.br/logo-text.png
+
+locale: pt
+
+collections:
+  # New empresas added by the founder. Existing 84 partners stay in
+  # src/data/partners.ts (read-only); CMS-managed partners merge in alongside.
+  - name: empresas
+    label: Empresas (novas)
+    label_singular: Empresa
+    description: 'Adicionar uma nova empresa parceira que aparece na constelação automaticamente.'
+    folder: site/src/content/partners
+    create: true
+    delete: true
+    extension: json
+    format: json
+    identifier_field: id
+    slug: '{{id}}'
+    summary: '{{name}} ({{sector}})'
+    fields:
+      - label: Identificador
+        name: id
+        widget: string
+        hint: 'Slug curto e único — letras minúsculas e hífens. Exemplo: "boutique-flora"'
+        pattern: ['^[a-z0-9-]+$', 'Use só letras minúsculas, números e hífens']
+      - label: Nome de exibição
+        name: name
+        widget: string
+        hint: 'Como aparece no site. Ex: "Boutique Flora"'
+      - label: Instagram (opcional)
+        name: instagram
+        widget: string
+        required: false
+        hint: 'Com @ na frente. Ex: "@boutiqueflora"'
+      - label: Segmento
+        name: sector
+        widget: select
+        options:
+          - { label: Beleza, value: beleza }
+          - { label: Saúde, value: saude }
+          - { label: Educação, value: educacao }
+          - { label: Gastronomia, value: gastronomia }
+          - { label: Serviços, value: servicos }
+          - { label: Moda, value: moda }
+          - { label: Tech, value: tech }
+          - { label: Outro, value: outro }
+        default: outro
+      - label: Logo
+        name: logo
+        widget: image
+        choose_url: false
+        media_library:
+          config:
+            max_file_size: 524288  # 512KB hard cap
+        hint: 'PNG/JPEG com fundo transparente ou branco. Recomendado 400x240px (proporção 5:3) ou similar. Máximo 500KB.'
+      - label: Descrição
+        name: description
+        widget: text
+        required: false
+        pattern: ['^.{0,280}$', 'Máximo 280 caracteres (~5 linhas)']
+        hint: 'Até 5 linhas curtas (~280 caracteres) sobre o que a empresa faz.'
+      - label: Alcance (visual)
+        name: reach
+        widget: select
+        options: ['1', '2', '3', '4', '5']
+        default: '3'
+        hint: 'Tamanho relativo na constelação. 3 é o padrão; 4-5 destaca empresas com mais visibilidade.'

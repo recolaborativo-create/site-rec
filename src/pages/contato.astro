@@ -1,168 +1,1058 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { externalLinks } from '../data/nav'
-import { whatsappLink, messages } from '../utils/whatsapp'
+import { whatsappLink } from '../utils/whatsapp'
+import { loadAllPartners } from '../data/partners-merged'
+
+const partners = await loadAllPartners()
+const totalEmpresas = partners.length
+const proximoNumero = totalEmpresas + 1
 ---
 <BaseLayout
   title="Contato"
-  description="Fale com a gente pelo WhatsApp ou Instagram. REC Colaborativo, Porto Alegre/RS."
+  description="Antes de virar parceria, vira conversa. Fale com o REC pelo WhatsApp, Instagram ou formulário. Atendimento humano, com resposta em até 24h."
   path="/contato"
   currentSection="Contato"
 >
-  <section class="contato-wrap">
-    <div class="contato">
-      <span class="uppercase-label" style="color: var(--rec-teal)">contato</span>
-      <h1>A gente <em>conversa.</em></h1>
-      <p class="lead">Bate no WhatsApp ou manda DM no Instagram. Respondemos rápido, sem script, sem chatbot. Aqui é gente conversando com gente.</p>
+  <!-- ============================================
+       Constelação canvas — fundo animado
+       ============================================ -->
+  <section class="contato-hero">
+    <canvas class="constelacao-bg" data-constelacao aria-hidden="true"></canvas>
 
-      <div class="contact-options">
-        <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="contact-cta whatsapp">
-          <span class="contact-icon" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-          </span>
-          <span class="contact-label">whatsapp</span>
-          <span class="contact-value">{externalLinks.whatsapp.number}</span>
-          <span class="contact-sub">resposta em horário comercial</span>
-        </a>
-        <a href={externalLinks.instagram.url} target="_blank" rel="noopener" class="contact-cta instagram">
-          <span class="contact-icon" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </span>
-          <span class="contact-label">instagram</span>
-          <span class="contact-value">{externalLinks.instagram.handle}</span>
-          <span class="contact-sub">DM aberto, bastidores e novidades</span>
-        </a>
-      </div>
+    <div class="contato-inner">
+      <!-- ============================================
+           Hero
+           ============================================ -->
+      <header class="contato-hero-text" data-reveal>
+        <span class="contato-eyebrow">contato</span>
+        <h1 class="contato-titulo">
+          Antes de virar parceria,<br/>
+          <em>vira conversa.</em>
+        </h1>
+        <p class="contato-lead">
+          Aqui nada é automático. Nossa equipe lê cada mensagem com atenção e responde pessoalmente em até 24h. Conta o que você procura. A partir daí, conversamos sobre o melhor caminho para a sua empresa.
+        </p>
+      </header>
 
-      <div class="contato-locale">
-        <p>Porto Alegre, Rio Grande do Sul</p>
+      <!-- ============================================
+           Formulário conversacional
+           ============================================ -->
+      <form class="contato-form" data-form novalidate>
+        <!-- Step 1: nome -->
+        <div class="step is-active" data-step="0">
+          <label class="step-label" for="campo-nome">
+            <span class="step-pergunta">Como prefere ser chamado?</span>
+          </label>
+          <input
+            type="text"
+            id="campo-nome"
+            name="nome"
+            class="step-input"
+            autocomplete="given-name"
+            placeholder="seu nome ou apelido"
+            required
+            maxlength="60"
+          />
+          <button type="button" class="step-next" data-next="0">
+            continuar <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <!-- Step 2: contato -->
+        <div class="step" data-step="1">
+          <label class="step-label" for="campo-contato">
+            <span class="step-pergunta">
+              Prazer, <em data-nome-eco>...</em>. Por onde prefere ser chamado: email, whatsapp ou Instagram?
+            </span>
+          </label>
+          <input
+            type="text"
+            id="campo-contato"
+            name="contato"
+            class="step-input"
+            autocomplete="email"
+            placeholder="email, whatsapp ou @instagram"
+            required
+            maxlength="80"
+          />
+          <button type="button" class="step-next" data-next="1">
+            continuar <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <!-- Step 3: mensagem -->
+        <div class="step" data-step="2">
+          <label class="step-label" for="campo-mensagem">
+            <span class="step-pergunta">E o que te trouxe ao REC?</span>
+          </label>
+          <textarea
+            id="campo-mensagem"
+            name="mensagem"
+            class="step-input step-textarea"
+            placeholder="pode ser uma frase só. ex: quero conhecer a rede, tenho uma empresa que faz X, quero saber dos planos..."
+            required
+            rows="3"
+            maxlength="400"
+          ></textarea>
+          <button type="submit" class="step-submit">
+            entrar na constelação <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        {/* Honeypot: invisível ao usuário, bots preenchem e são silenciados. */}
+        <input
+          type="text"
+          name="website"
+          class="hp-field"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
+
+        <!-- Step 4: confirmação (após submit) -->
+        <div class="step step-confirm" data-step="3">
+          <div class="confirm-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h2 class="confirm-titulo">
+            <em data-nome-eco-final>...</em>, você é a <em>constelação Nº {proximoNumero}</em>.
+          </h2>
+          <p class="confirm-lead">
+            Em até 24h, alguém da equipe REC te chama no <span data-contato-eco-final>contato que você deixou</span>.
+          </p>
+          <a
+            href={whatsappLink('Acabei de mandar minha mensagem pelo site. Só queria me apresentar :)')}
+            target="_blank"
+            rel="noopener"
+            class="confirm-cta"
+          >
+            quero falar agora no whatsapp →
+          </a>
+        </div>
+      </form>
+
+      <!-- ============================================
+           Alternativa: contato direto
+           ============================================ -->
+      <div class="contato-direto" data-reveal>
+        <div class="contato-direto-divisor"><span>ou prefere ir direto?</span></div>
+
+        <div class="contato-direto-grid">
+          <a
+            href={whatsappLink('Oi! Vim pelo site do REC.')}
+            target="_blank"
+            rel="noopener"
+            class="contato-direto-card whatsapp"
+          >
+            <span class="contato-direto-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+              </svg>
+            </span>
+            <span class="contato-direto-label">whatsapp</span>
+            <span class="contato-direto-valor">{externalLinks.whatsapp.number}</span>
+          </a>
+
+          <a
+            href={externalLinks.instagram.url}
+            target="_blank"
+            rel="noopener"
+            class="contato-direto-card instagram"
+          >
+            <span class="contato-direto-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </span>
+            <span class="contato-direto-label">instagram</span>
+            <span class="contato-direto-valor">{externalLinks.instagram.handle}</span>
+          </a>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CTA FINAL — padrão das outras páginas
+       ============================================ -->
+  <section class="contato-final" data-reveal>
+    <div class="contato-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="contato-final-inner">
+      <span class="contato-final-eyebrow">faz parte da rede</span>
+      <h2>
+        Pronto pra entrar<br/>
+        <em>na conversa?</em>
+      </h2>
+      <p>Atendimento humano. Resposta em até 24h.</p>
+      <a
+        href={whatsappLink('Oi! Vim pelo site do REC e quero saber mais.')}
+        target="_blank"
+        rel="noopener"
+        class="contato-final-cta"
+      >
+        falar no whatsapp →
+      </a>
     </div>
   </section>
 </BaseLayout>
 
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
+<script>
+  // ───────────────────────────────────────────
+  // Reveal on scroll
+  // ───────────────────────────────────────────
+  const reveal = document.querySelectorAll('[data-reveal]')
+  if (reveal.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target) }
+      })
+    }, { threshold: 0.12 })
+    reveal.forEach(el => io.observe(el))
+  } else {
+    reveal.forEach(el => el.classList.add('in-view'))
+  }
+
+  // ───────────────────────────────────────────
+  // Formulário conversacional
+  // ───────────────────────────────────────────
+  const form = document.querySelector('[data-form]') as HTMLFormElement | null
+  if (form) {
+    const steps = Array.from(form.querySelectorAll<HTMLElement>('.step'))
+    const nomeInput = form.querySelector<HTMLInputElement>('#campo-nome')
+    const contatoInput = form.querySelector<HTMLInputElement>('#campo-contato')
+    const mensagemInput = form.querySelector<HTMLTextAreaElement>('#campo-mensagem')
+    const nomeEcos = form.querySelectorAll<HTMLElement>('[data-nome-eco]')
+    const nomeEcoFinal = form.querySelector<HTMLElement>('[data-nome-eco-final]')
+    const contatoEcoFinal = form.querySelector<HTMLElement>('[data-contato-eco-final]')
+    const nextButtons = form.querySelectorAll<HTMLButtonElement>('[data-next]')
+
+    function ativarStep(idx: number) {
+      steps.forEach((s, i) => {
+        s.classList.toggle('is-active', i === idx)
+        s.classList.toggle('is-done', i < idx)
+      })
+      // Foca no input ativo
+      const active = steps[idx]
+      if (active) {
+        const input = active.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea')
+        if (input) setTimeout(() => input.focus(), 350)
+      }
+      // Trigger no canvas de constelação
+      window.dispatchEvent(new CustomEvent('constelacao-pulse', { detail: { step: idx } }))
+    }
+
+    nextButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const stepIdx = Number(btn.dataset.next ?? -1)
+        const stepEl = steps[stepIdx]
+        const input = stepEl?.querySelector<HTMLInputElement>('input, textarea')
+        if (!input) return
+        if (!input.value.trim()) {
+          input.classList.add('is-empty-shake')
+          setTimeout(() => input.classList.remove('is-empty-shake'), 600)
+          input.focus()
+          return
+        }
+        // Atualiza o eco do nome
+        if (stepIdx === 0 && nomeInput) {
+          const primeiroNome = nomeInput.value.trim().split(/\s+/)[0]
+          nomeEcos.forEach(el => el.textContent = primeiroNome)
+        }
+        ativarStep(stepIdx + 1)
+      })
+    })
+
+    // Enter avança nos inputs
+    ;[nomeInput, contatoInput].forEach((inp) => {
+      if (!inp) return
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          const stepEl = inp.closest('.step') as HTMLElement | null
+          const btn = stepEl?.querySelector<HTMLButtonElement>('[data-next]')
+          btn?.click()
+        }
+      })
+    })
+
+    // Submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const nome = nomeInput?.value.trim() || ''
+      const contato = contatoInput?.value.trim() || ''
+      const mensagem = mensagemInput?.value.trim() || ''
+      if (!nome || !contato || !mensagem) return
+
+      // Animação: novo ponto entra na constelação
+      window.dispatchEvent(new CustomEvent('constelacao-novo-ponto'))
+
+      // Atualiza confirmação
+      if (nomeEcoFinal) nomeEcoFinal.textContent = nome.split(/\s+/)[0]
+      if (contatoEcoFinal) contatoEcoFinal.textContent = contato
+
+      // Move pro step de confirmação
+      ativarStep(3)
+
+      // Tenta enviar via API; se falhar, abre WhatsApp como fallback
+      const hp = form?.querySelector<HTMLInputElement>('input[name="website"]')
+      try {
+        await fetch('/api/contato', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, contato, mensagem, website: hp?.value ?? '' }),
+        })
+      } catch {
+        // sem backend ainda — tudo bem, animação e WhatsApp resolvem
+      }
+    })
+  }
+
+  // ───────────────────────────────────────────
+  // Canvas constelação — minimalista, suave
+  // ───────────────────────────────────────────
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-constelacao]')
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!
+    let w = 0, h = 0, dpr = 1
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    interface Ponto {
+      x: number; y: number
+      baseX: number; baseY: number
+      vx: number; vy: number
+      raio: number
+      pulse: number
+      pulseSpeed: number
+      isNovo?: boolean
+      ageNovo?: number
+    }
+
+    const pontos: Ponto[] = []
+    let conexoesNovas: { from: Ponto; to: Ponto; progress: number }[] = []
+
+    function rng(seed: number) {
+      let s = seed
+      return () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
+    }
+    const rand = rng(42)
+
+    function setup() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      w = canvas!.clientWidth
+      h = canvas!.clientHeight
+      canvas!.width = w * dpr
+      canvas!.height = h * dpr
+      ctx.scale(dpr, dpr)
+
+      pontos.length = 0
+      // Distribuição: 18 pontos em grid + jitter (sensação de constelação real)
+      const cols = 6
+      const rows = 3
+      const cellW = w / cols
+      const cellH = h / rows
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const baseX = c * cellW + cellW / 2 + (rand() - 0.5) * cellW * 0.6
+          const baseY = r * cellH + cellH / 2 + (rand() - 0.5) * cellH * 0.6
+          pontos.push({
+            x: baseX, y: baseY,
+            baseX, baseY,
+            vx: 0, vy: 0,
+            raio: 1.4 + rand() * 2.2,
+            pulse: rand() * Math.PI * 2,
+            pulseSpeed: 0.005 + rand() * 0.015,
+          })
+        }
+      }
+    }
+
+    function desenha() {
+      ctx.clearRect(0, 0, w, h)
+
+      // Atualiza posições com pulso suave
+      for (const p of pontos) {
+        if (!reducedMotion) {
+          p.pulse += p.pulseSpeed
+          p.x = p.baseX + Math.cos(p.pulse) * 1.5
+          p.y = p.baseY + Math.sin(p.pulse * 0.8) * 1.5
+        }
+        if (p.isNovo && p.ageNovo !== undefined) {
+          p.ageNovo += 1
+        }
+      }
+
+      // Linhas — só entre pontos próximos
+      ctx.lineWidth = 1
+      for (let i = 0; i < pontos.length; i++) {
+        for (let j = i + 1; j < pontos.length; j++) {
+          const a = pontos[i], b = pontos[j]
+          const dx = a.x - b.x, dy = a.y - b.y
+          const dist = Math.hypot(dx, dy)
+          const limite = Math.min(w, h) * 0.18
+          if (dist < limite) {
+            const alpha = (1 - dist / limite) * 0.08
+            ctx.strokeStyle = `rgba(0, 161, 152, ${alpha})`
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Conexões "explodindo" para o novo ponto
+      conexoesNovas = conexoesNovas.filter(c => {
+        c.progress = Math.min(1, c.progress + 0.02)
+        const x = c.from.x + (c.to.x - c.from.x) * c.progress
+        const y = c.from.y + (c.to.y - c.from.y) * c.progress
+        ctx.strokeStyle = `rgba(0, 161, 152, ${0.6 * (1 - Math.abs(c.progress - 0.5) * 2)})`
+        ctx.lineWidth = 1.6
+        ctx.beginPath()
+        ctx.moveTo(c.from.x, c.from.y)
+        ctx.lineTo(x, y)
+        ctx.stroke()
+        return c.progress < 1
+      })
+
+      // Pontos
+      for (const p of pontos) {
+        const alphaPulse = 0.55 + 0.25 * Math.sin(p.pulse * 2)
+        if (p.isNovo) {
+          // Glow forte pro ponto novo
+          const age = p.ageNovo ?? 0
+          const grow = Math.min(1, age / 40)
+          const raioFinal = (4 + Math.sin(age * 0.1) * 1.2) * grow
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, raioFinal * 6)
+          grad.addColorStop(0, 'rgba(255, 200, 60, 0.95)')
+          grad.addColorStop(0.4, 'rgba(255, 200, 60, 0.35)')
+          grad.addColorStop(1, 'rgba(255, 200, 60, 0)')
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, raioFinal * 6, 0, Math.PI * 2)
+          ctx.fill()
+
+          ctx.fillStyle = '#FFC83C'
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, raioFinal, 0, Math.PI * 2)
+          ctx.fill()
+        } else {
+          ctx.fillStyle = `rgba(0, 161, 152, ${alphaPulse * 0.65})`
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.raio, 0, Math.PI * 2)
+          ctx.fill()
+
+          // Halo
+          ctx.fillStyle = `rgba(0, 161, 152, ${alphaPulse * 0.12})`
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.raio * 3, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+
+      requestAnimationFrame(desenha)
+    }
+
+    // Brilho extra a cada step preenchido
+    window.addEventListener('constelacao-pulse', (e: any) => {
+      const step = e.detail?.step ?? 0
+      // acende 3 pontos aleatórios brevemente — sensação que algo "responde"
+      const candidatos = pontos.filter(p => !p.isNovo)
+      for (let i = 0; i < Math.min(3 + step, candidatos.length); i++) {
+        const p = candidatos[Math.floor(Math.random() * candidatos.length)]
+        p.pulse = 0
+        p.pulseSpeed = 0.04
+        setTimeout(() => { p.pulseSpeed = 0.005 + Math.random() * 0.015 }, 1200)
+      }
+    })
+
+    // Submit → novo ponto + conexões
+    window.addEventListener('constelacao-novo-ponto', () => {
+      const novo: Ponto = {
+        x: w / 2, y: h / 2,
+        baseX: w / 2, baseY: h / 2,
+        vx: 0, vy: 0,
+        raio: 3,
+        pulse: 0,
+        pulseSpeed: 0.04,
+        isNovo: true,
+        ageNovo: 0,
+      }
+      pontos.push(novo)
+
+      // Conecta com os 5 mais próximos
+      const ordenados = [...pontos]
+        .filter(p => p !== novo)
+        .sort((a, b) => Math.hypot(a.x - novo.x, a.y - novo.y) - Math.hypot(b.x - novo.x, b.y - novo.y))
+        .slice(0, 5)
+      ordenados.forEach((p, i) => {
+        setTimeout(() => {
+          conexoesNovas.push({ from: novo, to: p, progress: 0 })
+        }, i * 180)
+      })
+    })
+
+    setup()
+    desenha()
+    let resizeTimer: number | undefined
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer)
+      resizeTimer = window.setTimeout(setup, 200)
+    })
+  }
+</script>
+
+<!-- ============================================
+     ESTILOS
+     ============================================ -->
 <style>
-.contato-wrap {
-  min-height: calc(100vh - 200px);
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing);
+}
+[data-reveal].in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   HERO + CANVAS DE FUNDO
+   ============================================ */
+.contato-hero {
+  position: relative;
+  min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at top right, rgba(0,161,152,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(1,38,89,0.04) 0%, transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  padding: var(--space-16) var(--space-6) var(--space-20);
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-16) var(--space-6);
-  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.04) 100%);
 }
-.contato {
-  max-width: 920px;
+.constelacao-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.contato-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================
+   HERO TEXT
+   ============================================ */
+.contato-hero-text {
   text-align: center;
+  margin-bottom: var(--space-10);
 }
-.contato h1 {
-  font-size: clamp(2.6rem, 7vw, 4rem);
-  margin: var(--space-4) 0 var(--space-6);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: var(--letter-tight);
+.contato-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  padding: 6px 16px;
+  border: 1px solid rgba(0,161,152,0.3);
+  border-radius: 999px;
+  margin-bottom: var(--space-5);
 }
-.contato h1 em {
+.contato-titulo {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.6vw, 4rem);
+  font-weight: 200;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--rec-blue);
+  margin: 0 0 var(--space-5);
+}
+.contato-titulo em {
   color: var(--rec-teal);
   font-style: italic;
+  font-weight: 300;
 }
-.lead {
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-  color: #556;
-  line-height: 1.75;
-  margin-bottom: var(--space-12);
-  max-width: 580px;
-  margin-left: auto;
-  margin-right: auto;
+.contato-lead {
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.65;
+  color: rgba(1,38,89,0.72);
+  max-width: 540px;
+  margin: 0 auto;
 }
-.contact-options {
+
+/* ============================================
+   FORMULÁRIO CONVERSACIONAL
+   ============================================ */
+.contato-form {
+  position: relative;
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(0,161,152,0.18);
+  border-radius: 24px;
+  padding: var(--space-8) var(--space-7);
+  box-shadow: 0 12px 48px rgba(1,38,89,0.08);
+  min-height: 280px;
+}
+.step {
+  display: none;
+  animation: stepIn 540ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.step.is-active {
+  display: block;
+}
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.step-label {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+.step-pergunta {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 300;
+  line-height: 1.25;
+  color: var(--rec-blue);
+  letter-spacing: -0.02em;
+}
+.step-pergunta em {
+  color: var(--rec-teal);
+  font-style: italic;
+  font-weight: 400;
+}
+/* Honeypot anti-spam: invisível ao usuário humano */
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.step-input {
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--rec-blue);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(0,161,152,0.22);
+  padding: var(--space-3) 0;
+  outline: none;
+  transition: border-color var(--motion-fast) var(--easing);
+}
+.step-input::placeholder {
+  color: rgba(1,38,89,0.32);
+  font-weight: 400;
+}
+.step-input:focus {
+  border-bottom-color: var(--rec-teal);
+}
+.step-textarea {
+  resize: none;
+  border: 2px solid rgba(0,161,152,0.18);
+  border-radius: 12px;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-ui);
+  line-height: 1.55;
+}
+.step-textarea:focus {
+  border-color: var(--rec-teal);
+}
+.is-empty-shake {
+  animation: shake 360ms ease-in-out;
+  border-bottom-color: #d24a4a !important;
+  border-color: #d24a4a !important;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.step-next, .step-submit {
+  margin-top: var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--rec-teal);
+  color: #fff;
+  border: 1.5px solid var(--rec-teal);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--easing);
+  text-transform: lowercase;
+}
+.step-next:hover, .step-submit:hover {
+  background: var(--rec-blue);
+  border-color: var(--rec-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,161,152,0.35);
+}
+.step-submit {
+  background: var(--rec-blue);
+  border-color: var(--rec-blue);
+  padding: 16px 36px;
+  font-size: 1rem;
+}
+.step-submit:hover {
+  background: var(--rec-teal);
+  border-color: var(--rec-teal);
+  box-shadow: 0 12px 32px rgba(1,38,89,0.28);
+}
+
+/* Step de confirmação */
+.step-confirm {
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+.confirm-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFC83C 0%, #FFB000 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+  box-shadow: 0 8px 24px rgba(255,176,0,0.35);
+  animation: confirmPop 600ms cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+.confirm-icon svg { width: 32px; height: 32px; }
+@keyframes confirmPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.confirm-titulo {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: 300;
+  line-height: 1.3;
+  color: var(--rec-blue);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-3);
+}
+.confirm-titulo em {
+  color: var(--rec-teal);
+  font-style: italic;
+  font-weight: 500;
+}
+.confirm-lead {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(1,38,89,0.7);
+  margin: 0 auto var(--space-6);
+  max-width: 440px;
+}
+.confirm-lead span {
+  color: var(--rec-blue);
+  font-weight: 600;
+}
+.confirm-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--rec-teal);
+  border: 2px solid var(--rec-teal);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: all var(--motion-fast) var(--easing);
+}
+.confirm-cta:hover {
+  background: var(--rec-teal);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,161,152,0.32);
+}
+
+/* ============================================
+   CONTATO DIRETO (alternativa)
+   ============================================ */
+.contato-direto {
+  margin-top: var(--space-10);
+}
+.contato-direto-divisor {
+  text-align: center;
+  position: relative;
+  margin-bottom: var(--space-6);
+}
+.contato-direto-divisor::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(1,38,89,0.16), transparent);
+  z-index: 0;
+}
+.contato-direto-divisor span {
+  position: relative;
+  display: inline-block;
+  padding: 0 var(--space-4);
+  background: #fbfcfe;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(1,38,89,0.5);
+  z-index: 1;
+}
+.contato-direto-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
-  margin-bottom: var(--space-12);
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
 }
-.contact-cta {
-  padding: var(--space-8) var(--space-6);
-  background: #fff;
-  border: 1px solid rgba(37,52,57,0.08);
-  border-radius: 18px;
-  transition: all var(--motion-medium) var(--easing);
-  text-align: center;
+.contato-direto-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
   align-items: center;
-  box-shadow: 0 4px 20px rgba(37,52,57,0.04);
+  gap: 6px;
+  padding: var(--space-5) var(--space-4);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(1,38,89,0.08);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all var(--motion-medium) var(--easing);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.contact-cta:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(62,64,149,0.12);
+.contato-direto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(1,38,89,0.08);
 }
-.contact-cta.whatsapp:hover {
-  border-color: rgba(0,161,152,0.4);
-  box-shadow: 0 16px 40px rgba(0,161,152,0.18);
+.contato-direto-card.whatsapp:hover {
+  border-color: rgba(0,161,152,0.45);
+  box-shadow: 0 12px 28px rgba(0,161,152,0.16);
 }
-.contact-cta.instagram:hover {
+.contato-direto-card.instagram:hover {
   border-color: rgba(108,90,178,0.4);
-  box-shadow: 0 16px 40px rgba(108,90,178,0.14);
+  box-shadow: 0 12px 28px rgba(108,90,178,0.14);
 }
-.contact-icon {
-  width: 56px;
-  height: 56px;
+.contato-direto-icon {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--space-3);
-  transition: all var(--motion-medium) var(--easing);
+  margin-bottom: 4px;
 }
-.contact-cta.whatsapp .contact-icon {
+.contato-direto-card.whatsapp .contato-direto-icon {
   background: rgba(0,161,152,0.1);
   color: var(--rec-teal);
 }
-.contact-cta.instagram .contact-icon {
+.contato-direto-card.instagram .contato-direto-icon {
   background: rgba(108,90,178,0.1);
   color: var(--rec-purple);
 }
-.contact-cta:hover .contact-icon {
-  transform: scale(1.08);
-}
-.contact-label {
-  font-size: var(--type-micro);
+.contato-direto-label {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #889;
-  font-weight: 700;
+  color: rgba(1,38,89,0.55);
 }
-.contact-value {
-  font-size: 1.35rem;
+.contato-direto-valor {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--rec-blue);
+  letter-spacing: -0.01em;
+}
+.contato-direto-card.whatsapp .contato-direto-valor { color: var(--rec-teal); }
+.contato-direto-card.instagram .contato-direto-valor { color: var(--rec-purple); }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 640px) {
+  .contato-hero { padding: var(--space-10) var(--space-4) var(--space-14); }
+  .contato-inner { padding: 0; }
+  .contato-form { padding: var(--space-6) var(--space-5); border-radius: 18px; }
+  .step-next, .step-submit {
+    width: 100%;
+    justify-content: center;
+    min-height: 52px;
+    font-size: var(--type-body);
+  }
+  .step-input { padding: var(--space-3) 0 var(--space-2); }
+  .step-textarea { padding: var(--space-3) var(--space-4); }
+  .contato-direto-grid { grid-template-columns: 1fr; gap: var(--space-3); }
+  .contato-direto-card { padding: var(--space-4) var(--space-5); flex-direction: row; gap: var(--space-3); }
+  .confirm-cta { width: 100%; max-width: 380px; padding: 16px 28px; min-height: 52px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step, .confirm-icon { animation: none !important; }
+}
+
+/* ============================================
+   CTA FINAL — espelha empresas/hub
+   ============================================ */
+.contato-final {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%, #f5fafd  3%, #eef6fc  6%, #e4f0fa  9%,
+    #d6e9f7 12%, #c5dff3 16%, #b0d2ee 20%, #97c3e7 24%,
+    #7ab0de 29%, #5d9cd3 34%, #4287c5 39%, #2c73b6 45%,
+    #1a60a6 51%, #0f4e95 57%, #083e81 63%, #052e6a 70%,
+    #031f52 79%, #031548 89%, #042050 100%
+  );
+  text-align: center;
+}
+.contato-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+.contato-final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 22%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+}
+.contato-final-bars {
+  position: absolute;
+  top: 32px; right: 5vw;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+}
+.contato-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.contato-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.contato-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.contato-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .contato-final-bars { display: none; } }
+
+.contato-final-inner { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
+.contato-final-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
+.contato-final h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.8rem);
   font-weight: 800;
-  letter-spacing: var(--letter-tight);
-  margin-top: 2px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--space-4);
+  color: var(--rec-blue);
 }
-.contact-cta.whatsapp .contact-value { color: var(--rec-teal); }
-.contact-cta.instagram .contact-value { color: var(--rec-purple); }
-.contact-sub {
-  font-size: var(--type-small);
-  color: #889;
-  margin-top: 4px;
+.contato-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.contato-final p {
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+  font-size: var(--type-body);
 }
-.contato-locale {
-  padding-top: var(--space-8);
-  border-top: 1px solid rgba(37,52,57,0.08);
-  color: #889;
-  font-size: var(--type-micro);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+.contato-final-cta {
+  display: inline-block;
+  padding: 18px 48px;
+  background: transparent;
+  color: var(--rec-teal);
+  border: 2px solid var(--rec-teal);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: lowercase;
+  animation: cta-pulse 2.8s ease-in-out infinite;
+  transition:
+    background var(--motion-fast) var(--easing),
+    color var(--motion-fast) var(--easing),
+    box-shadow var(--motion-fast) var(--easing),
+    transform var(--motion-fast) var(--easing);
 }
-@media (max-width: 600px) {
-  .contato-wrap { min-height: auto; padding: var(--space-12) var(--space-5); }
-  .contact-options { grid-template-columns: 1fr; gap: var(--space-4); }
-  .contact-cta { padding: var(--space-6) var(--space-5); }
-  .contato h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
+.contato-final-cta:hover {
+  background: var(--rec-teal); color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 161, 152, 0.45);
+  animation: none;
+}
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 161, 152, 0); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 161, 152, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contato-final-cta { animation: none; }
+}
+@media (max-width: 640px) {
+  .contato-final { padding: var(--space-14) var(--space-5); }
+  .contato-final h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .contato-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .contato-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 ---
-import { navItems, externalLinks } from '../../data/nav'
+import { navItems } from '../../data/nav'
 interface Props { current?: string }
 const { current } = Astro.props
 ---
@@ -7,7 +7,7 @@ const { current } = Astro.props
   <div class="nav-inner">
     <a href="/" aria-label="REC início" class="nav-logo-wrap">
       <img src="/logo-icon.png" alt="" aria-hidden="true" class="nav-icon" />
-      <img src="/logo-full.png" alt="REC" class="nav-logo" />
+      <img src="/NORMAL - FT.png" alt="REC" class="nav-logo" />
     </a>
 
     <ul class="nav-items">
@@ -15,9 +15,10 @@ const { current } = Astro.props
         <li><a href={item.href} class:list={[{ active: current === item.label }]}>{item.label}</a></li>
       ))}
     </ul>
-    <a href={externalLinks.whatsapp.url} class="nav-cta" target="_blank" rel="noopener">contato</a>
-    <button class="nav-burger" aria-label="abrir menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+    <button class="nav-burger touch-target" aria-label="abrir menu" aria-expanded="false">
+      <span class="burger-bar" aria-hidden="true"></span>
+      <span class="burger-bar" aria-hidden="true"></span>
+      <span class="burger-bar" aria-hidden="true"></span>
     </button>
   </div>
 </nav>
@@ -31,15 +32,32 @@ const { current } = Astro.props
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(37,52,57,0.08);
-  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms var(--easing);
 }
 .adaptive-nav.is-hidden { transform: translateY(-100%); }
 
-.nav-inner { max-width: var(--container-max); margin: 0 auto; padding: var(--space-3) var(--space-6); display: flex; align-items: center; gap: var(--space-6); }
+/* Quando modal de empresa está aberto, navbar somem pra liberar o botão de fechar */
+:global(body.modal-open) .adaptive-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+}
+
+.nav-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+@media (min-width: 640px) {
+  .nav-inner { padding: var(--space-3) var(--space-6); }
+}
 
 .nav-logo-wrap { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
 .nav-icon { height: 36px; width: auto; display: block; }
-.nav-logo { height: 28px; width: auto; display: block; margin-top: 4px; mix-blend-mode: multiply; }
+.nav-logo { height: 28px; width: auto; display: block; margin-top: 4px; }
 
 .nav-items { display: flex; gap: var(--space-5); margin-left: auto; align-items: center; }
 .nav-items a {
@@ -66,26 +84,54 @@ const { current } = Astro.props
 .nav-items a.active { color: var(--rec-blue); font-weight: 600; }
 .nav-items a.active::after { transform: scaleX(1); }
 
-.nav-cta {
-  background: transparent;
-  color: var(--rec-teal);
-  border: 1.5px solid var(--rec-teal);
-  padding: 7px 18px;
-  border-radius: 999px;
-  font-size: var(--type-micro);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 700;
-  transition: background 250ms ease, color 250ms ease;
+/* ============================================
+   BURGER BUTTON — morfa pra X ao abrir
+   ============================================ */
+.nav-burger {
+  display: none;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
 }
-.nav-cta:hover { background: var(--rec-teal); color: #fff; }
+.burger-bar {
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 2px;
+  background: var(--rec-blue);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transform-origin: center;
+  transition:
+    transform 320ms var(--easing),
+    opacity 200ms var(--easing),
+    top 320ms var(--easing);
+}
+.burger-bar:nth-child(1) { top: 14px; }
+.burger-bar:nth-child(2) { top: 21px; }
+.burger-bar:nth-child(3) { top: 28px; }
 
-.nav-burger { display: none; flex-direction: column; gap: 4px; padding: 4px; background: none; border: none; cursor: pointer; }
-.nav-burger span { width: 22px; height: 2px; background: var(--rec-blue); border-radius: 2px; }
+/* Estado aberto: vira um X */
+.nav-burger[aria-expanded="true"] .burger-bar:nth-child(1) {
+  top: 21px;
+  transform: translateX(-50%) rotate(45deg);
+}
+.nav-burger[aria-expanded="true"] .burger-bar:nth-child(2) {
+  opacity: 0;
+}
+.nav-burger[aria-expanded="true"] .burger-bar:nth-child(3) {
+  top: 21px;
+  transform: translateX(-50%) rotate(-45deg);
+}
 
-@media (max-width: 768px) {
-  .nav-items, .nav-cta { display: none; }
-  .nav-burger { display: flex; margin-left: auto; }
+@media (max-width: 1023px) {
+  .nav-items { display: none; }
+  .nav-burger { display: block; }
 }
 </style>
 

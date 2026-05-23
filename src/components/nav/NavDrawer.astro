@@ -1,42 +1,344 @@
 ---
 import { navItems, externalLinks } from '../../data/nav'
+interface Props { current?: string }
+const { current } = Astro.props
 ---
-<div class="nav-drawer" data-nav-drawer aria-hidden="true" role="dialog" aria-label="menu">
-  <div class="nav-drawer-inner">
-    <button class="drawer-close" aria-label="fechar menu">×</button>
-    <ul class="drawer-items">
-      {navItems.map(item => (
-        <li>
-          <a href={item.href}>
-            <span class="drawer-label">{item.label}</span>
-            <span class="drawer-desc">{item.description}</span>
-          </a>
-        </li>
-      ))}
-      <li class="drawer-external">
-        <a href={externalLinks.vitrine.url} target="_blank" rel="noopener">
-          <span class="drawer-label">Vitrine ↗</span>
-          <span class="drawer-desc">divulgação externa</span>
+<div class="nav-drawer" data-nav-drawer aria-hidden="true" role="dialog" aria-label="menu de navegação" tabindex="-1">
+  <div class="nav-drawer-backdrop" aria-hidden="true"></div>
+
+  <div class="nav-drawer-panel">
+    <!-- Cabeçalho do drawer -->
+    <header class="drawer-head">
+      <img src="/NORMAL - FT.png" alt="REC" class="drawer-logo" />
+      <button class="drawer-close" type="button" aria-label="fechar menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Eyebrow institucional -->
+    <span class="drawer-eyebrow">o ecossistema REC</span>
+
+    <!-- Lista de páginas -->
+    <nav class="drawer-nav" aria-label="páginas do site">
+      <ul class="drawer-items">
+        {navItems.map((item, i) => (
+          <li style={`--i: ${i}`}>
+            <a
+              href={item.href}
+              class:list={['drawer-link', { 'is-current': current === item.label }]}
+            >
+              <span class="drawer-num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="drawer-text">
+                <span class="drawer-label">{item.label}</span>
+                <span class="drawer-desc">{item.description}</span>
+              </span>
+              <svg class="drawer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Rodapé do drawer: contatos com touch targets grandes -->
+    <footer class="drawer-foot">
+      <span class="drawer-foot-label">conecta com a gente</span>
+      <div class="drawer-foot-links">
+        <a href={externalLinks.whatsapp.url} target="_blank" rel="noopener" class="drawer-contact">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.368 0 0 5.368 0 11.98c0 2.12.558 4.107 1.529 5.833L0 24l6.335-1.663A11.94 11.94 0 0011.98 24C18.59 24 24 18.632 24 11.98 24 5.368 18.59 0 11.98 0zm0 21.818a9.836 9.836 0 01-5.02-1.372l-.36-.214-3.732.979.996-3.638-.235-.373A9.826 9.826 0 012.182 11.98C2.182 6.574 6.574 2.182 11.98 2.182c5.404 0 9.818 4.392 9.818 9.798 0 5.404-4.414 9.838-9.818 9.838z"/></svg>
+          <span>
+            <span class="contact-eyebrow">whatsapp</span>
+            <span class="contact-value">{externalLinks.whatsapp.number}</span>
+          </span>
         </a>
-      </li>
-    </ul>
-    <div class="drawer-contact">
-      <a href={externalLinks.whatsapp.url} target="_blank" rel="noopener">{externalLinks.whatsapp.number}</a>
-      <a href={externalLinks.instagram.url} target="_blank" rel="noopener">{externalLinks.instagram.handle}</a>
-    </div>
+        <a href={externalLinks.instagram.url} target="_blank" rel="noopener" class="drawer-contact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          <span>
+            <span class="contact-eyebrow">instagram</span>
+            <span class="contact-value">{externalLinks.instagram.handle}</span>
+          </span>
+        </a>
+        <a href="/planos#clube-certo" class="drawer-contact drawer-contact--vitrine">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>
+            <span class="contact-eyebrow">clube certo</span>
+            <span class="contact-value">descontos exclusivos</span>
+          </span>
+        </a>
+      </div>
+    </footer>
   </div>
 </div>
 
 <style>
-.nav-drawer { position: fixed; inset: 0; background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); z-index: 200; transform: translateX(100%); transition: transform var(--motion-medium) var(--easing); overflow-y: auto; }
-.nav-drawer.open { transform: translateX(0); }
-.nav-drawer-inner { padding: var(--space-12) var(--space-6); max-width: 480px; margin: 0 auto; }
-.drawer-close { position: absolute; top: var(--space-6); right: var(--space-6); font-size: 2rem; color: var(--rec-dark); padding: var(--space-2) var(--space-3); }
-.drawer-items { margin: var(--space-12) 0; }
-.drawer-items li { padding: var(--space-4) 0; border-bottom: 1px solid rgba(37,52,57,0.06); }
-.drawer-items li:last-child { border-bottom: none; }
-.drawer-label { display: block; font-size: 1.4rem; font-weight: 800; color: var(--rec-dark); letter-spacing: -0.02em; }
-.drawer-external .drawer-label { color: var(--rec-teal); }
-.drawer-desc { display: block; font-size: var(--type-micro); color: #667; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
-.drawer-contact { margin-top: var(--space-12); display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--type-small); color: var(--rec-purple); font-weight: 600; }
+/* ============================================
+   NAV DRAWER — mobile menu fullscreen REC
+   ============================================ */
+
+/* Container fullscreen, escondido por padrão */
+.nav-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  visibility: hidden;
+}
+.nav-drawer.open {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+/* Backdrop com blur */
+.nav-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(1,38,89,0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 360ms var(--easing);
+}
+.nav-drawer.open .nav-drawer-backdrop { opacity: 1; }
+
+/* Painel deslizante */
+.nav-drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  height: 100dvh;
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7faff 60%, #f0f6fc 100%);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  transform: translateX(100%);
+  transition: transform 480ms var(--easing);
+  box-shadow: -16px 0 48px rgba(1,38,89,0.12);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.nav-drawer.open .nav-drawer-panel { transform: translateX(0); }
+
+/* Header — logo + close */
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+.drawer-logo {
+  height: 26px;
+  width: auto;
+  opacity: 0.92;
+}
+.drawer-close {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,161,152,0.08);
+  color: var(--rec-blue);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms var(--easing);
+}
+.drawer-close svg { width: 20px; height: 20px; }
+.drawer-close:hover { background: rgba(0,161,152,0.16); transform: rotate(90deg); }
+.drawer-close:active { transform: rotate(90deg) scale(0.94); }
+
+/* Eyebrow institucional */
+.drawer-eyebrow {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-2);
+}
+
+/* Lista de páginas */
+.drawer-nav { flex: 1; }
+.drawer-items {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.drawer-items li {
+  opacity: 0;
+  transform: translateX(20px);
+  transition:
+    opacity 380ms var(--easing),
+    transform 480ms var(--easing);
+  transition-delay: calc(80ms + var(--i, 0) * 60ms);
+}
+.nav-drawer.open .drawer-items li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-2);
+  border-bottom: 1px solid rgba(1,38,89,0.06);
+  color: var(--rec-blue);
+  text-decoration: none;
+  transition: background 220ms ease, padding-left 220ms var(--easing);
+  min-height: 56px;
+  position: relative;
+}
+.drawer-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  background: var(--rec-teal);
+  transform: translateY(-50%);
+  transition: height 280ms var(--easing);
+}
+.drawer-link:hover { background: rgba(0,161,152,0.04); padding-left: var(--space-4); }
+.drawer-link:hover::before,
+.drawer-link.is-current::before { height: 70%; }
+.drawer-link.is-current { background: rgba(0,161,152,0.06); }
+.drawer-link.is-current .drawer-label { color: var(--rec-teal); }
+
+.drawer-num {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(0,161,152,0.55);
+  letter-spacing: 0.08em;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.drawer-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.drawer-label {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 5vw, 1.7rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--rec-blue);
+  transition: color 200ms ease;
+}
+.drawer-desc {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: rgba(1,38,89,0.45);
+  font-weight: 500;
+}
+
+.drawer-arrow {
+  width: 18px;
+  height: 18px;
+  color: rgba(1,38,89,0.3);
+  flex-shrink: 0;
+  transition: color 200ms ease, transform 280ms var(--easing);
+}
+.drawer-link:hover .drawer-arrow {
+  color: var(--rec-teal);
+  transform: translateX(4px);
+}
+
+/* Footer — contatos */
+.drawer-foot {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px dashed rgba(1,38,89,0.12);
+}
+.drawer-foot-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(1,38,89,0.5);
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-2);
+}
+.drawer-foot-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.drawer-contact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-2);
+  text-decoration: none;
+  color: var(--rec-blue);
+  border-radius: 10px;
+  transition: background 220ms ease, transform 200ms var(--easing);
+  min-height: 56px;
+}
+.drawer-contact:hover { background: rgba(0,161,152,0.06); }
+.drawer-contact:active { transform: scale(0.98); }
+.drawer-contact svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--rec-teal);
+}
+.drawer-contact span:not(.contact-eyebrow):not(.contact-value) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.contact-eyebrow {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(1,38,89,0.55);
+  font-weight: 600;
+}
+.contact-value {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--rec-blue);
+}
+
+/* Esconder visualmente em desktop (≥1024px) */
+@media (min-width: 1024px) {
+  .nav-drawer { display: none; }
+}
+
+/* Reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  .nav-drawer-panel,
+  .nav-drawer-backdrop,
+  .drawer-items li,
+  .drawer-link,
+  .drawer-arrow,
+  .drawer-close { transition: none; }
+}
 </style>

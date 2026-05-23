@@ -1,0 +1,1251 @@
+---
+// Modal centralizado de empresa — abre na frente com overlay escuro.
+// Substitui o antigo side card (PartnerCard.astro).
+// Conteúdo: logo, nome, segmento, descrição, Instagram, WhatsApp, Google rating, sistema de avaliação interno.
+---
+<div class="partner-modal-overlay" data-partner-modal aria-hidden="true" role="dialog" aria-modal="true" aria-label="detalhes da empresa">
+  <div class="partner-modal" data-modal-content>
+    <!-- Drag handle visual no mobile (bottom sheet) -->
+    <span class="modal-drag-handle" aria-hidden="true"></span>
+    <button class="modal-close" data-modal-close type="button" aria-label="fechar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- HEADER: logo + identidade -->
+    <header class="modal-header">
+      <div class="modal-logo-wrap">
+        <img class="modal-logo" alt="" />
+      </div>
+      <div class="modal-identity">
+        <span class="modal-sector" data-modal-sector></span>
+        <h2 class="modal-name" data-modal-name></h2>
+        <p class="modal-city" data-modal-city></p>
+        <p class="modal-address" data-modal-address style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span data-modal-address-text></span>
+        </p>
+      </div>
+    </header>
+
+    <!-- LINKS RÁPIDOS: Instagram + WhatsApp -->
+    <div class="modal-actions">
+      <a class="action-btn action-instagram" data-modal-instagram target="_blank" rel="noopener" style="display:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        <span class="action-label" data-modal-instagram-label></span>
+      </a>
+      <a class="action-btn action-whatsapp" data-modal-whatsapp target="_blank" rel="noopener" style="display:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9z"/>
+          <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/>
+        </svg>
+        <span class="action-label">WhatsApp</span>
+      </a>
+      <a class="action-btn action-phone" data-modal-phone style="display:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <span class="action-label" data-modal-phone-label></span>
+      </a>
+      <a class="action-btn action-site" data-modal-site target="_blank" rel="noopener" style="display:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span class="action-label">site</span>
+      </a>
+    </div>
+
+    <!-- DESCRIÇÃO -->
+    <section class="modal-section modal-about">
+      <h3 class="modal-section-title">sobre</h3>
+      <p class="modal-description" data-modal-description>descrição em breve</p>
+    </section>
+
+    <!-- AVALIAÇÕES (Google + REC) -->
+    <section class="modal-section modal-reviews">
+      <div class="reviews-header">
+        <h3 class="modal-section-title">avaliações</h3>
+        <div class="reviews-source-toggle" role="tablist" data-source-toggle>
+          <button class="src-tab active" data-source="google" role="tab" aria-selected="true" type="button" data-google-tab>Google</button>
+          <button class="src-tab" data-source="rec" role="tab" aria-selected="false" type="button">REC</button>
+        </div>
+      </div>
+
+      <!-- Painel REC (avaliações internas) -->
+      <div class="reviews-panel" data-source-panel="rec" hidden>
+        <div class="rating-summary">
+          <div class="rating-stars" data-rating-stars aria-label="média de avaliações REC">
+            <span class="star" data-i="1">★</span>
+            <span class="star" data-i="2">★</span>
+            <span class="star" data-i="3">★</span>
+            <span class="star" data-i="4">★</span>
+            <span class="star" data-i="5">★</span>
+          </div>
+          <span class="rating-meta" data-rating-meta>sem avaliações ainda</span>
+        </div>
+
+        <ul class="reviews-list" data-reviews-list aria-live="polite"></ul>
+
+        <button class="reviews-toggle" data-reviews-toggle type="button">
+          <span class="reviews-toggle-line"></span>
+          <span class="reviews-toggle-text">deixar uma avaliação</span>
+          <span class="reviews-toggle-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <form class="review-form" data-review-form hidden>
+          <label class="form-row">
+            <span class="form-label">sua nota</span>
+            <div class="rate-input" role="radiogroup" aria-label="nota de 1 a 5 estrelas">
+              {[1,2,3,4,5].map(n => (
+                <button type="button" class="rate-star" data-rate={n} role="radio" aria-checked="false" aria-label={`${n} estrelas`}>★</button>
+              ))}
+            </div>
+          </label>
+          <label class="form-row">
+            <span class="form-label">seu nome (opcional)</span>
+            <input type="text" name="name" maxlength="40" autocomplete="off" />
+          </label>
+          <label class="form-row">
+            <span class="form-label">comentário (até 200 caracteres)</span>
+            <textarea name="comment" maxlength="200" rows="3"></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="button" class="form-cancel" data-review-cancel>cancelar</button>
+            <button type="submit" class="form-submit">enviar</button>
+          </div>
+          <p class="form-status" data-review-status aria-live="polite"></p>
+        </form>
+      </div>
+
+      <!-- Painel Google -->
+      <div class="reviews-panel" data-source-panel="google">
+        <div class="google-block" data-google-block>
+          <div class="google-rating-row">
+            <div class="google-score" data-google-score>—</div>
+            <div class="google-score-details">
+              <div class="google-stars" data-google-stars>
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+              </div>
+              <p class="google-count" data-google-count>sem dados ainda</p>
+            </div>
+            <span class="google-logo" aria-label="Google">
+              <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+                <path d="M16.51 8.18c0-.57-.05-.99-.16-1.43H9v2.6h4.31c-.09.71-.55 1.78-1.59 2.5l-.01.1 2.31 1.79.16.01c1.47-1.36 2.32-3.35 2.32-5.57z" fill="#4285F4"/>
+                <path d="M9 16.59c2.1 0 3.87-.69 5.16-1.88l-2.46-1.9c-.66.46-1.54.78-2.7.78-2.06 0-3.81-1.36-4.43-3.24l-.09.01-2.4 1.86-.03.09C3.33 14.84 5.94 16.59 9 16.59z" fill="#34A853"/>
+                <path d="M4.57 10.35c-.16-.48-.25-1-.25-1.53s.09-1.05.25-1.53l-.01-.1-2.43-1.89-.08.04C1.55 6.46 1.18 7.69 1.18 8.82s.37 2.36 1.06 3.47l2.33-1.94z" fill="#FBBC05"/>
+                <path d="M9 4.05c1.47 0 2.46.64 3.02 1.17l2.21-2.16C12.86 1.86 11.1 1.18 9 1.18c-3.06 0-5.67 1.75-6.94 4.31l2.33 1.94C5.19 5.42 6.94 4.05 9 4.05z" fill="#EA4335"/>
+              </svg>
+            </span>
+          </div>
+
+          <ul class="google-reviews-list" data-google-reviews-list></ul>
+
+          <!-- CTA: empresa cadastrada no Google mas sem avaliações ainda -->
+          <div class="google-first-cta" data-google-first-cta hidden>
+            <div class="first-cta-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <p class="first-cta-text">Esta empresa ainda não tem avaliações no Google.</p>
+            <a class="first-cta-btn" href="#" target="_blank" rel="noopener">
+              deixe a primeira avaliação →
+            </a>
+          </div>
+
+          <!-- CTA principal pra empresas COM avaliações: "deixar minha avaliação" -->
+          <a class="google-review-cta" data-google-review-cta target="_blank" rel="noopener" style="display:none">
+            <span>deixar minha avaliação</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/>
+            </svg>
+          </a>
+          <p class="google-empty" data-google-empty>Avaliações do Google em breve.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  type Review = { rating: number; name?: string; comment?: string; createdAt: number }
+
+  const overlay = document.querySelector<HTMLElement>('[data-partner-modal]')
+  if (overlay) {
+    const modal = overlay.querySelector<HTMLElement>('[data-modal-content]')!
+    const closeBtn = overlay.querySelector<HTMLButtonElement>('[data-modal-close]')!
+    const starsEl = overlay.querySelector<HTMLElement>('[data-rating-stars]')!
+    const metaEl = overlay.querySelector<HTMLElement>('[data-rating-meta]')!
+    const listEl = overlay.querySelector<HTMLElement>('[data-reviews-list]')!
+    const toggleBtn = overlay.querySelector<HTMLButtonElement>('[data-reviews-toggle]')!
+    const form = overlay.querySelector<HTMLFormElement>('[data-review-form]')!
+    const cancelBtn = overlay.querySelector<HTMLButtonElement>('[data-review-cancel]')!
+    const statusEl = overlay.querySelector<HTMLElement>('[data-review-status]')!
+    const rateStars = overlay.querySelectorAll<HTMLButtonElement>('[data-rate]')
+    const srcToggle = overlay.querySelector<HTMLElement>('[data-source-toggle]')!
+    const srcTabs = srcToggle.querySelectorAll<HTMLButtonElement>('.src-tab')
+    const recPanel = overlay.querySelector<HTMLElement>('[data-source-panel="rec"]')!
+    const googlePanel = overlay.querySelector<HTMLElement>('[data-source-panel="google"]')!
+    let chosenRating = 0
+    let lastFocused: HTMLElement | null = null
+
+    function paintStars(value: number) {
+      const stars = starsEl.querySelectorAll<HTMLElement>('.star')
+      stars.forEach((s, idx) => s.classList.toggle('filled', idx < Math.round(value)))
+    }
+
+    function formatPhoneBR(digits: string): string {
+      // Espera 55 + DDD + número
+      let d = digits.replace(/^55/, '')
+      if (d.length === 11) {
+        return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`
+      }
+      if (d.length === 10) {
+        return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`
+      }
+      return digits
+    }
+
+    function paintGoogleStars(value: number) {
+      const stars = overlay.querySelectorAll<HTMLElement>('[data-google-stars] .star')
+      stars.forEach((s, idx) => s.classList.toggle('filled', idx < Math.round(value)))
+    }
+
+    function renderReviews(reviews: Review[]) {
+      if (reviews.length === 0) {
+        metaEl.textContent = 'sem avaliações ainda'
+        paintStars(0)
+        listEl.innerHTML = ''
+        return
+      }
+      const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+      paintStars(avg)
+      metaEl.textContent = `${avg.toFixed(1)} · ${reviews.length} ${reviews.length === 1 ? 'avaliação' : 'avaliações'}`
+      const fmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+      listEl.innerHTML = reviews
+        .slice()
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 6)
+        .map(r => {
+          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
+          const safeName = (r.name || 'anônimo').replace(/[<>&"]/g, '')
+          const safeComment = (r.comment || '').replace(/[<>&"]/g, '')
+          const date = fmt.format(new Date(r.createdAt))
+          return `<li class="review-item">
+            <div class="review-meta"><span class="review-stars">${stars}</span><span class="review-name">${safeName}</span><span class="review-date">${date}</span></div>
+            ${safeComment ? `<p class="review-comment">${safeComment}</p>` : ''}
+          </li>`
+        })
+        .join('')
+    }
+
+    async function loadReviews(partnerId: string) {
+      try {
+        const res = await fetch(`/api/reviews?partnerId=${encodeURIComponent(partnerId)}`)
+        if (!res.ok) throw new Error('fetch failed')
+        const data = await res.json() as { reviews: Review[] }
+        renderReviews(data.reviews || [])
+      } catch {
+        renderReviews([])
+      }
+    }
+
+    function openModal() {
+      lastFocused = document.activeElement as HTMLElement
+      overlay.classList.add('open')
+      overlay.setAttribute('aria-hidden', 'false')
+      document.body.classList.add('modal-open')
+      document.body.style.overflow = 'hidden'
+      // Focus into modal for a11y
+      setTimeout(() => closeBtn.focus(), 200)
+    }
+    function closeModal() {
+      overlay.classList.remove('open')
+      overlay.setAttribute('aria-hidden', 'true')
+      document.body.classList.remove('modal-open')
+      document.body.style.overflow = ''
+      lastFocused?.focus?.()
+    }
+
+    // Fecha por: botão X, clique no overlay (não no modal), ESC
+    closeBtn.addEventListener('click', closeModal)
+    overlay.addEventListener('mousedown', (e) => {
+      if (e.target === overlay) closeModal()
+    })
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal()
+    })
+
+    // Swipe-down pra fechar no mobile (bottom sheet)
+    // Só ativo em viewports <=640px e quando o modal estiver no topo do scroll interno
+    let touchStartY = 0
+    let touchCurrentY = 0
+    let dragging = false
+    const SWIPE_THRESHOLD = 100 // px de arrasto pra fechar
+
+    modal.addEventListener('touchstart', (e) => {
+      const isMobile = window.matchMedia('(max-width: 640px)').matches
+      if (!isMobile) return
+      // só ativa se já estamos no topo do scroll interno (senão atrapalha scroll do conteúdo)
+      if (modal.scrollTop > 0) return
+      touchStartY = e.touches[0].clientY
+      touchCurrentY = touchStartY
+      dragging = true
+    }, { passive: true })
+
+    modal.addEventListener('touchmove', (e) => {
+      if (!dragging) return
+      touchCurrentY = e.touches[0].clientY
+      const delta = touchCurrentY - touchStartY
+      if (delta < 0) return // só arrasto pra baixo
+      modal.classList.add('is-dragging')
+      modal.style.transform = `translateY(${delta}px)`
+    }, { passive: true })
+
+    modal.addEventListener('touchend', () => {
+      if (!dragging) return
+      dragging = false
+      modal.classList.remove('is-dragging')
+      const delta = touchCurrentY - touchStartY
+      if (delta > SWIPE_THRESHOLD) {
+        closeModal()
+      }
+      // Reset visual (mesmo se não fechou)
+      modal.style.transform = ''
+    })
+
+    // Source toggle (REC / Google)
+    srcTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const src = tab.dataset.source
+        srcTabs.forEach(t => {
+          const active = t === tab
+          t.classList.toggle('active', active)
+          t.setAttribute('aria-selected', String(active))
+        })
+        recPanel.hidden = src !== 'rec'
+        googlePanel.hidden = src !== 'google'
+      })
+    })
+
+    rateStars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        chosenRating = Number(btn.dataset.rate)
+        rateStars.forEach((s, i) => {
+          const filled = i < chosenRating
+          s.classList.toggle('filled', filled)
+          s.setAttribute('aria-checked', String(i + 1 === chosenRating))
+        })
+      })
+    })
+
+    function showReviewForm() {
+      form.hidden = false
+      toggleBtn.hidden = true
+    }
+
+    function hideReviewForm() {
+      form.hidden = true
+      toggleBtn.hidden = false
+      chosenRating = 0
+      rateStars.forEach(s => { s.classList.remove('filled'); s.setAttribute('aria-checked', 'false') })
+      ;(form.elements.namedItem('name') as HTMLInputElement).value = ''
+      ;(form.elements.namedItem('comment') as HTMLTextAreaElement).value = ''
+      statusEl.textContent = ''
+      statusEl.dataset.kind = ''
+    }
+
+    toggleBtn.addEventListener('click', showReviewForm)
+    cancelBtn.addEventListener('click', hideReviewForm)
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      if (chosenRating < 1) {
+        statusEl.textContent = 'escolhe uma nota antes de enviar.'
+        statusEl.dataset.kind = 'error'
+        return
+      }
+      const partnerId = overlay.dataset.partnerId
+      if (!partnerId) return
+      const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim().slice(0, 40)
+      const comment = (form.elements.namedItem('comment') as HTMLTextAreaElement).value.trim().slice(0, 200)
+      statusEl.textContent = 'enviando…'
+      statusEl.dataset.kind = ''
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partnerId, rating: chosenRating, name, comment }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'submission failed')
+        }
+        const data = await res.json().catch(() => ({}))
+        statusEl.textContent = data?.pending
+          ? 'avaliação enviada! será revisada antes de aparecer no site.'
+          : 'avaliação enviada. obrigada!'
+        statusEl.dataset.kind = 'success'
+        // Só recarrega lista se já é aprovada (caso futuro). Pendente não aparece.
+        if (!data?.pending) await loadReviews(partnerId)
+        setTimeout(hideReviewForm, 2500)
+      } catch (err) {
+        statusEl.textContent = (err as Error).message || 'erro ao enviar.'
+        statusEl.dataset.kind = 'error'
+      }
+    })
+
+    // Evento global: 'partner-modal-open' com detail do partner
+    document.addEventListener('partner-modal-open' as any, (ev: any) => {
+      const p = ev.detail
+      if (!p) return
+
+      // Logo + identidade
+      const logoEl = overlay.querySelector<HTMLImageElement>('.modal-logo')!
+      logoEl.src = p.logo
+      logoEl.alt = p.name
+      overlay.querySelector<HTMLElement>('[data-modal-name]')!.textContent = p.name
+      const sectorEl = overlay.querySelector<HTMLElement>('[data-modal-sector]')!
+      sectorEl.textContent = p.sectorLabel || p.sector || ''
+      const cityEl = overlay.querySelector<HTMLElement>('[data-modal-city]')!
+      if (p.city) {
+        cityEl.textContent = p.city
+        cityEl.style.display = ''
+      } else {
+        cityEl.textContent = ''
+        cityEl.style.display = 'none'
+      }
+
+      // Endereço (vindo do Google) — só mostra se a empresa tem Google
+      const addressEl = overlay.querySelector<HTMLElement>('[data-modal-address]')!
+      const addressTextEl = overlay.querySelector<HTMLElement>('[data-modal-address-text]')!
+      if (p.address && !p.hideGoogle) {
+        addressTextEl.textContent = p.address
+        addressEl.style.display = ''
+      } else {
+        addressEl.style.display = 'none'
+      }
+
+      // Instagram
+      const ig = overlay.querySelector<HTMLAnchorElement>('[data-modal-instagram]')!
+      const igLabel = overlay.querySelector<HTMLElement>('[data-modal-instagram-label]')!
+      if (p.instagram) {
+        const handle = p.instagram.replace('@', '')
+        ig.href = `https://instagram.com/${handle}`
+        igLabel.textContent = p.instagram.startsWith('@') ? p.instagram : `@${handle}`
+        ig.style.display = ''
+      } else {
+        ig.style.display = 'none'
+      }
+
+      // WhatsApp
+      const wa = overlay.querySelector<HTMLAnchorElement>('[data-modal-whatsapp]')!
+      if (p.whatsapp) {
+        const clean = String(p.whatsapp).replace(/\D/g, '')
+        wa.href = `https://wa.me/${clean}`
+        wa.style.display = ''
+      } else {
+        wa.style.display = 'none'
+      }
+
+      // Telefone (separado do WhatsApp)
+      const ph = overlay.querySelector<HTMLAnchorElement>('[data-modal-phone]')!
+      const phLabel = overlay.querySelector<HTMLElement>('[data-modal-phone-label]')!
+      if (p.phone && !p.whatsapp) {
+        // Mostra phone só se NÃO tiver whatsapp (evita botão duplicado)
+        const clean = String(p.phone).replace(/\D/g, '')
+        ph.href = `tel:+${clean}`
+        // Formata pra display: (51) 99999-9999
+        const display = formatPhoneBR(clean)
+        phLabel.textContent = display
+        ph.style.display = ''
+      } else {
+        ph.style.display = 'none'
+      }
+
+      // Site
+      const site = overlay.querySelector<HTMLAnchorElement>('[data-modal-site]')!
+      if (p.website) {
+        // Garante protocolo
+        let url = String(p.website).trim()
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url
+        site.href = url
+        site.style.display = ''
+      } else {
+        site.style.display = 'none'
+      }
+
+      // Descrição
+      const descEl = overlay.querySelector<HTMLElement>('[data-modal-description]')!
+      if (p.description && p.description.trim()) {
+        descEl.textContent = p.description.trim()
+        descEl.classList.remove('is-empty')
+      } else {
+        descEl.textContent = 'descrição em breve'
+        descEl.classList.add('is-empty')
+      }
+
+      // Google Reviews
+      const googleScore = overlay.querySelector<HTMLElement>('[data-google-score]')!
+      const googleCount = overlay.querySelector<HTMLElement>('[data-google-count]')!
+      const googleReviewCta = overlay.querySelector<HTMLAnchorElement>('[data-google-review-cta]')!
+      const googleEmpty = overlay.querySelector<HTMLElement>('[data-google-empty]')!
+      const googleTab = overlay.querySelector<HTMLElement>('[data-google-tab]')!
+      const recTab = srcToggle.querySelector<HTMLElement>('[data-source="rec"]')!
+
+      const googleReviewsList = overlay.querySelector<HTMLElement>('[data-google-reviews-list]')!
+      const reviewsSection = overlay.querySelector<HTMLElement>('.modal-reviews')!
+      const googleFirstCta = overlay.querySelector<HTMLElement>('[data-google-first-cta]')
+      const ratingRow = overlay.querySelector<HTMLElement>('.google-rating-row')!
+
+      // === RESET defensivo: zera todos os elementos antes de aplicar lógica ===
+      reviewsSection.hidden = false
+      googleTab.style.display = ''
+      recTab.style.display = ''
+      srcToggle.style.visibility = ''
+      ratingRow.style.display = ''
+      if (googleFirstCta) googleFirstCta.hidden = true
+      googleReviewCta.style.display = 'none'
+      googleReviewsList.innerHTML = ''
+      googleEmpty.hidden = true
+
+      // === 3 cenários ===
+      //   1. SEM Google (hideGoogle ou nenhum dado): só painel REC, esconde toggle
+      //   2. COM Google SEM reviews: toggle + CTA "deixe a primeira avaliação"
+      //   3. COM Google E reviews: toggle + rating/reviews + CTA "deixar minha avaliação"
+
+      const hasRating = typeof p.googleRating === 'number' && p.googleRating > 0
+      const count = p.googleReviewsCount || 0
+      const noGoogle = p.hideGoogle === true || (!p.googleMapsUrl && !hasRating && count === 0)
+
+      if (noGoogle) {
+        // CASO 1 — só REC. Esconde aba Google e toggle inteiro.
+        googleTab.style.display = 'none'
+        recTab.style.display = 'none'
+        srcToggle.style.visibility = 'hidden'
+      } else if (!hasRating || count === 0) {
+        // CASO 2 — Google sem reviews → "deixe a primeira avaliação"
+        ratingRow.style.display = 'none'
+        if (googleFirstCta) {
+          googleFirstCta.hidden = false
+          const firstLink = googleFirstCta.querySelector<HTMLAnchorElement>('a')
+          if (firstLink && p.googleMapsUrl) firstLink.href = p.googleMapsUrl
+        }
+      } else {
+        // CASO 3 — Google com reviews → rating + reviews + "deixar minha avaliação"
+        googleScore.textContent = p.googleRating.toFixed(1)
+        paintGoogleStars(p.googleRating)
+        googleCount.textContent = `${count} ${count === 1 ? 'avaliação' : 'avaliações'}`
+
+        if (p.googleMapsUrl) {
+          googleReviewCta.href = p.googleMapsUrl
+          googleReviewCta.style.display = ''
+        }
+
+        const reviews = (p.googleReviews || []).slice(0, 2)
+        if (reviews.length > 0) {
+          googleReviewsList.innerHTML = reviews.map((r: any) => {
+            const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5))
+            const safeAuthor = (r.author || 'Avaliação Google').replace(/[<>&"]/g, '')
+            const safeText = (r.text || '').replace(/[<>&"]/g, '')
+            return `<li class="g-review-item">
+              <div class="g-review-meta">
+                <span class="g-review-stars">${stars}</span>
+                <span class="g-review-author">${safeAuthor}</span>
+              </div>
+              ${safeText ? `<p class="g-review-text">${safeText}</p>` : ''}
+            </li>`
+          }).join('')
+        }
+      }
+
+      // Reset reviews UI
+      overlay.dataset.partnerId = p.id
+      hideReviewForm()
+      // Reset source tab: REC se sem Google, Google caso contrário
+      const defaultSource = noGoogle ? 'rec' : 'google'
+      srcTabs.forEach(t => {
+        const active = t.dataset.source === defaultSource
+        t.classList.toggle('active', active)
+        t.setAttribute('aria-selected', String(active))
+      })
+      recPanel.hidden = defaultSource !== 'rec'
+      googlePanel.hidden = defaultSource !== 'google'
+
+      loadReviews(p.id)
+      openModal()
+    })
+  }
+</script>
+
+<style>
+/* ============================================
+   OVERLAY + MODAL CONTAINER
+   ============================================ */
+.partner-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(1, 22, 45, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms var(--easing);
+}
+.partner-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.partner-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100vh - var(--space-12));
+  max-height: calc(100dvh - var(--space-12));
+  background: #fff;
+  border-radius: 24px;
+  padding: var(--space-8) var(--space-7) var(--space-7);
+  box-shadow:
+    0 30px 80px rgba(1, 22, 45, 0.32),
+    0 8px 24px rgba(1, 22, 45, 0.14);
+  overflow-y: auto;
+  transform: translateY(24px) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 320ms var(--easing);
+}
+.partner-modal-overlay.open .partner-modal {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(1, 38, 89, 0.06);
+  color: var(--rec-blue);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+}
+.modal-close:hover {
+  background: rgba(1, 38, 89, 0.12);
+  transform: rotate(90deg);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.modal-header {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  margin-bottom: var(--space-5);
+  padding-right: var(--space-8);
+}
+.modal-logo-wrap {
+  flex-shrink: 0;
+  width: 110px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(0,161,152,0.04) 100%);
+  border: 1px solid rgba(0, 161, 152, 0.15);
+  border-radius: 14px;
+  padding: var(--space-3);
+}
+.modal-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.modal-identity { min-width: 0; flex: 1; }
+.modal-sector {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  background: rgba(0, 161, 152, 0.1);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: var(--space-2);
+}
+.modal-sector:empty { display: none; }
+.modal-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: var(--rec-blue);
+  margin: 0 0 var(--space-1);
+  word-break: break-word;
+}
+.modal-city {
+  font-size: 0.82rem;
+  color: rgba(1, 38, 89, 0.55);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.modal-city::before {
+  content: '📍';
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.modal-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.76rem;
+  color: rgba(1, 38, 89, 0.5);
+  margin: 4px 0 0;
+  line-height: 1.35;
+}
+.modal-address svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0.55;
+}
+.modal-address span {
+  word-break: break-word;
+}
+
+/* ============================================
+   ACTIONS (Instagram + WhatsApp)
+   ============================================ */
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--easing),
+    box-shadow var(--motion-fast) var(--easing),
+    background var(--motion-fast) var(--easing);
+}
+.action-btn:hover { transform: translateY(-2px); }
+.action-instagram {
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(220, 39, 67, 0.32);
+}
+.action-instagram:hover { box-shadow: 0 10px 26px rgba(220, 39, 67, 0.45); }
+.action-whatsapp {
+  background: #25D366;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.32);
+}
+.action-whatsapp:hover { background: #1ebe5a; box-shadow: 0 10px 26px rgba(37, 211, 102, 0.45); }
+.action-phone {
+  background: var(--rec-blue);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(1, 38, 89, 0.28);
+}
+.action-phone:hover { background: #001b3d; box-shadow: 0 10px 26px rgba(1, 38, 89, 0.42); }
+.action-site {
+  background: #1d4ed8;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(29, 78, 216, 0.32);
+}
+.action-site:hover { background: #1e40af; box-shadow: 0 10px 26px rgba(29, 78, 216, 0.45); }
+.action-label { line-height: 1; }
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+.modal-section {
+  border-top: 1px solid rgba(1, 38, 89, 0.08);
+  padding-top: var(--space-5);
+  margin-top: var(--space-5);
+}
+.modal-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(1, 38, 89, 0.6);
+  margin: 0 0 var(--space-3);
+}
+
+.modal-description {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(1, 38, 89, 0.85);
+  margin: 0;
+}
+.modal-description.is-empty {
+  color: rgba(1, 38, 89, 0.4);
+  font-style: italic;
+}
+
+/* ============================================
+   REVIEWS — source toggle
+   ============================================ */
+.reviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.reviews-source-toggle {
+  display: inline-flex;
+  background: rgba(1, 38, 89, 0.05);
+  padding: 3px;
+  border-radius: 10px;
+}
+.src-tab {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(1, 38, 89, 0.5);
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--easing);
+}
+.src-tab.active {
+  background: #fff;
+  color: var(--rec-blue);
+  box-shadow: 0 2px 6px rgba(1, 38, 89, 0.12);
+}
+.src-tab.is-disabled { opacity: 0.4; }
+
+/* ============================================
+   REC reviews panel
+   ============================================ */
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.rating-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: rgba(1, 38, 89, 0.18);
+}
+.rating-stars .star.filled { color: #f5b400; }
+.rating-meta {
+  font-size: 0.78rem;
+  color: rgba(1, 38, 89, 0.6);
+  letter-spacing: 0.02em;
+}
+
+.reviews-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+}
+.reviews-list:empty { display: none; }
+.review-item {
+  padding: var(--space-3) var(--space-4);
+  background: rgba(0, 161, 152, 0.05);
+  border-radius: 10px;
+}
+.review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+}
+.review-stars { color: #f5b400; letter-spacing: 1px; }
+.review-name { font-weight: 700; color: var(--rec-blue); }
+.review-date { color: rgba(1, 38, 89, 0.5); }
+.review-comment {
+  font-size: 0.86rem;
+  color: rgba(1, 38, 89, 0.85);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.reviews-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  font-weight: 700;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(1, 38, 89, 0.08);
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--easing);
+}
+.reviews-toggle:hover { color: var(--rec-blue); }
+.reviews-toggle-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(0, 161, 152, 0.32) 0%, rgba(0, 161, 152, 0.05) 100%);
+  transition: background var(--motion-fast) var(--easing);
+}
+.reviews-toggle-text { white-space: nowrap; }
+.reviews-toggle-arrow {
+  font-weight: 400;
+  font-size: 0.95rem;
+  transition: transform var(--motion-fast) var(--easing);
+}
+.reviews-toggle:hover .reviews-toggle-arrow { transform: translateX(4px); }
+
+.review-form { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.form-row { display: grid; gap: 4px; }
+.form-label {
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(1, 38, 89, 0.6);
+  font-weight: 700;
+}
+.review-form input,
+.review-form textarea {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(1, 38, 89, 0.18);
+  background: #fff;
+  color: var(--rec-blue);
+  resize: vertical;
+  transition: border-color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing);
+}
+.review-form input:focus,
+.review-form textarea:focus {
+  outline: none;
+  border-color: var(--rec-teal);
+  box-shadow: 0 0 0 3px rgba(0, 161, 152, 0.16);
+}
+.rate-input { display: inline-flex; gap: 4px; }
+.rate-star {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: rgba(1, 38, 89, 0.18);
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+}
+.rate-star:hover { transform: scale(1.15); }
+.rate-star:hover,
+.rate-star.filled { color: #f5b400; }
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+.form-cancel {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  padding: 10px 16px;
+  color: rgba(1, 38, 89, 0.6);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.form-cancel:hover { color: var(--rec-blue); background: rgba(1, 38, 89, 0.05); }
+.form-submit {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--rec-teal) 0%, #006d68 100%);
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 161, 152, 0.3);
+  transition: all var(--motion-fast) var(--easing);
+}
+.form-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 161, 152, 0.42);
+}
+.form-status {
+  font-size: 0.78rem;
+  margin: 0;
+  min-height: 1.2em;
+}
+.form-status[data-kind="success"] { color: var(--rec-teal); font-weight: 600; }
+.form-status[data-kind="error"] { color: #c0392b; font-weight: 600; }
+
+/* ============================================
+   Google reviews panel
+   ============================================ */
+.google-block {
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.04) 0%, rgba(234, 67, 53, 0.04) 100%);
+  border: 1px solid rgba(66, 133, 244, 0.18);
+  border-radius: 14px;
+  padding: var(--space-5);
+}
+.google-rating-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.google-score {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--rec-blue);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.google-score-details { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.google-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1.05rem;
+  color: rgba(1, 38, 89, 0.18);
+}
+.google-stars .star.filled { color: #fbbc04; }
+.google-count {
+  font-size: 0.78rem;
+  color: rgba(1, 38, 89, 0.6);
+  margin: 0;
+}
+.google-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #fff;
+  border-radius: 50%;
+  border: 1px solid rgba(1, 38, 89, 0.08);
+  flex-shrink: 0;
+}
+
+/* Reviews escritas do Google */
+.google-reviews-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+}
+.google-reviews-list:empty { display: none; }
+.g-review-item {
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(66, 133, 244, 0.12);
+  border-radius: 10px;
+}
+.g-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.g-review-stars {
+  color: #fbbc04;
+  font-size: 0.84rem;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.g-review-author {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--rec-blue);
+}
+.g-review-text {
+  font-size: 0.82rem;
+  color: rgba(1, 38, 89, 0.78);
+  line-height: 1.5;
+  margin: 0;
+  /* Limita a ~3 linhas pra manter modal enxuto */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.google-review-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(66, 133, 244, 0.32);
+  transition: all var(--motion-fast) var(--easing);
+}
+.google-review-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(66, 133, 244, 0.46);
+}
+.google-review-cta svg { transition: transform var(--motion-fast) var(--easing); }
+.google-review-cta:hover svg { transform: translate(2px, -2px); }
+.google-empty {
+  font-size: 0.84rem;
+  color: rgba(1, 38, 89, 0.55);
+  margin: var(--space-2) 0 0;
+  font-style: italic;
+}
+
+/* CTA "seja o primeiro a avaliar" — empresa cadastrada no Google sem avaliações */
+/* IMPORTANTE: [hidden] precisa de !important aqui pois display:flex tem precedência sobre o atributo hidden do browser */
+.google-first-cta[hidden] { display: none !important; }
+.google-first-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+}
+.first-cta-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(251, 188, 4, 0.16) 0%, rgba(251, 188, 4, 0.04) 100%);
+  color: #fbbc04;
+}
+.first-cta-text {
+  font-size: 0.92rem;
+  color: rgba(1, 38, 89, 0.8);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 320px;
+}
+.first-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbbc04 0%, #f5a623 100%);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(251, 188, 4, 0.32);
+  transition: all var(--motion-fast) var(--easing);
+}
+.first-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(251, 188, 4, 0.46);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+/* Drag handle — só visível em mobile (bottom sheet) */
+.modal-drag-handle {
+  display: none;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(1, 38, 89, 0.18);
+  pointer-events: none;
+  z-index: 3;
+}
+
+@media (max-width: 640px) {
+  .partner-modal-overlay { padding: 0; align-items: flex-end; }
+  .partner-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    padding: var(--space-8) var(--space-5) var(--space-5);
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+  }
+  .partner-modal-overlay.open .partner-modal { transform: translateY(0); }
+  .modal-drag-handle { display: block; }
+  .modal-close {
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+  .modal-header { gap: var(--space-3); }
+  .modal-logo-wrap { width: 78px; height: 60px; }
+  /* Swipe gesture em ação — modal segue o dedo */
+  .partner-modal.is-dragging { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-modal-overlay,
+  .partner-modal { transition: opacity 100ms linear; }
+  .modal-close:hover { transform: none; }
+}
+</style>

@@ -1,8 +1,15 @@
 ---
 import { loadAllPartners } from '../../data/partners-merged'
+import { SECTOR_LABEL } from '../../data/sector-labels'
+import { safeJson } from '../../utils/safe-json'
 const partners = await loadAllPartners()
+// Inject sectorLabel pra o modal exibir label legível em vez do key cru
+const partnersWithLabel = partners.map(p => ({
+  ...p,
+  sectorLabel: SECTOR_LABEL[p.sector] ?? p.sector,
+}))
 ---
-<div class="constellation-wrap">
+<div class="constellation-wrap" data-constellation-wrap>
   <div class="constellation-viewport">
     <div
       class="constellation"
@@ -10,11 +17,10 @@ const partners = await loadAllPartners()
       aria-label="rede de empresas REC"
     ></div>
   </div>
-  <p class="hint" aria-hidden="true">arrasta um logo · pinça pra dar zoom · toca pra ver detalhes · usa os filtros acima</p>
 </div>
 
 <!-- Partners (static + CMS-managed merged) injected as JSON for client script -->
-<script type="application/json" data-partners-json set:html={JSON.stringify(partners)}></script>
+<script type="application/json" data-partners-json set:html={safeJson(partnersWithLabel)}></script>
 
 <script>
   import { initConstellation } from './constellation'
@@ -27,6 +33,15 @@ const partners = await loadAllPartners()
     } catch (err) {
       console.error('failed to parse partners data', err)
     }
+  }
+
+  // Esconde/mostra conforme ViewToggle
+  const wrap = document.querySelector<HTMLElement>('[data-constellation-wrap]')
+  if (wrap) {
+    document.addEventListener('partners-view-change' as any, (ev: any) => {
+      const mode = ev.detail?.mode
+      wrap.hidden = mode !== 'constellation'
+    })
   }
 </script>
 

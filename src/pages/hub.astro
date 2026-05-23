@@ -128,7 +128,7 @@ const method = [
 ---
 <BaseLayout
   title="HUB | núcleo estratégico de soluções empresariais"
-  description="O HUB é o núcleo estratégico do REC. Soluções em posicionamento, marketing, comercial, tráfego e consultoria para acelerar faturamento."
+  description="O HUB é o núcleo estratégico do REC. Soluções em posicionamento, marketing, comercial e consultoria para acelerar faturamento."
   path="/hub"
   currentSection="HUB"
 >
@@ -156,17 +156,20 @@ const method = [
       </h1>
 
       <div class="hub-hero-foot">
-        <p class="hub-hero-lead">
+        <p class="hub-hero-lead hub-hero-lead-long">
           O HUB é o núcleo estratégico de soluções empresariais da marca. Construído para
           fortalecer posicionamento, estruturar crescimento e ampliar receita com leitura
           afiada do mercado atual.
         </p>
+        <p class="hub-hero-lead hub-hero-lead-short">
+          Núcleo estratégico de soluções pra fortalecer posicionamento e ampliar receita.
+        </p>
         <div class="hub-hero-cta">
-          <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="hub-btn-primary">
+          <a href={whatsappLink(messages.hubPage)} target="_blank" rel="noopener" class="hub-btn-primary">
             falar com o time
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </a>
-          <a href="#solucoes" class="hub-btn-ghost">ver soluções</a>
+          <a href="#solucoes" class="hub-btn-ghost hub-btn-ghost-desktop">ver soluções</a>
         </div>
       </div>
 
@@ -174,7 +177,7 @@ const method = [
       <ul class="hub-hero-chips" aria-hidden="true">
         <li><span>posicionamento</span></li>
         <li><span>conteúdo</span></li>
-        <li><span>tráfego pago</span></li>
+        <li><span>marketing</span></li>
         <li><span>comercial</span></li>
         <li><span>treinamentos</span></li>
         <li><span>consultoria</span></li>
@@ -202,7 +205,7 @@ const method = [
       <header class="hub-section-head" data-reveal>
         <span class="hub-eyebrow hub-eyebrow-dark">soluções</span>
         <h2>Nove frentes. <em>Um movimento contínuo.</em></h2>
-        <p>Seja de forma independente ou integrada, cada frente é pensada para acompanhar o momento, a necessidade e a ambição de cada negócio.</p>
+        <p>Cada frente acompanha o momento da sua empresa — sozinha ou integrada.</p>
       </header>
 
       <!-- ORBIT STAGE — desktop -->
@@ -328,8 +331,8 @@ const method = [
     </div>
   </section>
 
-  <!-- 4. METHOD STRIP -->
-  <section class="hub-method">
+  <!-- 4. METHOD STRIP — escondida no mobile a pedido do usuário -->
+  <section class="hub-method desktop-only">
     <div class="hub-method-inner">
       <header class="hub-section-head light-head" data-reveal>
         <span class="hub-eyebrow">como trabalhamos</span>
@@ -366,7 +369,7 @@ const method = [
           <li>Posicionamento conjunto, presença em eventos e mídia</li>
           <li>Acesso prioritário às frentes do HUB</li>
         </ul>
-        <a href={whatsappLink(messages.generic)} target="_blank" rel="noopener" class="hub-btn-primary hub-btn-primary--alt">
+        <a href={whatsappLink(messages.hubEmbaixadoras)} target="_blank" rel="noopener" class="hub-btn-primary hub-btn-primary--alt">
           conversar sobre o programa
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
@@ -397,8 +400,8 @@ const method = [
     </div>
     <div class="hub-final-inner">
       <h2>Crescimento <span class="hub-final-light">estruturado</span> <em>começa</em> com leitura <span class="hub-final-light">precisa.</span></h2>
-      <p>Crescimento consistente começa com direção. Nossa primeira conversa é feita para entender sua empresa, alinhar objetivos e identificar os caminhos mais estratégicos para evoluir.</p>
-      <a href="/planos#hub-digital" class="hub-final-cta">Aumentar meu faturamento →</a>
+      <p>Uma conversa rápida pra alinhar objetivos e definir caminhos.</p>
+      <a href={whatsappLink(messages.hubConsultoria)} target="_blank" rel="noopener" class="hub-final-cta">Aumentar meu faturamento →</a>
     </div>
   </section>
 
@@ -409,6 +412,20 @@ const method = [
 <script>
   import { initReveal } from '../utils/reveal'
   initReveal()
+
+  // No mobile, duplica os chips do hero pra animação marquee ficar contínua
+  if (window.matchMedia('(max-width: 640px)').matches) {
+    const chipsList = document.querySelector<HTMLElement>('.hub-hero-chips')
+    if (chipsList) {
+      const originalChips = Array.from(chipsList.children)
+      // Duplica os chips uma vez (12 chips no total)
+      originalChips.forEach(chip => {
+        const clone = chip.cloneNode(true) as HTMLElement
+        clone.setAttribute('aria-hidden', 'true')
+        chipsList.appendChild(clone)
+      })
+    }
+  }
 </script>
 
 <style>
@@ -451,6 +468,7 @@ const method = [
 .hub-hero {
   position: relative;
   min-height: 92vh;
+  min-height: 92dvh;
   background: linear-gradient(160deg, #021438 0%, #042050 50%, #061a4a 100%);
   color: #fff;
   overflow: hidden;
@@ -867,6 +885,23 @@ const method = [
     max-width: 640px;
     margin: 0 auto;
   }
+  /* Mobile: vira carrossel horizontal pra não rolar 9 itens vertical */
+  @media (max-width: 640px) {
+    .hub-solutions-stack {
+      display: flex;
+      grid-template-columns: none;
+      flex-direction: row;
+      gap: var(--space-3);
+      max-width: 100%;
+      margin: 0 calc(-1 * var(--space-4));
+      padding: var(--space-2) var(--space-4);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .hub-solutions-stack::-webkit-scrollbar { display: none; }
+  }
   .stack-tile {
     background: #fff;
     border: 1px solid rgba(1,38,89,0.08);
@@ -877,6 +912,14 @@ const method = [
     gap: var(--space-4);
     align-items: flex-start;
     transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+  @media (max-width: 640px) {
+    .stack-tile {
+      flex: 0 0 80vw;
+      max-width: 320px;
+      scroll-snap-align: start;
+      padding: var(--space-4);
+    }
   }
   .stack-tile:hover {
     transform: translateY(-3px);
@@ -1102,5 +1145,144 @@ const method = [
 @keyframes hub-cta-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); }
   50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); }
+}
+
+/* =========================================================
+   MOBILE — adaptações do HUB
+   ========================================================= */
+@media (max-width: 1023px) {
+  /* DotGrid pesado some no mobile/tablet — substituído por gradient */
+  .hub-hero-grid { display: none; }
+  .hub-hero { background-image: radial-gradient(ellipse at 30% 20%, rgba(0,161,152,0.18) 0%, transparent 50%), linear-gradient(135deg, #012659 0%, #021438 100%); }
+}
+
+/* Subtítulo: short visível só no mobile, long no desktop */
+.hub-hero-lead-short { display: none; }
+@media (max-width: 640px) {
+  .hub-hero-lead-long { display: none; }
+  .hub-hero-lead-short { display: block; }
+  .hub-btn-ghost-desktop { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  /* HERO — altura mais baixa, padding lateral menor, CTA full-width.
+     IMPORTANTE: padding-bottom maior pra dar espaço pros chips fixados no bottom. */
+  .hub-hero {
+    min-height: 88dvh;
+    padding: var(--space-10) var(--space-4) 64px;
+    overflow: hidden;
+    position: relative;
+    justify-content: flex-start;
+  }
+  /* Inner expande pra ocupar a altura toda, distribuindo título no topo e CTA mais pra baixo */
+  .hub-hero-inner {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    justify-content: space-between !important;
+    gap: var(--space-8) !important;
+  }
+  .hub-hero-title { font-size: clamp(2.4rem, 9vw, 3.4rem); }
+  /* Bug do sublinhado verde atravessando "faturamento" no mobile: desativa */
+  .hub-blink::after { display: none; }
+  .hub-hero-lead { font-size: 0.95rem; line-height: 1.5; }
+  /* Foot (lead + CTA) empurrado pra baixo, próximo dos chips */
+  .hub-hero-foot {
+    gap: var(--space-4);
+    max-width: 100%;
+    margin-top: auto;
+  }
+  .hub-hero-cta { width: 100%; flex-direction: column; align-items: stretch; }
+  .hub-btn-primary {
+    justify-content: center;
+    padding: 16px 28px;
+    min-height: 52px;
+    font-size: var(--type-body);
+  }
+  .hub-btn-ghost {
+    text-align: center;
+    padding: 14px 20px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    color: rgba(255,255,255,0.85);
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Chips: ANCORADOS no bottom absoluto do hero (onde azul vira branco da próxima seção).
+     Loop horizontal seamless (margin-right em vez de gap para alinhar -50% sem jump). */
+  .hub-hero-chips {
+    display: flex !important;
+    flex-direction: row !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap !important;
+    gap: 0 !important;
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    margin: 0 !important;
+    padding: var(--space-2) 0;
+    width: 100vw !important;
+    max-width: 100vw;
+    overflow: hidden;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    z-index: 3;
+    mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    animation: hub-chips-marquee 14s linear infinite;
+  }
+  .hub-hero-chips li {
+    flex: 0 0 auto !important;
+    min-width: auto !important;
+    margin-right: 10px;
+  }
+  .hub-hero-chips li:hover { transform: none !important; }
+  .hub-hero-chips span {
+    font-size: 0.72rem !important;
+    padding: 8px 14px !important;
+    white-space: nowrap;
+    animation: none !important;
+    background: rgba(1,38,89,0.32) !important;
+    border-color: rgba(100,160,255,0.22) !important;
+  }
+  /* Marquee SEAMLESS: como cada chip tem margin-right igual, mover -50% alinha perfeitamente */
+  @keyframes hub-chips-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hub-hero-chips { animation: none; mask-image: none; -webkit-mask-image: none; overflow-x: auto; }
+  }
+
+  /* MANIFESTO + outras seções com padding lateral menor */
+  .hub-manifesto { padding: var(--space-12) var(--space-4); }
+
+  /* CTA FINAL — full-width + subtítulo discreto */
+  .hub-final { padding: var(--space-14) var(--space-5); }
+  .hub-final h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .hub-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hub-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
 }
 </style>

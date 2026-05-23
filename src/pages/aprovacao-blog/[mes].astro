@@ -1,0 +1,734 @@
+---
+// =============================================================
+// Painel de Aprovação de Blog — visual idêntico ao /blog
+// Acesso: /aprovacao-blog/2026-06 (depois de logar via /moderacao?s=...)
+// =============================================================
+import { safeJson } from '../../utils/safe-json'
+
+export const prerender = false
+
+const { mes } = Astro.params
+
+// Validação básica do parâmetro
+if (!mes || !/^\d{4}-\d{2}$/.test(mes)) {
+  return new Response('Formato inválido. Use /aprovacao-blog/AAAA-MM', { status: 400 })
+}
+
+// Auth: usa o mesmo cookie rec_mod
+const MOD_SECRET = import.meta.env.MOD_SECRET
+const COOKIE_NAME = 'rec_mod'
+
+function readCookie(name: string): string | null {
+  const raw = Astro.request.headers.get('cookie') ?? ''
+  for (const part of raw.split(';')) {
+    const [k, ...v] = part.trim().split('=')
+    if (k === name) return decodeURIComponent(v.join('='))
+  }
+  return null
+}
+
+if (!MOD_SECRET) {
+  return new Response('Servidor não configurado (MOD_SECRET ausente)', { status: 503 })
+}
+
+const cookieToken = readCookie(COOKIE_NAME)
+if (!cookieToken || cookieToken !== MOD_SECRET) {
+  // 404 disfarçado pra não revelar a existência da página
+  return new Response(null, { status: 404 })
+}
+
+const MONTH_NAMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
+const [year, month] = mes.split('-')
+const monthLabel = `${MONTH_NAMES[parseInt(month, 10) - 1]} de ${year}`
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aprovação do Blog — {monthLabel} · REC</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&display=swap" rel="stylesheet" />
+  <script set:html={`window.__APPROVAL_BATCH__ = ${safeJson({ batchMonth: mes, monthLabel })};`} />
+</head>
+<body data-batch-month={mes}>
+
+  <!-- ============================================
+       TOPBAR (modo aprovação)
+       ============================================ -->
+  <header class="approval-topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">R</div>
+      <div>
+        <div class="topbar-title">REC — Aprovação de Blog</div>
+        <div class="topbar-sub">{monthLabel} · revise, edite, decida</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="counter-pill" data-counter-pending>— pendentes</span>
+      <span class="counter-pill ok" data-counter-approved>0 aprovados</span>
+      <span class="counter-pill bad" data-counter-rejected>0 rejeitados</span>
+    </div>
+  </header>
+
+  <!-- ============================================
+       HERO MINIMALISTA
+       ============================================ -->
+  <section class="approval-hero">
+    <p class="hero-eyebrow">painel de revisão mensal</p>
+    <h1 class="hero-title">9 posts pra <em>revisar</em></h1>
+    <p class="hero-lead">
+      Clique em qualquer texto pra <strong>editar direto</strong>. Use os botões
+      verde/vermelho pra aprovar ou rejeitar cada post. Quando terminar, clica em
+      <em>publicar aprovados</em> lá embaixo.
+    </p>
+  </section>
+
+  <!-- ============================================
+       ESTADO DE CARREGAMENTO / VAZIO
+       ============================================ -->
+  <main class="approval-main">
+    <div class="state-box" data-state-loading>
+      <div class="spinner"></div>
+      <p>carregando rascunhos…</p>
+    </div>
+
+    <div class="state-box" data-state-empty hidden>
+      <div class="state-icon">📭</div>
+      <p class="state-title">nenhum rascunho neste mês</p>
+      <p class="state-sub">
+        O cron rodou? Verifique a tabela <code>blog_drafts</code> no Supabase com
+        <code>batch_month = "{mes}"</code>.
+      </p>
+    </div>
+
+    <div class="state-box" data-state-error hidden>
+      <div class="state-icon">⚠️</div>
+      <p class="state-title">erro ao carregar</p>
+      <p class="state-sub" data-error-msg></p>
+    </div>
+
+    <!-- ============================================
+         FEATURED + 2 MINIS (igual /blog)
+         ============================================ -->
+    <section class="featured-row" data-featured-row hidden>
+      <div class="featured-main" data-featured-slot></div>
+      <div class="featured-mini-stack">
+        <div data-mini-slot="0"></div>
+        <div data-mini-slot="1"></div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         GRID DOS DEMAIS POSTS (4-9)
+         ============================================ -->
+    <section class="grid-row" data-grid-row hidden>
+      <h2 class="section-eyebrow">demais artigos</h2>
+      <div class="grid-cards" data-grid-slot></div>
+    </section>
+  </main>
+
+  <!-- ============================================
+       BARRA FIXA — PUBLICAR APROVADOS
+       ============================================ -->
+  <div class="publish-bar" data-publish-bar hidden>
+    <div class="publish-summary">
+      <span data-publish-summary>0 posts prontos pra publicar</span>
+    </div>
+    <button type="button" class="publish-btn" data-publish-btn disabled>
+      📤 publicar aprovados
+    </button>
+  </div>
+
+  <!-- ============================================
+       TOAST
+       ============================================ -->
+  <div class="toast" data-toast></div>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #012659;
+      --teal: #00a198;
+      --green: #16a34a;
+      --red: #dc2626;
+      --amber: #f59e0b;
+      --bg: #fbfcfe;
+      --card: #ffffff;
+      --border: rgba(1,38,89,0.1);
+      --text: #012659;
+      --muted: rgba(1,38,89,0.55);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 100px; /* espaço pra publish-bar fixa */
+    }
+
+    /* ===== TOPBAR ===== */
+    .approval-topbar {
+      background: var(--blue);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo {
+      width: 36px; height: 36px;
+      background: var(--teal); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: #fff;
+    }
+    .topbar-title { color: #fff; font-size: 0.95rem; font-weight: 600; }
+    .topbar-sub { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+    .topbar-right { display: flex; gap: 8px; flex-wrap: wrap; }
+    .counter-pill {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .counter-pill.ok { background: rgba(22,163,74,0.2); border-color: rgba(22,163,74,0.4); color: #86efac; }
+    .counter-pill.bad { background: rgba(220,38,38,0.18); border-color: rgba(220,38,38,0.35); color: #fca5a5; }
+
+    /* ===== HERO ===== */
+    .approval-hero {
+      max-width: 980px;
+      margin: 48px auto 32px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+    .hero-title em { font-style: italic; color: var(--teal); }
+    .hero-lead { max-width: 580px; margin: 0 auto; font-size: 0.95rem; line-height: 1.6; color: var(--muted); }
+
+    /* ===== MAIN ===== */
+    .approval-main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ===== ESTADOS ===== */
+    .state-box {
+      text-align: center;
+      padding: 80px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .state-icon { font-size: 3rem; margin-bottom: 16px; }
+    .state-title { font-size: 1.1rem; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+    .state-sub { font-size: 0.9rem; color: var(--muted); }
+    .spinner {
+      display: inline-block;
+      width: 36px; height: 36px;
+      border: 3px solid rgba(1,38,89,0.15);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== FEATURED ROW ===== */
+    .featured-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 900px) { .featured-row { grid-template-columns: 1fr; } }
+    .featured-mini-stack { display: flex; flex-direction: column; gap: 24px; }
+
+    /* ===== GRID ===== */
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) { .grid-cards { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .grid-cards { grid-template-columns: 1fr; } }
+
+    /* ===== CARD ===== */
+    .draft-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 220ms ease, transform 220ms ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .draft-card.is-approved { border-color: var(--green); background: linear-gradient(180deg, rgba(22,163,74,0.04), #fff); }
+    .draft-card.is-rejected { border-color: var(--red); background: linear-gradient(180deg, rgba(220,38,38,0.04), #fff); opacity: 0.6; }
+
+    .draft-card.featured-card { padding: 0; }
+    .draft-card.featured-card .card-img-wrap { aspect-ratio: 16/10; }
+    .draft-card.featured-card .card-title { font-size: 1.8rem; }
+
+    .card-img-wrap {
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: #e2e8f0;
+      position: relative;
+    }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-pillar-tag {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      color: var(--teal);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.2rem;
+      line-height: 1.25;
+      font-weight: 500;
+      color: var(--blue);
+    }
+    .card-excerpt { font-size: 0.88rem; line-height: 1.5; color: var(--muted); }
+    .card-meta { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.04em; margin-top: auto; }
+
+    /* Edição inline: visual de "clique pra editar" */
+    [contenteditable="true"] {
+      outline: none;
+      cursor: text;
+      transition: background 180ms ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+      margin: -2px -4px;
+    }
+    [contenteditable="true"]:hover {
+      background: rgba(0,161,152,0.08);
+    }
+    [contenteditable="true"]:focus {
+      background: rgba(0,161,152,0.12);
+      box-shadow: 0 0 0 2px rgba(0,161,152,0.3);
+    }
+    [contenteditable="true"][data-saving="1"] {
+      background: rgba(245,158,11,0.15) !important;
+    }
+    [contenteditable="true"][data-saved="1"] {
+      background: rgba(22,163,74,0.15) !important;
+      transition: background 600ms ease;
+    }
+
+    /* Bloco de conteúdo expansível */
+    .card-content-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .card-content-toggle {
+      background: transparent;
+      border: none;
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0;
+    }
+    .card-content-text {
+      display: none;
+      margin-top: 12px;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+    .card-content-text.is-open { display: block; }
+    .card-content-text h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 18px 0 8px; color: var(--blue); }
+    .card-content-text p { margin-bottom: 10px; }
+    .card-content-text ul, .card-content-text ol { margin: 8px 0 12px 24px; }
+    .card-content-text strong { color: var(--blue); font-weight: 700; }
+
+    /* Barra de decisão */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .act-btn {
+      flex: 1;
+      padding: 9px 0;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      border: 1px solid;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .act-approve { border-color: rgba(22,163,74,0.4); color: var(--green); }
+    .act-approve:hover, .draft-card.is-approved .act-approve {
+      background: var(--green); color: #fff; border-color: var(--green);
+    }
+    .act-reject { border-color: rgba(220,38,38,0.35); color: var(--red); }
+    .act-reject:hover, .draft-card.is-rejected .act-reject {
+      background: var(--red); color: #fff; border-color: var(--red);
+    }
+
+    /* ===== PUBLISH BAR (sticky) ===== */
+    .publish-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--blue);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 -4px 20px rgba(1,38,89,0.18);
+      z-index: 40;
+    }
+    .publish-summary { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 600; }
+    .publish-btn {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .publish-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .publish-btn:hover:not(:disabled) { background: #007d76; transform: translateY(-1px); }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      background: var(--blue);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(1,38,89,0.3);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 100;
+      max-width: 360px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.ok { background: var(--green); }
+    .toast.err { background: var(--red); }
+  </style>
+
+  <script>
+    import { renderMarkdown } from '../../utils/render-markdown'
+
+    type Draft = {
+      id: string
+      batch_month: string
+      position: number
+      pillar: string
+      title: string
+      slug: string
+      excerpt: string
+      content: string
+      cover_url: string | null
+      cover_alt: string | null
+      cover_credit: string | null
+      author: string
+      status: 'pending' | 'approved' | 'rejected' | 'published'
+    }
+
+    const batchInfo = (window as any).__APPROVAL_BATCH__ as { batchMonth: string; monthLabel: string }
+    let drafts: Draft[] = []
+
+    // ===== ESTADO E DOM =====
+    const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)
+    const stateLoading = $<HTMLElement>('[data-state-loading]')!
+    const stateEmpty = $<HTMLElement>('[data-state-empty]')!
+    const stateError = $<HTMLElement>('[data-state-error]')!
+    const errorMsg = $<HTMLElement>('[data-error-msg]')!
+    const featuredRow = $<HTMLElement>('[data-featured-row]')!
+    const featuredSlot = $<HTMLElement>('[data-featured-slot]')!
+    const miniSlot0 = $<HTMLElement>('[data-mini-slot="0"]')!
+    const miniSlot1 = $<HTMLElement>('[data-mini-slot="1"]')!
+    const gridRow = $<HTMLElement>('[data-grid-row]')!
+    const gridSlot = $<HTMLElement>('[data-grid-slot]')!
+    const publishBar = $<HTMLElement>('[data-publish-bar]')!
+    const publishBtn = $<HTMLButtonElement>('[data-publish-btn]')!
+    const publishSummary = $<HTMLElement>('[data-publish-summary]')!
+    const counterPending = $<HTMLElement>('[data-counter-pending]')!
+    const counterApproved = $<HTMLElement>('[data-counter-approved]')!
+    const counterRejected = $<HTMLElement>('[data-counter-rejected]')!
+    const toastEl = $<HTMLElement>('[data-toast]')!
+
+    function toast(msg: string, kind: 'ok' | 'err' | '' = '') {
+      toastEl.textContent = msg
+      toastEl.className = `toast ${kind} show`
+      clearTimeout((toastEl as any)._t)
+      ;(toastEl as any)._t = setTimeout(() => toastEl.classList.remove('show'), 3000)
+    }
+
+    function escapeHtml(s: string) {
+      return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+
+    function updateCounters() {
+      const pending = drafts.filter(d => d.status === 'pending').length
+      const approved = drafts.filter(d => d.status === 'approved').length
+      const rejected = drafts.filter(d => d.status === 'rejected').length
+      counterPending.textContent = `${pending} pendentes`
+      counterApproved.textContent = `${approved} aprovados`
+      counterRejected.textContent = `${rejected} rejeitados`
+      publishBtn.disabled = approved === 0
+      publishSummary.textContent = approved === 0
+        ? 'aprove pelo menos 1 post pra liberar publicação'
+        : `${approved} ${approved === 1 ? 'post pronto' : 'posts prontos'} pra publicar`
+    }
+
+    function renderCard(d: Draft, variant: 'featured' | 'mini' | 'grid'): HTMLElement {
+      const card = document.createElement('article')
+      card.className = `draft-card ${variant}-card is-${d.status}`
+      card.dataset.id = d.id
+
+      const cover = d.cover_url
+        ? `<div class="card-img-wrap"><img src="${escapeHtml(d.cover_url)}" alt="${escapeHtml(d.cover_alt || d.title)}" /><span class="card-pillar-tag">${escapeHtml(d.pillar)}</span></div>`
+        : `<div class="card-img-wrap" style="background:linear-gradient(135deg,#042050,#021438);display:flex;align-items:center;justify-content:center;color:#fff;font-family:Fraunces,serif;font-size:2rem;">REC</div>`
+
+      card.innerHTML = `
+        ${cover}
+        <div class="card-body">
+          <h3 class="card-title" contenteditable="true" data-field="title">${escapeHtml(d.title)}</h3>
+          <p class="card-excerpt" contenteditable="true" data-field="excerpt">${escapeHtml(d.excerpt)}</p>
+          <div class="card-meta">${escapeHtml(d.author)} · ${escapeHtml(d.pillar)} · ${d.content.split(/\s+/).length} palavras</div>
+
+          <div class="card-content-block">
+            <button type="button" class="card-content-toggle">▸ ler artigo completo</button>
+            <div class="card-content-text" contenteditable="true" data-field="content"></div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button type="button" class="act-btn act-approve" data-action="approved">✓ aprovar</button>
+          <button type="button" class="act-btn act-reject" data-action="rejected">✕ rejeitar</button>
+        </div>
+      `
+
+      // Renderiza markdown do content (renderMarkdown sanitiza internamente)
+      const contentEl = card.querySelector<HTMLElement>('.card-content-text')!
+      contentEl.innerHTML = renderMarkdown(d.content)
+
+      // Toggle de "ler completo"
+      const toggleBtn = card.querySelector<HTMLButtonElement>('.card-content-toggle')!
+      toggleBtn.addEventListener('click', () => {
+        const open = contentEl.classList.toggle('is-open')
+        toggleBtn.textContent = open ? '▾ recolher artigo' : '▸ ler artigo completo'
+      })
+
+      // Edição inline com auto-save
+      card.querySelectorAll<HTMLElement>('[contenteditable="true"]').forEach(el => {
+        let originalText = el.textContent || ''
+        el.addEventListener('focus', () => { originalText = el.textContent || '' })
+        el.addEventListener('blur', async () => {
+          const field = el.dataset.field!
+          // Pra content, salva como markdown (volta o texto cru, não HTML renderizado)
+          const newValue = field === 'content'
+            ? el.innerText.trim()
+            : (el.textContent || '').trim()
+          const oldValue = field === 'content' ? d.content : (d as any)[field]
+          if (newValue === oldValue) return
+
+          el.dataset.saving = '1'
+          try {
+            const payload: any = { id: d.id }
+            payload[field] = newValue
+            const res = await fetch('/api/blog-mod/update', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify(payload),
+            })
+            if (!res.ok) throw new Error((await res.json()).error || 'falhou')
+            ;(d as any)[field] = newValue
+            delete el.dataset.saving
+            el.dataset.saved = '1'
+            setTimeout(() => delete el.dataset.saved, 1000)
+          } catch (err: any) {
+            delete el.dataset.saving
+            el.textContent = originalText
+            toast('erro ao salvar: ' + err.message, 'err')
+          }
+        })
+      })
+
+      // Botões de decisão
+      card.querySelectorAll<HTMLButtonElement>('[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const desired = btn.dataset.action as 'approved' | 'rejected'
+          // Toggle: se já está nesse status, volta pra pending
+          const next: 'approved' | 'rejected' | 'pending' = d.status === desired ? 'pending' : desired
+          try {
+            const res = await fetch('/api/blog-mod/decide', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ id: d.id, decision: next }),
+            })
+            if (!res.ok) throw new Error((await res.json()).error || 'falhou')
+            d.status = next
+            card.className = `draft-card ${variant}-card is-${d.status}`
+            updateCounters()
+            toast(
+              next === 'approved' ? 'aprovado ✓' :
+              next === 'rejected' ? 'rejeitado' : 'voltou pra pendente',
+              next === 'approved' ? 'ok' : ''
+            )
+          } catch (err: any) {
+            toast('erro: ' + err.message, 'err')
+          }
+        })
+      })
+
+      return card
+    }
+
+    // ===== CARREGAR DRAFTS =====
+    async function loadDrafts() {
+      try {
+        const res = await fetch(`/api/blog-mod/list?batchMonth=${batchInfo.batchMonth}`, {
+          credentials: 'same-origin',
+        })
+        if (!res.ok) {
+          errorMsg.textContent = `HTTP ${res.status} — ${(await res.json()).error || 'erro'}`
+          stateLoading.hidden = true
+          stateError.hidden = false
+          return
+        }
+        const data = await res.json()
+        drafts = data.drafts || []
+
+        stateLoading.hidden = true
+        if (drafts.length === 0) {
+          stateEmpty.hidden = false
+          return
+        }
+
+        // Sort por position pra ordem estável
+        drafts.sort((a, b) => a.position - b.position)
+
+        // Featured = posição 1; Minis = 2 e 3; Grid = 4-9
+        const [featured, mini0, mini1, ...rest] = drafts
+        featuredSlot.appendChild(renderCard(featured, 'featured'))
+        if (mini0) miniSlot0.appendChild(renderCard(mini0, 'mini'))
+        if (mini1) miniSlot1.appendChild(renderCard(mini1, 'mini'))
+        featuredRow.hidden = false
+
+        if (rest.length > 0) {
+          rest.forEach(d => gridSlot.appendChild(renderCard(d, 'grid')))
+          gridRow.hidden = false
+        }
+
+        publishBar.hidden = false
+        updateCounters()
+      } catch (err: any) {
+        stateLoading.hidden = true
+        stateError.hidden = false
+        errorMsg.textContent = err.message
+      }
+    }
+
+    // ===== PUBLICAR =====
+    publishBtn.addEventListener('click', async () => {
+      const approved = drafts.filter(d => d.status === 'approved').length
+      if (!confirm(`Publicar ${approved} ${approved === 1 ? 'post aprovado' : 'posts aprovados'} no site agora?\n\nIsso vai commitar no GitHub e o Vercel rebuilda automaticamente. Os posts aparecem em ~2-3 minutos no /blog.`)) {
+        return
+      }
+      publishBtn.disabled = true
+      publishBtn.textContent = 'publicando…'
+      try {
+        const res = await fetch('/api/blog-mod/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ batchMonth: batchInfo.batchMonth }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'falhou')
+
+        toast(
+          `${data.published_count} publicados · ${data.failed_count} falharam`,
+          data.failed_count === 0 ? 'ok' : 'err'
+        )
+
+        if (data.failed_count > 0) {
+          console.error('Falhas:', data.failed)
+          alert(`⚠️ ${data.failed_count} posts falharam ao publicar:\n\n${data.failed.map((f: any) => `• ${f.slug}: ${f.error}`).join('\n')}`)
+        }
+
+        // Recarrega pra refletir status published
+        setTimeout(() => location.reload(), 1500)
+      } catch (err: any) {
+        toast('erro: ' + err.message, 'err')
+        publishBtn.disabled = false
+        publishBtn.textContent = '📤 publicar aprovados'
+      }
+    })
+
+    loadDrafts()
+  </script>
+</body>
+</html>

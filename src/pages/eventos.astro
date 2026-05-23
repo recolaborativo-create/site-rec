@@ -1,0 +1,1531 @@
+---
+// =============================================================
+// /eventos — Página de eventos REC
+// Timeline scroll-driven: UMA PÁGINA POR ANO, animação direcional.
+// =============================================================
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { whatsappLink, whatsappEventLink, messages } from '../utils/whatsapp'
+import { events, type RecEvent } from '../data/events'
+
+const monthsShort = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+function fmtDay(iso: string) { const [, , d] = iso.split('-'); return d }
+function fmtMonth(iso: string) { const [, m] = iso.split('-'); return monthsShort[parseInt(m, 10) - 1] ?? '' }
+function fmtYear(iso: string) { const [y] = iso.split('-'); return y }
+
+const statusLabels: Record<RecEvent['status'], string> = {
+  proximo: 'em breve',
+  inscricoes: 'inscrições abertas',
+  encerrado: 'encerrado',
+}
+
+const featuredEvent = events.find(e => e.featured) ?? events[0]
+const otherEvents = events.filter(e => e.id !== featuredEvent?.id)
+
+type Marco = { titulo: string; desc: string }
+type YearEntry = {
+  year: number
+  layout: 'hero' | 'grid' | 'list' | 'duo' | 'final'
+  intro?: string
+  marcos: Marco[]
+  isFuture?: boolean
+}
+
+const timeline: YearEntry[] = [
+  {
+    year: 2018, layout: 'hero', intro: 'Onde tudo começou.',
+    marcos: [
+      { titulo: 'Idealização do REC', desc: 'Nasce a ideia de criar uma rede colaborativa, gratuita para empreendedores. Primeiro grupo, primeiras conexões.' },
+    ],
+  },
+  {
+    year: 2019, layout: 'duo', intro: 'Os primeiros passos.',
+    marcos: [
+      { titulo: 'Primeiros encontros', desc: 'Eventos presenciais reúnem um grupo seleto de empreendedores dispostos a crescer juntos.' },
+      { titulo: 'Criação da comunidade', desc: 'Estruturação dos primeiros grupos e canais de comunicação da rede.' },
+    ],
+  },
+  {
+    year: 2020, layout: 'list', intro: 'Reinvenção em tempos de crise.',
+    marcos: [
+      { titulo: 'Adaptação ao digital', desc: 'A rede migra encontros para o online e descobre novos formatos de conexão.' },
+      { titulo: 'Crescimento acelerado', desc: 'Número de membros cresce expressivamente mesmo em período de crise.' },
+    ],
+  },
+  {
+    year: 2021, layout: 'grid', intro: 'Volta dos encontros presenciais.',
+    marcos: [
+      { titulo: 'Primeiro grande evento', desc: 'Realização do primeiro encontro com mais de 100 participantes.' },
+      { titulo: 'Expansão de setores', desc: 'A rede acolhe empreendedores de diferentes nichos e cidades.' },
+    ],
+  },
+  {
+    year: 2022, layout: 'list', intro: 'Estruturação e novos formatos.',
+    marcos: [
+      { titulo: 'Lançamento do Hub Online', desc: 'Nasce o núcleo estratégico de soluções empresariais.' },
+      { titulo: 'Aumento significativo de parcerias', desc: 'Uma crescente nas parcerias e nos eventos da comunidade.' },
+      { titulo: 'Rodadas de negócio', desc: 'Começam a surgir maiores resultados de negociações entre os empreendedores que fazem parte da comunidade.' },
+    ],
+  },
+  {
+    year: 2023, layout: 'list', intro: 'Consolidação como referência.',
+    marcos: [
+      { titulo: 'Nasce o Network Entre Elas', desc: 'Um evento exclusivo para empreendedoras e empresárias.' },
+      { titulo: 'Evento segmentado', desc: 'Entendemos o quanto a segmentação em eventos é importante, nascendo assim um diferencial enorme.' },
+      { titulo: 'Expansão regional', desc: 'Devido à presença e procura na nossa comunidade por empreendedoras e empreendedores de outras cidades.' },
+    ],
+  },
+  {
+    year: 2024, layout: 'grid', intro: 'Mais formatos, mais conexões.',
+    marcos: [
+      { titulo: 'Crescimento de membros', desc: 'Marca histórica de membros ativos na comunidade.' },
+      { titulo: 'Novos formatos', desc: 'Workshops, imersões e mentorias no calendário oficial.' },
+      { titulo: 'Parcerias estratégicas', desc: 'Acordos que ampliam os benefícios e o alcance da rede.' },
+      { titulo: 'Network Entre Eles', desc: 'Nasce o movimento de networking masculino, ampliando a rede para empreendedores de diferentes segmentos.' },
+    ],
+  },
+  {
+    year: 2025, layout: 'duo', intro: 'O REC se torna referência no Rio Grande do Sul.',
+    marcos: [
+      { titulo: 'Network Entre Elas', desc: 'O maior e único evento segmentado do Rio Grande do Sul, com mais de 350 participantes.' },
+      { titulo: 'Novo site', desc: 'Plataforma digital renovada com HUB, comunidade e eventos.' },
+      { titulo: 'Uma das maiores redes RS', desc: 'Uma das maiores redes de negócios que fomenta eventos em prol do empreendedorismo no Rio Grande do Sul.' },
+    ],
+  },
+  {
+    year: 2026, layout: 'list', intro: 'Quase uma década de movimento.',
+    marcos: [
+      { titulo: 'Nova estruturação', desc: 'Início da nova estruturação dos nossos sistemas, ampliando autoridade e posicionamento.' },
+      { titulo: 'Espaço físico REC', desc: 'Início do nosso espaço físico de conexões e soluções empresariais.' },
+      { titulo: 'Maior índice de resultados', desc: 'Maior índice de indicações, parcerias e negócios entre os membros que fazem parte da comunidade.' },
+      { titulo: 'Método REC', desc: 'Idealização do Método REC, um programa de aceleração empreendedora para quem está iniciando ou em transição de carreira, voltado a nano e microempreendedores em fase inicial.' },
+    ],
+  },
+  {
+    year: 2027, layout: 'final', intro: 'O próximo capítulo é com você.', isFuture: true,
+    marcos: [
+      { titulo: 'O que nos espera', desc: 'O futuro do REC está sendo construído agora. Faça parte desse próximo capítulo.' },
+    ],
+  },
+]
+
+const totalYears = timeline.length
+
+// JSON-LD: Schema.org Event para cada evento futuro/aberto (Google rich results)
+const SITE_URL = 'https://recolaborativo.com.br'
+const eventSchemas: Array<Record<string, unknown>> = events
+  .filter(e => e.status !== 'encerrado')
+  .map(e => {
+    // Combina date + time (ex: "2026-05-25" + "19h") → ISO local America/Sao_Paulo
+    const hourMatch = e.time.match(/(\d{1,2})/)
+    const hour = hourMatch ? hourMatch[1].padStart(2, '0') : '19'
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: e.name,
+      startDate: `${e.date}T${hour}:00:00-03:00`,
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: {
+        '@type': 'Place',
+        name: e.city,
+        address: { '@type': 'PostalAddress', addressLocality: e.city.split(',')[0]?.trim() ?? e.city, addressCountry: 'BR' },
+      },
+      description: e.description,
+      organizer: { '@type': 'Organization', name: 'REC Colaborativo', url: SITE_URL },
+      image: `${SITE_URL}/NORMAL - FT.png`,
+    }
+  })
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: 'Eventos', item: `${SITE_URL}/eventos` },
+  ],
+}
+
+const eventosSchemas = [...eventSchemas, breadcrumbSchema]
+---
+<BaseLayout
+  title="Eventos"
+  description="Próximos eventos REC e nossa trajetória. Encontros, rodadas, summit e quase uma década de movimento."
+  path="/eventos"
+  currentSection="Eventos"
+  schemas={eventosSchemas}
+>
+
+  <!-- ============================================
+       1. HERO
+       ============================================ -->
+  <section class="ev-hero" data-reveal>
+    <div class="ev-hero-inner">
+      <span class="ev-eyebrow">eventos &amp; trajetória</span>
+      <h1>O REC <em>acontece</em><br />presencialmente.</h1>
+      <p class="ev-hero-lead">
+        Encontros, rodadas, workshops e imersões para empresárias que querem crescer
+        com rede. E uma trajetória de quase uma década que conta essa história.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================
+       2. PRÓXIMOS EVENTOS
+       ============================================ -->
+  <section class="ev-upcoming" id="proximos" data-reveal>
+    <header class="ev-section-head">
+      <span class="ev-eyebrow">próximos eventos</span>
+      <h2>Onde o REC <em>acontece.</em></h2>
+      <p>Encontros, rodadas e experiências para quem quer crescer com a rede.</p>
+    </header>
+
+    {featuredEvent && (
+      <article class="ev-featured" data-reveal>
+        <div class="ev-featured-date">
+          <span class="day">{fmtDay(featuredEvent.date)}</span>
+          <span class="month">{fmtMonth(featuredEvent.date)}</span>
+          <span class="year">{fmtYear(featuredEvent.date)}</span>
+        </div>
+        <div class="ev-featured-body">
+          <div class="ev-featured-meta">
+            <span class="ev-tag ev-tag--type">{featuredEvent.type}</span>
+            <span class={`ev-tag ev-tag--status ev-tag--${featuredEvent.status}`}>
+              {statusLabels[featuredEvent.status]}
+            </span>
+          </div>
+          <h3>{featuredEvent.name}</h3>
+          <p>{featuredEvent.description}</p>
+          <div class="ev-featured-info">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{featuredEvent.city}</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{featuredEvent.time}</span>
+          </div>
+          <a href={whatsappEventLink(featuredEvent.name, featuredEvent.city)} target="_blank" rel="noopener" class="ev-featured-cta">
+            saber mais
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </article>
+    )}
+
+    <div class="ev-grid" data-events-grid>
+      {otherEvents.map((e, i) => (
+        <article class={`ev-card${i > 0 ? ' ev-card-extra' : ''}`} data-reveal style={`--reveal-delay: ${i * 80}ms`}>
+          <div class="ev-card-date">
+            <span class="day">{fmtDay(e.date)}</span>
+            <span class="month">{fmtMonth(e.date)}</span>
+          </div>
+          <div class="ev-card-body">
+            <div class="ev-card-meta">
+              <span class="ev-tag ev-tag--type">{e.type}</span>
+              <span class={`ev-tag ev-tag--status ev-tag--${e.status}`}>{statusLabels[e.status]}</span>
+            </div>
+            <h3>{e.name}</h3>
+            <p>{e.description}</p>
+            <div class="ev-card-info">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{e.city}</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{e.time}</span>
+            </div>
+            <a href={whatsappEventLink(e.name, e.city)} target="_blank" rel="noopener" class="ev-card-cta">saber mais →</a>
+          </div>
+        </article>
+      ))}
+    </div>
+    <button type="button" class="ev-show-more-btn" data-events-show-more aria-expanded="false">
+      ver mais eventos <span aria-hidden="true">↓</span>
+    </button>
+  </section>
+
+  <!-- ============================================
+       3. INTRO DA TIMELINE
+       ============================================ -->
+  <section class="ev-history-intro" data-reveal>
+    <span class="ev-eyebrow">nossa história</span>
+    <h2>Quase uma década de <em>movimento.</em></h2>
+    <p>Desde a idealização até hoje, cada ano deixou uma marca.</p>
+    <div class="ev-scroll-hint" aria-hidden="true">
+      <span>role para descobrir</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </section>
+
+  <!-- ============================================
+       4. TIMELINE — sticky + scroll-driven
+       ============================================ -->
+  <section
+    class="ev-timeline"
+    id="ev-timeline-section"
+    data-total={totalYears}
+    style={`--total-years: ${totalYears};`}
+    aria-label="Linha do tempo do REC"
+  >
+    <div class="ev-timeline-sticky">
+
+      <!-- Botões de navegação entre seções -->
+      <div class="ev-section-nav" aria-label="Navegar entre seções">
+        <button class="ev-section-btn" id="ev-prev-section" type="button" aria-label="Ir para seção anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+          seção anterior
+        </button>
+        <button class="ev-section-btn" id="ev-next-section" type="button" aria-label="Ir para próxima seção">
+          próxima seção
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+
+      <!-- ── COLUNA ESQUERDA: arco + ano grande ── -->
+      <div class="ev-timeline-left">
+        <svg class="ev-arc" viewBox="0 0 300 700" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="arcGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="rgba(0,161,152,0.04)"/>
+              <stop offset="45%" stop-color="rgba(0,161,152,0.32)"/>
+              <stop offset="55%" stop-color="rgba(0,161,152,0.32)"/>
+              <stop offset="100%" stop-color="rgba(0,161,152,0.04)"/>
+            </linearGradient>
+          </defs>
+          <path d="M 30,60 Q 260,350 30,640" fill="none" stroke="url(#arcGrad)" stroke-width="1.5" />
+        </svg>
+
+        <!-- Pontos dos anos no arco — todos visíveis, clicáveis -->
+        <div class="ev-arc-points">
+          {timeline.map((y, idx) => {
+            const total = timeline.length
+            const t = total > 1 ? idx / (total - 1) : 0.5
+            const top = 8 + t * 84
+            const bx = (1-t)*(1-t)*30 + 2*t*(1-t)*260 + t*t*30
+            const xPct = (bx / 300) * 100
+            return (
+              <button
+                class:list={['ev-arc-point', { 'ev-arc-point--current': idx === 0 }]}
+                data-year-idx={idx}
+                style={`top: ${top}%; left: ${xPct}%;`}
+                aria-label={`Ir para ${y.year}`}
+                type="button"
+              >
+                <span class="ev-arc-point-dot"></span>
+                <span class="ev-arc-point-ring" aria-hidden="true"></span>
+                <span class="ev-arc-point-label">{y.year}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <!-- Stack de anos grande (animação direcional) -->
+        <div class="ev-year-stack" aria-live="polite">
+          {timeline.map((y, idx) => (
+            <span
+              class:list={['ev-year-big', { 'is-active': idx === 0 }]}
+              data-year-page={idx}
+            >{y.year}</span>
+          ))}
+        </div>
+      </div>
+
+      <!-- ── COLUNA DIREITA: páginas de conteúdo ── -->
+      <div class="ev-timeline-right">
+        <div class="ev-page-stack">
+          {timeline.map((y, idx) => (
+            <article
+              class:list={['ev-year-page', `ev-year-page--${y.layout}`, { 'is-active': idx === 0, 'ev-year-page--future': y.isFuture }]}
+              data-page-index={idx}
+              data-year={y.year}
+              aria-hidden={idx === 0 ? 'false' : 'true'}
+            >
+              <!-- Elemento decorativo único por ano (posição variada) -->
+              <div class="ev-deco" data-year={y.year} aria-hidden="true"></div>
+
+              <div class="ev-page-head">
+                <span class="ev-page-tag">{y.year}</span>
+                {y.intro && <h3 class="ev-page-intro">{y.intro}</h3>}
+              </div>
+
+              {y.layout === 'hero' && (
+                <div class="ev-marcos ev-marcos--hero">
+                  {y.marcos.map(m => (
+                    <div class="ev-marco-hero">
+                      <h4 class="ev-marco-titulo">{m.titulo}</h4>
+                      <p class="ev-marco-desc">{m.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {y.layout === 'duo' && (
+                <div class="ev-marcos ev-marcos--duo">
+                  {y.marcos.map((m, i) => (
+                    <div class="ev-marco-item" style={`--delay: ${i * 90}ms`}>
+                      <span class="ev-marco-bullet" aria-hidden="true"></span>
+                      <h4 class="ev-marco-titulo">{m.titulo}</h4>
+                      <p class="ev-marco-desc">{m.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {y.layout === 'list' && (
+                <div class="ev-marcos ev-marcos--list">
+                  {y.marcos.map((m, i) => (
+                    <div class="ev-marco-row" style={`--delay: ${i * 90}ms`}>
+                      <span class="ev-marco-rownum">{String(i + 1).padStart(2, '0')}</span>
+                      <div>
+                        <h4 class="ev-marco-titulo">{m.titulo}</h4>
+                        <p class="ev-marco-desc">{m.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {y.layout === 'grid' && (
+                <div class="ev-marcos ev-marcos--grid">
+                  {y.marcos.map((m, i) => (
+                    <div class="ev-marco-card" style={`--delay: ${i * 90}ms`}>
+                      <span class="ev-marco-cardnum">0{i + 1}</span>
+                      <h4 class="ev-marco-titulo">{m.titulo}</h4>
+                      <p class="ev-marco-desc">{m.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {y.layout === 'final' && (
+                <div class="ev-marcos ev-marcos--final">
+                  {y.marcos.map(m => (
+                    <div class="ev-marco-final">
+                      <h4 class="ev-marco-titulo">{m.titulo}</h4>
+                      <p class="ev-marco-desc">{m.desc}</p>
+                      <a href={whatsappLink(messages.agendaTimeline)} target="_blank" rel="noopener" class="ev-marco-cta">
+                        quero fazer parte
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </article>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================
+       5. TEXTO INFORMATIVO — sobre os eventos REC
+       ============================================ -->
+  <section class="ev-about" data-reveal>
+    <div class="ev-about-inner">
+      <span class="ev-eyebrow">eventos REC</span>
+      <p class="ev-about-lead">Realizamos eventos empresariais, experiências e encontros estratégicos voltados à conexão, visibilidade, networking e geração de oportunidades para empreendedores.</p>
+      <div class="ev-about-body">
+        <p>Os eventos do REC acontecem em diferentes formatos, reunindo encontros estratégicos, experiências da comunidade, conexões corporativas e ativações presenciais pensadas para gerar <strong>relacionamento e negócios</strong>.</p>
+        <p class="ev-about-extra">O <strong>Network Entre Elas</strong>, que só em sua última edição contou com a presença de 370 mulheres, tem como propósito fortalecer conexões estratégicas, gerar parcerias e ampliar oportunidades de negócios entre empreendedoras e empresárias femininas de diferentes segmentos e cidades.</p>
+        <p class="ev-about-extra">Um dos diferenciais dos nossos eventos está na <strong>curadoria das conexões</strong>, priorizando ambientes dinâmicos e estratégicos, com constante renovação de participantes e incentivo à interação entre empreendedores de diferentes áreas.</p>
+        <p class="ev-about-extra">Além disso, muitos dos espaços de fala e oportunidades dentro dos eventos são direcionados aos próprios <strong>membros da comunidade</strong>, fortalecendo autoridade, posicionamento e visibilidade empresarial.</p>
+        <p>O diferencial está na <strong>curadoria das conexões</strong> — ambientes dinâmicos e estratégicos, com renovação constante de participantes e troca entre empreendedores de diferentes áreas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       6. CTA FINAL — igual ao hub.astro
+       ============================================ -->
+  <section class="ev-final" data-reveal>
+    <div class="ev-final-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="ev-final-inner">
+      <h2>Faça parte do <em>próximo</em> evento.</h2>
+      <p>Garanta seu lugar nos próximos encontros REC.</p>
+      <a href={whatsappLink(messages.agendaFinalCta)} target="_blank" rel="noopener" class="ev-final-cta">quero participar →</a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<script>
+  import { initReveal } from '../utils/reveal'
+  initReveal()
+
+  // Fix main overflow (globals.css define overflow:hidden que quebra o sticky)
+  const mainEl = document.querySelector('main')
+  if (mainEl) mainEl.style.overflow = 'visible'
+
+  // "Ver mais eventos" — só ativo no mobile
+  const showMoreBtn = document.querySelector<HTMLButtonElement>('[data-events-show-more]')
+  const eventsGrid = document.querySelector<HTMLElement>('[data-events-grid]')
+  if (showMoreBtn && eventsGrid) {
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches
+    if (isMobile) {
+      showMoreBtn.addEventListener('click', () => {
+        const expanded = eventsGrid.classList.toggle('is-expanded')
+        showMoreBtn.setAttribute('aria-expanded', String(expanded))
+        showMoreBtn.innerHTML = expanded
+          ? 'ver menos <span aria-hidden="true">↑</span>'
+          : 'ver mais eventos <span aria-hidden="true">↓</span>'
+      })
+    } else {
+      // Desktop: oculta o botão, mostra todos os eventos
+      showMoreBtn.style.display = 'none'
+      eventsGrid.classList.add('is-expanded')
+    }
+  }
+
+  const section = document.getElementById('ev-timeline-section') as HTMLElement | null
+  const nav = document.querySelector<HTMLElement>('[data-adaptive-nav]')
+
+  if (section) {
+    const total = parseInt(section.dataset.total || '1', 10)
+    const pages = Array.from(section.querySelectorAll<HTMLElement>('.ev-year-page'))
+    const yearBigs = Array.from(section.querySelectorAll<HTMLElement>('.ev-year-big'))
+    const arcPoints = Array.from(section.querySelectorAll<HTMLButtonElement>('.ev-arc-point'))
+
+    // ─── MOBILE: timeline vira carrossel horizontal scroll-snap ───
+    // Em <=1023px, NÃO usa wheel/sticky/scroll-driven. Usa swipe nativo + dots.
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches
+
+    if (isMobile) {
+      // Marca todas as pages como ativas pra desbloquear opacity/pointer-events
+      pages.forEach(p => p.classList.add('is-active'))
+      yearBigs.forEach(y => y.classList.add('is-active'))
+
+      // Gera os dots indicadores
+      const stack = section.querySelector<HTMLElement>('.ev-page-stack')
+      if (stack) {
+        const dotsEl = document.createElement('div')
+        dotsEl.className = 'ev-mobile-dots'
+        dotsEl.setAttribute('role', 'tablist')
+        dotsEl.setAttribute('aria-label', 'navegação anos')
+        pages.forEach((page, i) => {
+          const year = page.dataset.year || ''
+          const dot = document.createElement('button')
+          dot.className = 'ev-mobile-dot'
+          dot.type = 'button'
+          dot.dataset.idx = String(i)
+          dot.setAttribute('aria-label', `ir para ${year}`)
+          dot.innerHTML = `<span class="ev-mobile-dot-y">${year}</span>`
+          if (i === 0) dot.classList.add('is-active')
+          dot.addEventListener('click', () => {
+            page.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+          })
+          dotsEl.appendChild(dot)
+        })
+        // Insere os dots depois do stack
+        stack.parentElement?.appendChild(dotsEl)
+
+        // Atualiza dot ativo conforme scroll horizontal + scroll do dot pra centro
+        const dots = Array.from(dotsEl.querySelectorAll<HTMLElement>('.ev-mobile-dot'))
+        function activateDot(idx: number) {
+          dots.forEach((d, i) => d.classList.toggle('is-active', i === idx))
+          // Centraliza o dot ativo no carrossel dos dots
+          const activeDot = dots[idx]
+          if (activeDot) {
+            const dotsRect = dotsEl.getBoundingClientRect()
+            const dotRect = activeDot.getBoundingClientRect()
+            const center = dotRect.left + dotRect.width / 2
+            const containerCenter = dotsRect.left + dotsRect.width / 2
+            const delta = center - containerCenter
+            dotsEl.scrollBy({ left: delta, behavior: 'smooth' })
+          }
+        }
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting && e.intersectionRatio > 0.5) {
+              const idx = pages.indexOf(e.target as HTMLElement)
+              if (idx >= 0) activateDot(idx)
+            }
+          })
+        }, { root: stack, threshold: [0.5] })
+        pages.forEach(p => io.observe(p))
+      }
+
+      // BOTÃO seção anterior/próxima continuam funcionando
+      const prevBtnM = document.getElementById('ev-prev-section')
+      const nextBtnM = document.getElementById('ev-next-section')
+      if (prevBtnM) prevBtnM.addEventListener('click', () => {
+        const intro = document.querySelector('.ev-history-intro') as HTMLElement | null
+        intro?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      if (nextBtnM) nextBtnM.addEventListener('click', () => {
+        const about = document.querySelector('.ev-about') as HTMLElement | null
+        about?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    } else {
+    // ─── DESKTOP: lógica original com sticky + scroll-driven ───
+
+    let currentActive = 0
+    let wheelLocked = false
+
+    function getSectionBounds() {
+      const sTop = section!.offsetTop
+      const usable = section!.offsetHeight - window.innerHeight
+      return { sTop, usable }
+    }
+
+    function isInsideTimeline() {
+      const { sTop, usable } = getSectionBounds()
+      return window.scrollY >= sTop && window.scrollY <= sTop + usable
+    }
+
+    function syncScrollToIndex(index: number) {
+      const { sTop, usable } = getSectionBounds()
+      const target = sTop + (index / Math.max(1, total - 1)) * usable
+      window.scrollTo({ top: target, behavior: 'instant' })
+    }
+
+    function apply(index: number) {
+      pages.forEach((p, i) => {
+        p.classList.remove('is-active', 'is-past', 'is-future')
+        p.setAttribute('aria-hidden', i === index ? 'false' : 'true')
+        if (i === index) p.classList.add('is-active')
+        else if (i < index) p.classList.add('is-past')
+        else p.classList.add('is-future')
+      })
+      yearBigs.forEach((y, i) => {
+        y.classList.remove('is-active', 'is-past', 'is-future')
+        if (i === index) y.classList.add('is-active')
+        else if (i < index) y.classList.add('is-past')
+        else y.classList.add('is-future')
+      })
+      arcPoints.forEach((p, i) => {
+        p.classList.toggle('ev-arc-point--current', i === index)
+      })
+    }
+
+    // Avança 1 passo via wheel — nunca pula
+    // inércia de trackpad: deltaY vai caindo; ignoramos valores pequenos após o pico
+    let peakDelta = 0
+    let inertiaTimer: ReturnType<typeof setTimeout> | null = null
+
+    function stepByWheel(dir: 1 | -1, absDelta: number = 100): boolean {
+      // Detecta pico: se o deltaY atual for muito menor que o pico recente → inércia, ignora
+      if (absDelta > peakDelta) peakDelta = absDelta
+      const isInertia = peakDelta > 40 && absDelta < peakDelta * 0.35
+      // Reseta pico depois de 180ms de silêncio (fim do gesto)
+      if (inertiaTimer) clearTimeout(inertiaTimer)
+      inertiaTimer = setTimeout(() => { peakDelta = 0 }, 180)
+
+      if (isInertia) return true   // bloqueia scroll mas não avança ano
+      if (wheelLocked) return true
+      if (absDelta < 12) return true // eventos microscópicos: bloqueia, ignora
+
+      const next = currentActive + dir
+      if (next < 0 || next >= total) return false // sai → scroll normal
+      apply(next)
+      currentActive = next
+      syncScrollToIndex(next)
+      wheelLocked = true
+      setTimeout(() => { wheelLocked = false }, 1000)
+      return true
+    }
+
+    // Pulo direto ao clicar no arco
+    function jumpToYear(index: number) {
+      const clamped = Math.max(0, Math.min(total - 1, index))
+      apply(clamped)
+      currentActive = clamped
+      wheelLocked = false
+      syncScrollToIndex(clamped)
+    }
+
+    // Cliques nos pontos do arco
+    arcPoints.forEach((btn, i) => {
+      btn.addEventListener('click', () => jumpToYear(i))
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jumpToYear(i) }
+      })
+    })
+
+    let wheelExited = false
+
+    // BOTÃO SEÇÃO ANTERIOR: vai para o intro da timeline
+    const prevBtn = document.getElementById('ev-prev-section')
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        wheelExited = true
+        document.body.classList.remove('in-timeline')
+        const historyIntro = document.querySelector('.ev-history-intro') as HTMLElement | null
+        if (historyIntro) {
+          historyIntro.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
+    }
+
+    // BOTÃO PRÓXIMA SEÇÃO: vai para a seção "sobre os eventos"
+    const nextBtn = document.getElementById('ev-next-section')
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        wheelExited = true
+        document.body.classList.remove('in-timeline')
+        const sectionEnd = section.offsetTop + section.offsetHeight
+        window.scrollTo({ top: sectionEnd, behavior: 'smooth' })
+      })
+    }
+
+    // Quando entrar de novo na timeline, reativa a captura
+    window.addEventListener('scroll', () => {
+      if (!isInsideTimeline()) return
+      if (wheelExited) wheelExited = false
+    }, { passive: true })
+
+    // WHEEL: 1 ano por evento, imune à inércia do trackpad
+    window.addEventListener('wheel', (e) => {
+      if (wheelExited) return
+      if (!isInsideTimeline()) return
+      const dir = e.deltaY > 0 ? 1 : -1
+      const handled = stepByWheel(dir, Math.abs(e.deltaY))
+      if (handled) { e.preventDefault(); e.stopPropagation() }
+    }, { passive: false })
+
+    // SCROLL: só para navbar (usa body class para ganhar do timer do nav-scroll.ts)
+    function updateNav() {
+      document.body.classList.toggle('in-timeline', isInsideTimeline())
+    }
+    window.addEventListener('scroll', updateNav, { passive: true })
+
+    // Setas do teclado
+    window.addEventListener('keydown', (e) => {
+      if (!isInsideTimeline()) return
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); stepByWheel(1) }
+      if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  { e.preventDefault(); stepByWheel(-1) }
+    })
+
+    apply(0)
+    } // fim do else (desktop)
+  }
+</script>
+
+<style>
+:global(main) { overflow: visible !important; }
+
+/* Navbar: esconde totalmente quando a timeline está ativa.
+   Usa !important para vencer o timer de 400ms do nav-scroll.ts */
+:global(body.in-timeline [data-adaptive-nav]) {
+  transform: translateY(-110%) !important;
+  pointer-events: none !important;
+  transition: transform 400ms cubic-bezier(0.22,1,0.36,1) !important;
+}
+
+/* =========================================================
+   REVEAL
+   ========================================================= */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms), transform 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms); }
+[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+/* =========================================================
+   COMPARTILHADOS
+   ========================================================= */
+.ev-eyebrow { font-family: var(--font-ui); font-size: var(--type-micro); letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; color: var(--rec-teal); display: inline-block; }
+.ev-section-head { max-width: 720px; margin: 0 auto var(--space-10); text-align: center; }
+.ev-section-head h2 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-3); font-weight: 300; color: var(--rec-blue); }
+.ev-section-head h2 em { color: var(--rec-teal); font-style: italic; }
+.ev-section-head p { color: #556; font-size: var(--type-body); line-height: 1.65; max-width: 580px; margin: 0 auto; }
+
+/* =========================================================
+   1. HERO
+   ========================================================= */
+.ev-hero { padding: var(--space-16) var(--space-6) var(--space-10); background: #fff; }
+.ev-hero-inner { max-width: var(--container-max); margin: 0 auto; }
+.ev-hero h1 { font-family: var(--font-display); font-size: clamp(2.6rem,6.5vw,5rem); font-weight: 300; line-height: 1; letter-spacing: -0.02em; margin: var(--space-4) 0 var(--space-5); color: var(--rec-blue); max-width: 920px; }
+.ev-hero h1 em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
+.ev-hero-lead { font-size: 1.1rem; line-height: 1.7; color: #4a5868; max-width: 620px; margin: 0; }
+
+/* =========================================================
+   2. PRÓXIMOS EVENTOS
+   ========================================================= */
+.ev-upcoming { padding: var(--space-12) var(--space-6) var(--space-16); background: linear-gradient(180deg,#fbfafa 0%,#f5f7fa 100%); }
+.ev-featured { max-width: 1100px; margin: 0 auto var(--space-10); background: linear-gradient(135deg,#021438 0%,#042050 50%,#061a4a 100%); border-radius: 24px; overflow: hidden; display: grid; grid-template-columns: 220px 1fr; color: #fff; position: relative; box-shadow: 0 24px 60px rgba(1,38,89,0.16); transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing); }
+.ev-featured::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top right, rgba(0,161,152,0.18), transparent 60%); pointer-events: none; }
+.ev-featured:hover { transform: translateY(-4px); box-shadow: 0 30px 70px rgba(1,38,89,0.22); }
+.ev-featured-date { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-7); border-right: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg,rgba(0,161,152,0.12),rgba(0,161,152,0.02)); position: relative; z-index: 1; }
+.ev-featured-date .day { font-family: var(--font-display); font-size: 4.2rem; font-weight: 300; line-height: 1; color: #fff; }
+.ev-featured-date .month { font-family: var(--font-ui); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--rec-teal); margin-top: 6px; font-weight: 700; }
+.ev-featured-date .year { font-family: var(--font-ui); font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.6); margin-top: 4px; }
+.ev-featured-body { padding: var(--space-7) var(--space-8); display: flex; flex-direction: column; gap: var(--space-3); position: relative; z-index: 1; }
+.ev-featured-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.ev-featured h3 { font-family: var(--font-display); font-size: clamp(1.5rem,2.6vw,2rem); font-weight: 400; line-height: 1.15; margin: 0; color: #fff; }
+.ev-featured p { font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,0.8); margin: 0; max-width: 580px; }
+.ev-featured-info { display: flex; gap: var(--space-6); flex-wrap: wrap; margin-top: 4px; color: rgba(255,255,255,0.78); font-size: 0.9rem; }
+.ev-featured-info span { display: inline-flex; align-items: center; gap: 8px; }
+.ev-featured-info svg { width: 16px; height: 16px; color: var(--rec-teal); }
+.ev-featured-cta { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; background: var(--rec-teal); color: #fff; padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; text-transform: lowercase; letter-spacing: 0.04em; margin-top: var(--space-3); transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), background var(--motion-fast) var(--easing); }
+.ev-featured-cta svg { width: 14px; height: 14px; transition: transform var(--motion-fast) var(--easing); }
+.ev-featured-cta:hover { background: #00b3a9; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,161,152,0.4); }
+.ev-featured-cta:hover svg { transform: translateX(3px); }
+.ev-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: var(--space-5); }
+.ev-card { background: #fff; border: 1px solid rgba(1,38,89,0.08); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
+.ev-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(1,38,89,0.1); border-color: rgba(0,161,152,0.3); }
+.ev-card-date { display: flex; align-items: baseline; gap: 8px; padding: var(--space-5) var(--space-6) 0; color: var(--rec-blue); }
+.ev-card-date .day { font-family: var(--font-display); font-size: 2.8rem; font-weight: 300; line-height: 1; }
+.ev-card-date .month { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.8rem; font-weight: 700; color: var(--rec-teal); }
+.ev-card-body { padding: var(--space-4) var(--space-6) var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.ev-card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.ev-card h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 500; line-height: 1.2; margin: 4px 0 0; color: var(--rec-blue); }
+.ev-card p { font-size: 0.9rem; line-height: 1.6; color: #5b6878; margin: 0; flex: 1; }
+.ev-card-info { display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: 0.82rem; color: #6a7888; margin-top: 6px; }
+.ev-card-info span { display: inline-flex; align-items: center; gap: 6px; }
+.ev-card-info svg { width: 14px; height: 14px; color: var(--rec-teal); }
+.ev-card-cta { display: inline-flex; color: var(--rec-teal); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: var(--space-3); padding-bottom: 6px; border-bottom: 1.5px solid var(--rec-teal); align-self: flex-start; transition: color var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
+.ev-card-cta:hover { color: var(--rec-blue); border-color: var(--rec-blue); }
+.ev-tag { font-family: var(--font-ui); font-size: 0.66rem; letter-spacing: 0.12em; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; font-weight: 700; }
+.ev-tag--type { background: rgba(0,161,152,0.1); color: #007a73; }
+.ev-featured .ev-tag--type { background: rgba(0,161,152,0.2); color: var(--rec-teal); }
+.ev-tag--inscricoes { background: rgba(0,161,152,0.18); color: #007a73; }
+.ev-tag--proximo { background: rgba(1,38,89,0.08); color: var(--rec-blue); }
+.ev-tag--encerrado { background: rgba(120,120,120,0.12); color: #777; }
+.ev-featured .ev-tag--inscricoes { background: rgba(0,161,152,0.25); color: var(--rec-teal); }
+.ev-featured .ev-tag--proximo { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); }
+@media (max-width: 700px) {
+  .ev-featured { grid-template-columns: 1fr; }
+  .ev-featured-date { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: var(--space-5); }
+  .ev-featured-body { padding: var(--space-5) var(--space-6); }
+}
+
+/* =========================================================
+   3. INTRO TIMELINE
+   ========================================================= */
+.ev-history-intro { background: #021438; color: #fff; text-align: center; padding: var(--space-16) var(--space-6) var(--space-10); }
+.ev-history-intro .ev-eyebrow { color: rgba(255,255,255,0.55); }
+.ev-history-intro h2 { font-family: var(--font-display); font-size: clamp(2rem,4.5vw,3rem); font-weight: 300; line-height: 1.05; margin: var(--space-3) 0 var(--space-3); color: #fff; }
+.ev-history-intro h2 em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
+.ev-history-intro p { color: rgba(255,255,255,0.65); max-width: 520px; margin: 0 auto; }
+.ev-scroll-hint { margin-top: var(--space-8); display: inline-flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(255,255,255,0.45); font-family: var(--font-ui); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.ev-scroll-hint svg { width: 20px; height: 20px; animation: ev-bounce 2s ease-in-out infinite; }
+@keyframes ev-bounce { 0%,100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(6px); opacity: 0.9; } }
+
+/* =========================================================
+   4. TIMELINE — sticky + scroll-driven
+   ========================================================= */
+.ev-timeline {
+  position: relative;
+  height: calc(var(--total-years) * 100vh);
+  background: #010e2a;
+}
+.ev-timeline-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 38% 62%;
+  overflow: hidden;
+  background: #010e2a;
+}
+
+/* ── COLUNA ESQUERDA ───── */
+.ev-timeline-left {
+  position: relative;
+  background: linear-gradient(160deg,#010e2a 0%,#021438 60%,#031849 100%);
+  overflow: hidden;
+}
+.ev-timeline-left::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(0,161,152,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.ev-arc { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Pontos dos anos — todos visíveis, clicáveis */
+.ev-arc-points { position: absolute; inset: 0; pointer-events: none; }
+.ev-arc-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0.38;
+  background: none; border: none; padding: 6px 2px 6px 6px;
+  cursor: pointer; pointer-events: auto;
+  transition: opacity 350ms var(--easing), transform 350ms var(--easing);
+}
+.ev-arc-point:hover { opacity: 0.85; transform: translate(-50%, -50%) scale(1.1); }
+
+/* Ponto ativo: destaque total + anel pulsante */
+.ev-arc-point--current {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.18);
+}
+.ev-arc-point--current .ev-arc-point-dot {
+  width: 11px; height: 11px;
+  background: var(--rec-teal);
+  box-shadow: 0 0 0 4px rgba(0,161,152,0.22), 0 0 14px rgba(0,161,152,0.5);
+}
+.ev-arc-point--current .ev-arc-point-label {
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(0,161,152,0.4);
+}
+/* Anel pulsante só no ativo */
+.ev-arc-point-ring {
+  display: none;
+  position: absolute;
+  left: 6px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,161,152,0.5);
+  transform: translate(-50%, -50%) translate(5px, 5px);
+  animation: arc-ring-pulse 2.4s ease-in-out infinite;
+}
+.ev-arc-point--current .ev-arc-point-ring { display: block; }
+@keyframes arc-ring-pulse {
+  0%   { transform: translate(-50%,-50%) translate(5px,5px) scale(0.6); opacity: 1; }
+  100% { transform: translate(-50%,-50%) translate(5px,5px) scale(2.2); opacity: 0; }
+}
+
+.ev-arc-point-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(0,161,152,0.7); flex-shrink: 0;
+  transition: width 300ms var(--easing), height 300ms var(--easing), box-shadow 300ms var(--easing), background 300ms var(--easing);
+}
+.ev-arc-point-label {
+  font-family: var(--font-ui); font-size: 0.75rem; font-weight: 600;
+  color: rgba(255,255,255,0.65); letter-spacing: 0.04em;
+  transition: color 300ms var(--easing), font-weight 300ms var(--easing);
+  white-space: nowrap;
+}
+
+/* Stack de anos grandes — animação direcional */
+.ev-year-stack {
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  text-align: center;
+  pointer-events: none;
+  padding: 0 var(--space-6);
+  height: 1em;
+}
+.ev-year-big {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 9vw, 8rem);
+  font-weight: 200;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 60px rgba(0,161,152,0.18);
+  opacity: 0;
+  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1), transform 750ms cubic-bezier(0.22,1,0.36,1);
+}
+.ev-year-big.is-active  { opacity: 1;  transform: translateY(0);    }
+.ev-year-big.is-past    { opacity: 0;  transform: translateY(-70px);}
+.ev-year-big.is-future  { opacity: 0;  transform: translateY(70px); }
+
+/* ── COLUNA DIREITA ───── */
+.ev-timeline-right {
+  position: relative;
+  background: linear-gradient(160deg,#010e2a 0%,#021438 100%);
+  padding: var(--space-10) var(--space-12) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+.ev-timeline-right::before {
+  content: ''; position: absolute;
+  left: 0; top: 10%; bottom: 10%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(0,161,152,0.22), transparent);
+}
+
+.ev-page-stack {
+  position: relative;
+  flex: 1; display: flex; align-items: center; min-height: 0;
+  max-width: 720px; width: 100%;
+}
+
+/* Páginas — animação direcional */
+.ev-year-page {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: var(--space-5);
+  opacity: 0;
+  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1), transform 750ms cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+  padding-right: var(--space-4);
+}
+.ev-year-page.is-active  { opacity: 1;  transform: translateY(0);    pointer-events: auto; }
+.ev-year-page.is-past    { opacity: 0;  transform: translateY(-55px);}
+.ev-year-page.is-future  { opacity: 0;  transform: translateY(55px); }
+
+/* ── CABEÇALHO DA PÁGINA ── */
+.ev-page-head { display: flex; flex-direction: column; gap: var(--space-2); }
+.ev-page-tag { font-family: var(--font-ui); font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 700; color: var(--rec-teal); }
+.ev-page-intro { font-family: var(--font-display); font-size: clamp(1.4rem, 2.5vw, 1.9rem); font-weight: 300; line-height: 1.25; color: #fff; margin: 0; max-width: 560px; letter-spacing: -0.01em; }
+
+/* ── TIPOGRAFIA BASE DOS MARCOS ── */
+.ev-marco-titulo { font-family: var(--font-display); font-weight: 500; color: #fff; margin: 0; line-height: 1.2; }
+.ev-marco-desc { font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin: 0; }
+
+/* == Layout HERO (1 marco grande) == */
+.ev-marcos--hero { display: flex; flex-direction: column; gap: var(--space-3); max-width: 560px; }
+.ev-marco-hero .ev-marco-titulo { font-size: clamp(2.2rem, 4.5vw, 3.2rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; }
+.ev-marco-hero .ev-marco-desc { font-size: 1.1rem; line-height: 1.7; }
+
+/* == Layout DUO (2 marcos com bullet) == */
+.ev-marcos--duo { display: flex; flex-direction: column; gap: var(--space-6); max-width: 560px; }
+.ev-marco-item {
+  position: relative; padding-left: var(--space-6);
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 500ms var(--easing) var(--delay, 0ms), transform 500ms var(--easing) var(--delay, 0ms);
+}
+.is-active .ev-marco-item { opacity: 1; transform: translateY(0); }
+.ev-marco-bullet { position: absolute; left: 0; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--rec-teal); box-shadow: 0 0 0 4px rgba(0,161,152,0.15); }
+.ev-marco-item .ev-marco-titulo { font-size: 1.4rem; margin-bottom: 6px; }
+.ev-marco-item .ev-marco-desc { font-size: 0.98rem; }
+
+/* == Layout LIST (3 marcos com número) == */
+.ev-marcos--list { display: flex; flex-direction: column; gap: var(--space-5); max-width: 600px; }
+.ev-marco-row {
+  display: grid; grid-template-columns: 50px 1fr; gap: var(--space-4); align-items: start;
+  opacity: 0; transform: translateX(-18px);
+  transition: opacity 500ms var(--easing) var(--delay, 0ms), transform 500ms var(--easing) var(--delay, 0ms);
+}
+.is-active .ev-marco-row { opacity: 1; transform: translateX(0); }
+.ev-marco-rownum { font-family: var(--font-display); font-size: 1.6rem; font-weight: 300; color: var(--rec-teal); line-height: 1; padding-top: 4px; border-right: 1px solid rgba(0,161,152,0.25); padding-right: var(--space-3); text-align: right; }
+.ev-marco-row .ev-marco-titulo { font-size: 1.25rem; margin-bottom: 4px; }
+.ev-marco-row .ev-marco-desc { font-size: 0.95rem; }
+
+/* == Layout GRID (4 cards 2×2) == */
+.ev-marcos--grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); max-width: 620px; }
+.ev-marco-card {
+  padding: var(--space-5); border: 1px solid rgba(0,161,152,0.16); border-radius: 12px; background: rgba(0,161,152,0.04);
+  opacity: 0; transform: scale(0.94);
+  transition: opacity 500ms var(--easing) var(--delay, 0ms), transform 500ms var(--easing) var(--delay, 0ms), background 250ms var(--easing), border-color 250ms var(--easing);
+}
+.is-active .ev-marco-card { opacity: 1; transform: scale(1); }
+.ev-marco-card:hover { background: rgba(0,161,152,0.09); border-color: rgba(0,161,152,0.3); }
+.ev-marco-cardnum { display: inline-block; font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--rec-teal); margin-bottom: var(--space-2); }
+.ev-marco-card .ev-marco-titulo { font-size: 1.05rem; margin-bottom: 6px; line-height: 1.3; }
+.ev-marco-card .ev-marco-desc { font-size: 0.88rem; line-height: 1.55; }
+
+/* == Layout FINAL (futuro + CTA) == */
+.ev-marcos--final { display: flex; flex-direction: column; gap: var(--space-5); max-width: 560px; }
+.ev-marco-final .ev-marco-titulo { font-size: clamp(2rem, 3.8vw, 2.8rem); font-weight: 400; color: var(--rec-teal); line-height: 1.1; margin-bottom: var(--space-3); }
+.ev-marco-final .ev-marco-desc { font-size: 1.05rem; margin-bottom: var(--space-5); max-width: 480px; }
+.ev-marco-cta { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; background: var(--rec-teal); color: #fff; padding: 16px 32px; border-radius: 999px; font-weight: 700; font-size: 0.95rem; text-transform: lowercase; letter-spacing: 0.04em; transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), background var(--motion-fast) var(--easing); }
+.ev-marco-cta svg { width: 14px; height: 14px; transition: transform var(--motion-fast) var(--easing); }
+.ev-marco-cta:hover { background: #00b3a9; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,161,152,0.4); }
+.ev-marco-cta:hover svg { transform: translateX(3px); }
+
+/* =========================================================
+   ELEMENTOS DECORATIVOS — sutis, sem sobrepor texto
+   Posicionados em cantos seguros, refinados
+   ========================================================= */
+.ev-deco {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 600ms var(--easing) 200ms, transform 650ms cubic-bezier(0.22,1,0.36,1) 200ms;
+}
+.is-active .ev-deco { opacity: 1; }
+
+/* 2018 — anel fino no canto inferior direito */
+.ev-deco[data-year="2018"] {
+  bottom: var(--space-6); right: var(--space-6);
+  width: 120px; height: 120px; border-radius: 50%;
+  border: 1px solid rgba(0,161,152,0.2);
+  transform: scale(0.8);
+}
+.ev-deco[data-year="2018"]::before {
+  content: ''; position: absolute;
+  inset: 22px; border-radius: 50%;
+  border: 1px solid rgba(0,161,152,0.1);
+}
+.is-active .ev-deco[data-year="2018"] { transform: scale(1); }
+
+/* 2019 — dois círculos sobrepostos · canto inferior direito */
+.ev-deco[data-year="2019"] {
+  bottom: var(--space-8); right: var(--space-6);
+  width: 120px; height: 70px;
+  transform: scale(0.8);
+}
+.ev-deco[data-year="2019"]::before,
+.ev-deco[data-year="2019"]::after {
+  content: ''; position: absolute;
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 1px solid rgba(0,161,152,0.22);
+}
+.ev-deco[data-year="2019"]::before { top: 8px; left: 0; }
+.ev-deco[data-year="2019"]::after  { top: 8px; right: 0; background: rgba(0,161,152,0.04); }
+.is-active .ev-deco[data-year="2019"] { transform: scale(1); }
+
+/* 2020 — grid 3×3 de pontos · canto inferior direito */
+.ev-deco[data-year="2020"] {
+  bottom: var(--space-8); right: var(--space-6);
+  width: 72px; height: 72px;
+  background-image:
+    radial-gradient(circle 2px at 16% 16%, rgba(0,161,152,0.5) 100%, transparent 100%),
+    radial-gradient(circle 2px at 50% 16%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 2px at 84% 16%, rgba(0,161,152,0.25) 100%, transparent 100%),
+    radial-gradient(circle 2px at 16% 50%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 2px at 50% 50%, rgba(0,161,152,0.5) 100%, transparent 100%),
+    radial-gradient(circle 2px at 84% 50%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 2px at 16% 84%, rgba(0,161,152,0.25) 100%, transparent 100%),
+    radial-gradient(circle 2px at 50% 84%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 2px at 84% 84%, rgba(0,161,152,0.5) 100%, transparent 100%);
+  transform: rotate(8deg) scale(0.8);
+}
+.is-active .ev-deco[data-year="2020"] { transform: rotate(0deg) scale(1); }
+
+/* 2021 — três barras ascendentes · canto inferior direito */
+.ev-deco[data-year="2021"] {
+  bottom: var(--space-8); right: var(--space-8);
+  width: 42px; height: 52px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  transform: translateY(8px);
+}
+.ev-deco[data-year="2021"]::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to top, rgba(0,161,152,0.4) 100%, transparent 100%) 0 100% / 9px 60% no-repeat,
+    linear-gradient(to top, rgba(0,161,152,0.35) 100%, transparent 100%) 15px 100% / 9px 78% no-repeat,
+    linear-gradient(to top, rgba(0,161,152,0.45) 100%, transparent 100%) 30px 100% / 9px 100% no-repeat;
+  border-radius: 2px;
+}
+.is-active .ev-deco[data-year="2021"] { transform: translateY(0); }
+
+/* 2022 — losango simples · canto inferior direito */
+.ev-deco[data-year="2022"] {
+  bottom: var(--space-8); right: var(--space-7);
+  width: 52px; height: 52px;
+  border: 1px solid rgba(0,161,152,0.28);
+  transform: rotate(45deg) scale(0.8);
+}
+.ev-deco[data-year="2022"]::before {
+  content: ''; position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(0,161,152,0.14);
+}
+.is-active .ev-deco[data-year="2022"] { transform: rotate(45deg) scale(1); }
+
+/* 2023 — arco em quarto de círculo · canto inferior direito */
+.ev-deco[data-year="2023"] {
+  bottom: var(--space-6); right: var(--space-6);
+  width: 90px; height: 90px;
+  border-top: 1px solid rgba(0,161,152,0.22);
+  border-left: 1px solid rgba(0,161,152,0.22);
+  border-radius: 100% 0 0 0;
+  transform: scale(0.75);
+}
+.ev-deco[data-year="2023"]::before {
+  content: ''; position: absolute;
+  inset: 18px 0 0 18px;
+  border-top: 1px solid rgba(0,161,152,0.12);
+  border-left: 1px solid rgba(0,161,152,0.12);
+  border-radius: 100% 0 0 0;
+}
+.is-active .ev-deco[data-year="2023"] { transform: scale(1); }
+
+/* 2024 — quatro pontos em diagonal · canto inferior direito */
+.ev-deco[data-year="2024"] {
+  bottom: var(--space-8); right: var(--space-6);
+  width: 64px; height: 64px;
+  background-image:
+    radial-gradient(circle 3px at 16% 16%, rgba(0,161,152,0.5) 100%, transparent 100%),
+    radial-gradient(circle 3px at 84% 16%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 3px at 16% 84%, rgba(0,161,152,0.35) 100%, transparent 100%),
+    radial-gradient(circle 3px at 84% 84%, rgba(0,161,152,0.5) 100%, transparent 100%);
+  transform: scale(0.8);
+}
+.is-active .ev-deco[data-year="2024"] { transform: scale(1); }
+
+/* 2025 — linha horizontal com ponto central · canto inferior direito */
+.ev-deco[data-year="2025"] {
+  bottom: var(--space-8); right: var(--space-6);
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,161,152,0.3), transparent);
+  transform: scaleX(0.6);
+}
+.ev-deco[data-year="2025"]::before {
+  content: ''; position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--rec-teal);
+  box-shadow: 0 0 12px rgba(0,161,152,0.4);
+}
+.ev-deco[data-year="2025"]::after {
+  content: ''; position: absolute;
+  top: -24px; left: 50%;
+  transform: translateX(-50%);
+  width: 1px; height: 20px;
+  background: linear-gradient(180deg, transparent, rgba(0,161,152,0.3));
+}
+.is-active .ev-deco[data-year="2025"] { transform: scaleX(1); }
+
+/* 2026 — arco aberto · canto inferior direito (conforme pedido) */
+.ev-deco[data-year="2026"] {
+  bottom: var(--space-6); right: var(--space-6);
+  width: 110px; height: 65px;
+  border-top: 1.5px solid rgba(0,161,152,0.28);
+  border-radius: 50% / 100% 100% 0 0;
+  transform: scale(0.8);
+}
+.is-active .ev-deco[data-year="2026"] { transform: scale(1); }
+
+/* 2027 — círculo tracejado · canto inferior direito */
+.ev-deco[data-year="2027"] {
+  bottom: var(--space-6); right: var(--space-6);
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 1.5px dashed rgba(0,161,152,0.24);
+  transform: scale(0.8) rotate(-15deg);
+}
+.ev-deco[data-year="2027"]::before {
+  content: ''; position: absolute;
+  inset: 14px; border-radius: 50%;
+  border: 1px dashed rgba(0,161,152,0.14);
+}
+.is-active .ev-deco[data-year="2027"] { transform: scale(1) rotate(0deg); }
+
+/* Navegação entre seções */
+.ev-section-nav {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-5);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+.ev-section-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: rgba(0,161,152,0.5);
+  border: 1.5px solid rgba(0,161,152,0.22);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 220ms var(--easing), border-color 220ms var(--easing), color 220ms var(--easing);
+}
+.ev-section-btn svg { width: 13px; height: 13px; stroke: currentColor; }
+.ev-section-btn:hover {
+  background: rgba(0,161,152,0.1);
+  border-color: rgba(0,161,152,0.6);
+  color: var(--rec-teal);
+}
+
+/* ── RESPONSIVO MOBILE ───────────── */
+@media (max-width: 980px) {
+  .ev-timeline { height: auto; background: #010e2a; }
+  .ev-timeline-sticky { position: static; height: auto; grid-template-columns: 1fr; }
+  .ev-timeline-left { display: none; }
+  .ev-timeline-right { padding: var(--space-8) var(--space-6); background: #010e2a; }
+  .ev-page-stack { position: static; display: block; max-width: 720px; margin: 0 auto; }
+  .ev-year-page { position: relative; inset: auto; opacity: 1; transform: none; padding: var(--space-6) 0 var(--space-8) var(--space-6); border-left: 2px solid rgba(0,161,152,0.22); margin-bottom: var(--space-4); }
+  /* Decos visíveis em cada card mobile — escala reduzida (60%) pra não competir com texto */
+  .ev-deco {
+    display: block;
+    transform: scale(0.6) !important;
+    transform-origin: bottom right;
+    opacity: 0.7 !important;
+  }
+  .ev-marcos--grid { grid-template-columns: 1fr; }
+  .ev-marco-item, .ev-marco-row, .ev-marco-card { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   5. CTA FINAL — idêntico ao hub.astro
+   ========================================================= */
+/* ── SEÇÃO INFORMATIVA ──────────────────────────── */
+.ev-about {
+  background: #fff;
+  padding: var(--space-20) var(--space-6);
+}
+.ev-about-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.ev-about .ev-eyebrow {
+  margin-bottom: var(--space-5);
+}
+.ev-about-lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 300;
+  line-height: 1.3;
+  color: var(--rec-blue);
+  margin: 0 0 var(--space-8);
+  letter-spacing: -0.01em;
+  border-left: 3px solid var(--rec-teal);
+  padding-left: var(--space-5);
+}
+.ev-about-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5) var(--space-8);
+}
+.ev-about-body p {
+  font-size: var(--type-body);
+  line-height: 1.75;
+  color: rgba(1,38,89,0.72);
+  margin: 0;
+}
+.ev-about-body p strong {
+  color: var(--rec-blue);
+  font-weight: 600;
+}
+@media (max-width: 680px) {
+  .ev-about-body { grid-template-columns: 1fr; }
+  .ev-about-lead { font-size: 1.35rem; }
+}
+
+/* ── CTA FINAL — idêntico ao hub.astro ─────────── */
+.ev-final {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-24) var(--space-6);
+  background: linear-gradient(
+    180deg,
+    #fbfcfe  0%,  #f5fafd  3%,  #eef6fc  6%,
+    #eef6fc  9%,  #e4f0fa 12%,  #d6e9f7 16%,
+    #c5dff3 20%,  #b0d2ee 24%,  #97c3e7 29%,
+    #7ab0de 34%,  #5d9cd3 39%,  #4287c5 45%,
+    #2c73b6 51%,  #1a60a6 57%,  #0f4e95 63%,
+    #083e81 70%,  #052e6a 79%,  #031f52 89%,
+    #042050 100%
+  );
+  text-align: center;
+}
+/* Noise anti-banding */
+.ev-final::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.06; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px; mix-blend-mode: overlay;
+}
+/* Branco linear no topo — elimina seam com a seção branca acima */
+.ev-final::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 22%; pointer-events: none; z-index: 1;
+  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+}
+.ev-final-bars { position: absolute; top: 32px; right: 5vw; display: flex; flex-direction: column; gap: 6px; pointer-events: none; z-index: 1; mix-blend-mode: multiply; }
+.ev-final-bars span { display: block; border-radius: 999px; height: 10px; }
+.ev-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
+.ev-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
+.ev-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+@media (max-width: 768px) { .ev-final-bars { display: none; } }
+.ev-final-inner { position: relative; max-width: 680px; margin: 0 auto; z-index: 2; }
+.ev-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--rec-blue); }
+.ev-final h2 em { color: var(--rec-teal); font-style: normal; font-weight: 400; }
+.ev-final p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: var(--space-8); font-size: var(--type-body); }
+.ev-final-cta {
+  display: inline-block; background: transparent; color: var(--rec-teal);
+  padding: 20px 60px; border-radius: 999px; border: 2px solid var(--rec-teal);
+  font-weight: 700; letter-spacing: 0.08em; font-size: 1.05rem;
+  transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing);
+  animation: ev-cta-pulse 2.8s ease-in-out infinite;
+}
+.ev-final-cta:hover { background: var(--rec-teal); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,161,152,0.45); animation: none; }
+@keyframes ev-cta-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(0,161,152,0); } 50% { box-shadow: 0 0 0 10px rgba(0,161,152,0.18); } }
+
+/* =========================================================
+   ACESSIBILIDADE
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .ev-year-page, .ev-year-big { transition: opacity 200ms ease; transform: none !important; }
+  .ev-scroll-hint svg, .ev-final-cta { animation: none; }
+  .ev-marco-item, .ev-marco-row, .ev-marco-card { opacity: 1; transform: none; transition: none; }
+}
+
+/* =========================================================
+   MOBILE — Timeline vira carrossel horizontal scroll-snap
+   ========================================================= */
+@media (max-width: 1023px) {
+  /* No mobile, botões "seção anterior/próxima" da timeline somem — usa scroll natural */
+  #ev-prev-section, #ev-next-section { display: none !important; }
+
+  /* Eventos extras escondidos até clicar "ver mais" */
+  .ev-grid:not(.is-expanded) .ev-card-extra { display: none; }
+}
+/* Desktop: nunca mostrar o botão "ver mais eventos" */
+@media (min-width: 1024px) { .ev-show-more-btn { display: none !important; } }
+
+/* Botão "ver mais eventos" — só mobile, centralizado */
+.ev-show-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: var(--space-5) auto 0;
+  background: transparent;
+  border: 1.5px solid rgba(0,161,152,0.4);
+  color: var(--rec-teal);
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--easing);
+  width: fit-content;
+  max-width: 100%;
+}
+.ev-show-more-btn:hover {
+  background: var(--rec-teal);
+  color: #fff;
+  border-color: var(--rec-teal);
+}
+@media (max-width: 1023px) {
+  /* Timeline não é mais sticky 100vh — vira altura auto */
+  .ev-timeline {
+    height: auto;
+    padding: var(--space-8) 0;
+  }
+  .ev-timeline-sticky {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  /* Coluna esquerda (arc + ano grande) some no mobile */
+  .ev-timeline-left { display: none; }
+  /* Botão "sair" não faz sentido no mobile (não tem scroll-driven) */
+  .ev-exit-btn { display: none; }
+  /* Botões de seção anterior/próxima continuam visíveis no topo */
+
+  .ev-timeline-right {
+    padding: var(--space-6) 0;
+    background: linear-gradient(160deg,#010e2a 0%,#021438 100%);
+  }
+  .ev-timeline-right::before { display: none; }
+
+  /* Stack vira carrossel horizontal */
+  .ev-page-stack {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 var(--space-5);
+    max-width: 100%;
+    min-height: 0;
+    height: auto;
+  }
+  .ev-page-stack::-webkit-scrollbar { display: none; }
+
+  /* Cada ano vira um slide */
+  .ev-year-page {
+    position: relative;
+    inset: auto;
+    flex: 0 0 88vw;
+    max-width: 480px;
+    scroll-snap-align: center;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    padding: var(--space-6) var(--space-5);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,161,152,0.18);
+    border-radius: 16px;
+    min-height: 420px;
+    transition: none;
+  }
+
+  /* Resetar animações de scale/translate nos marcos pra serem visíveis */
+  .ev-marco-item, .ev-marco-row, .ev-marco-card { opacity: 1 !important; transform: none !important; transition: none; }
+
+  /* Dots indicadores embaixo — usa :global pq são criados via JS (sem cid scoped) */
+  :global(.ev-mobile-dots) {
+    display: flex;
+    /* Não força center quando overflow — alinha à esquerda pra todos os dots ficarem acessíveis */
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-5) var(--space-5) 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Smooth scroll quando dot é centralizado via JS */
+    scroll-behavior: smooth;
+    /* Padding-inline pra primeiro/último dot terem espaço pra se centralizar */
+    scroll-padding-inline: 40%;
+  }
+  :global(.ev-mobile-dots::-webkit-scrollbar) { display: none; }
+  :global(.ev-mobile-dot) {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 36px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid rgba(0,161,152,0.22);
+    border-radius: 999px;
+    color: rgba(255,255,255,0.6);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all var(--motion-fast) var(--easing);
+  }
+  :global(.ev-mobile-dot.is-active) {
+    background: var(--rec-teal);
+    border-color: var(--rec-teal);
+    color: #fff;
+    font-weight: 700;
+  }
+}
+/* Desktop: dots nunca aparecem */
+@media (min-width: 1024px) { :global(.ev-mobile-dots) { display: none !important; } }
+
+/* MOBILE — adaptações de outras seções da Agenda */
+@media (max-width: 640px) {
+  .ev-hero { padding: var(--space-12) var(--space-4) var(--space-8); }
+  .ev-hero h1 { font-size: clamp(2.2rem, 9vw, 3rem); }
+  .ev-hero-lead { font-size: 0.95rem; line-height: 1.55; }
+
+  /* HISTORY INTRO — subtítulo discreto no mobile */
+  .ev-history-intro { padding: var(--space-10) var(--space-4) var(--space-6); }
+  .ev-history-intro h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .ev-history-intro p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .ev-scroll-hint { margin-top: var(--space-5); }
+
+  .ev-about { padding: var(--space-12) var(--space-4); }
+  .ev-about-lead { font-size: 0.95rem; }
+  .ev-about-body p { font-size: 0.88rem; line-height: 1.55; }
+  /* Parágrafos secundários escondidos no mobile pra reduzir scroll */
+  .ev-about-extra { display: none; }
+
+  /* CTA FINAL — subtítulo discreto */
+  .ev-final { padding: var(--space-14) var(--space-5); }
+  .ev-final h2 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .ev-final p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+    color: rgba(255,255,255,0.7);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ev-final-cta {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+}
+</style>

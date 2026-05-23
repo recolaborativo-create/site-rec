@@ -1,0 +1,325 @@
+---
+import { loadAllPartners } from '../../data/partners-merged'
+import { SECTOR_LABEL } from '../../data/sector-labels'
+import { safeJson } from '../../utils/safe-json'
+const partners = await loadAllPartners()
+// Ordenar por reach (alcance) desc, depois nome
+const sorted = [...partners].sort((a, b) => b.reach - a.reach || a.name.localeCompare(b.name, 'pt-BR'))
+---
+<div class="partners-grid-view" data-partners-grid hidden>
+  <div class="grid-container">
+    {sorted.map((p) => (
+      <button
+        class={`grid-card reach-${p.reach}`}
+        data-partner-id={p.id}
+        data-sector={p.sector}
+        data-name={p.name}
+        type="button"
+        aria-label={`Ver detalhes de ${p.name}`}
+      >
+        <div class="grid-card-logo-wrap">
+          <img src={p.logo} alt={p.name} loading="lazy" decoding="async" />
+        </div>
+        <div class="grid-card-info">
+          <h3 class="grid-card-name">{p.name}</h3>
+          <span class="grid-card-sector">{SECTOR_LABEL[p.sector] ?? p.sector}</span>
+        </div>
+        {p.instagram && (
+          <span class="grid-card-ig" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </span>
+        )}
+        <span class="grid-card-glow" aria-hidden="true"></span>
+      </button>
+    ))}
+  </div>
+  <div class="grid-empty" data-grid-empty hidden>
+    <span class="grid-empty-icon" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <p class="grid-empty-title">nenhuma empresa encontrada</p>
+    <p class="grid-empty-sub">tenta outro nome ou limpa os filtros</p>
+  </div>
+</div>
+
+<!-- Partners JSON serializado pra abrir modal sem refetch -->
+<script type="application/json" data-grid-partners-json set:html={safeJson(partners.map(p => ({
+  ...p,
+  sectorLabel: SECTOR_LABEL[p.sector] ?? p.sector,
+})))}></script>
+
+<script>
+  import type { PartnerLite } from '../../data/partners'
+  const grid = document.querySelector<HTMLElement>('[data-partners-grid]')
+  const dataEl = document.querySelector<HTMLElement>('[data-grid-partners-json]')
+  if (grid && dataEl) {
+    let partners: PartnerLite[] = []
+    try { partners = JSON.parse(dataEl.textContent || '[]') } catch {}
+    const byId = new Map(partners.map(p => [p.id, p]))
+
+    grid.addEventListener('click', (e) => {
+      const card = (e.target as HTMLElement).closest<HTMLElement>('.grid-card')
+      if (!card) return
+      const id = card.dataset.partnerId
+      if (!id) return
+      const partner = byId.get(id)
+      if (!partner) return
+      document.dispatchEvent(new CustomEvent('partner-modal-open', { detail: partner }))
+    })
+
+    // Estado combinado: segmento + busca
+    const emptyEl = grid.querySelector<HTMLElement>('[data-grid-empty]')
+    let activeSectors: string[] = []
+    let activeQuery = ''
+
+    const norm = (s: string) => (s || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .trim()
+
+    function applyFilters() {
+      const showAllSectors = activeSectors.length === 0
+      const q = norm(activeQuery)
+      const cards = grid.querySelectorAll<HTMLElement>('.grid-card')
+      let visible = 0
+      cards.forEach(c => {
+        const matchesSector = showAllSectors || activeSectors.includes(c.dataset.sector || '')
+        const matchesName = !q || norm(c.dataset.name || '').includes(q)
+        const ok = matchesSector && matchesName
+        c.style.display = ok ? '' : 'none'
+        if (ok) visible++
+      })
+      if (emptyEl) emptyEl.hidden = visible > 0
+    }
+
+    document.addEventListener('partners-filter' as any, (ev: any) => {
+      activeSectors = ev.detail?.sectors ?? []
+      applyFilters()
+    })
+    document.addEventListener('partners-search' as any, (ev: any) => {
+      activeQuery = ev.detail?.query ?? ''
+      applyFilters()
+    })
+
+    // Visibilidade controlada pelo ViewToggle
+    document.addEventListener('partners-view-change' as any, (ev: any) => {
+      const mode = ev.detail?.mode
+      grid.hidden = mode !== 'grid'
+    })
+  }
+</script>
+
+<style>
+.partners-grid-view {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.grid-empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  max-width: 360px;
+  margin: 0 auto;
+}
+.grid-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 161, 152, 0.08);
+  color: var(--rec-teal);
+  margin-bottom: var(--space-4);
+}
+.grid-empty-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--rec-blue);
+  margin: 0 0 6px;
+}
+.grid-empty-sub {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: rgba(1, 38, 89, 0.55);
+  margin: 0;
+}
+
+.grid-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  background: #fff;
+  border: 1px solid rgba(1, 38, 89, 0.08);
+  border-radius: 16px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 320ms var(--easing),
+    box-shadow 320ms var(--easing),
+    border-color 320ms var(--easing);
+}
+.grid-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 161, 152, 0.32);
+  box-shadow: 0 16px 36px rgba(1, 38, 89, 0.08);
+}
+.grid-card:focus-visible {
+  outline: none;
+  border-color: var(--rec-teal);
+  box-shadow: 0 0 0 3px rgba(0, 161, 152, 0.22);
+}
+
+.grid-card-logo-wrap {
+  width: 100%;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fafcfc 0%, rgba(0, 161, 152, 0.04) 100%);
+  border-radius: 10px;
+  padding: var(--space-3);
+  transition: background 320ms var(--easing);
+}
+.grid-card:hover .grid-card-logo-wrap {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(0, 161, 152, 0.1) 100%);
+}
+.grid-card-logo-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.grid-card-info { display: flex; flex-direction: column; gap: 4px; }
+.grid-card-name {
+  font-family: var(--font-display);
+  font-size: 0.94rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--rec-blue);
+  margin: 0;
+  /* Truncate em 2 linhas */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.grid-card-sector {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+}
+
+.grid-card-ig {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(1, 38, 89, 0.35);
+  transition: color var(--motion-fast) var(--easing);
+}
+.grid-card:hover .grid-card-ig { color: var(--rec-teal); }
+
+/* Sweep no hover (gradiente sutil) */
+.grid-card-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 30%, rgba(0, 161, 152, 0.06) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 720ms var(--easing);
+}
+.grid-card:hover .grid-card-glow { transform: translateX(100%); }
+
+/* Reach-based sizing (destaque pras maiores) */
+.grid-card.reach-5 { grid-column: span 2; }
+.grid-card.reach-5 .grid-card-logo-wrap { height: 120px; }
+.grid-card.reach-5 .grid-card-name { font-size: 1.1rem; }
+
+@media (max-width: 1023px) {
+  .partners-grid-view { padding: var(--space-4); position: relative; }
+  /* Grid vira 4 linhas horizontais com swipe lateral (auto-flow column) */
+  .grid-container {
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 140px;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: var(--space-1) 0 var(--space-3);
+  }
+  .grid-container::-webkit-scrollbar { display: none; }
+  .grid-card {
+    scroll-snap-align: start;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-1);
+    border-radius: 12px;
+    min-height: 0;
+  }
+  .grid-card-logo-wrap {
+    height: 44px;
+    padding: var(--space-1);
+    border-radius: 8px;
+  }
+  /* Reach maior não rola span — todas as celulas têm mesmo tamanho */
+  .grid-card.reach-5 { grid-column: auto; grid-row: auto; }
+  .grid-card.reach-5 .grid-card-logo-wrap { height: 44px; }
+  .grid-card.reach-5 .grid-card-name { font-size: 0.82rem; }
+  .grid-card-name { font-size: 0.76rem; -webkit-line-clamp: 1; line-clamp: 1; }
+  .grid-card-sector { font-size: 0.52rem; letter-spacing: 0.12em; }
+  .grid-card-ig { display: none; }
+
+  /* SETINHA de swipe (indicador animado lado direito) — só mobile */
+  .partners-grid-view::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    width: 14px;
+    height: 14px;
+    border-right: 2.5px solid var(--rec-teal);
+    border-top: 2.5px solid var(--rec-teal);
+    transform: translateY(-50%) rotate(45deg);
+    animation: grid-swipe-hint 1.6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(0 1px 4px rgba(0,161,152,0.35));
+  }
+  @keyframes grid-swipe-hint {
+    0%, 100% { transform: translateY(-50%) translateX(0) rotate(45deg); opacity: 0.4; }
+    50%      { transform: translateY(-50%) translateX(6px) rotate(45deg); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .partners-grid-view::after { animation: none; opacity: 0.55; }
+  }
+}
+</style>

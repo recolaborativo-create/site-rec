@@ -19,7 +19,7 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     excerpt: z.string(),
-    pillar: z.enum(['negocios', 'estrategia', 'comunidade', 'eventos', 'mentalidade']),
+    pillar: z.enum(['negocios', 'estrategia', 'comunidade', 'eventos', 'mentalidade', 'empreendedorismo']),
     publishedAt: z.coerce.date(),
     cover: z.string().optional(),
     coverAlt: z.string().optional(),
@@ -27,4 +27,19 @@ const blog = defineCollection({
   }),
 })
 
-export const collections = { events, blog }
+// Partners managed via Decap CMS at /admin
+// Schema mirrors the static partners.ts shape so they can be merged at render time.
+const partners = defineCollection({
+  loader: glob({ pattern: '*.json', base: './src/content/partners' }),
+  schema: z.object({
+    id: z.string(),
+    name: z.string(),
+    instagram: z.string().optional(),
+    sector: z.enum(['beleza', 'saude', 'educacao', 'gastronomia', 'servicos', 'moda', 'tech', 'outro']),
+    logo: z.string(),
+    description: z.string().optional(),
+    reach: z.coerce.number().int().min(1).max(5).default(3),
+  }),
+})
+
+export const collections = { events, blog, partners }

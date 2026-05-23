@@ -6,11 +6,16 @@ html {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* iOS: previne zoom involuntário ao tocar em inputs com font<16px */
+  -webkit-text-size-adjust: 100%;
+       text-size-adjust: 100%;
 }
 body {
   font-family: var(--font-body);
   color: var(--rec-blue);
   background: var(--rec-white);
+  /* Remove o flash azul ao tocar em links/botões no mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Display headings use Fraunces serif */
@@ -41,3 +46,60 @@ p { font-family: var(--font-body); color: var(--rec-blue); line-height: 1.6; }
 main { display: block; position: relative; z-index: 0; isolation: isolate; overflow: hidden; }
 
 ::selection { background: rgba(0, 161, 152, 0.25); color: var(--rec-blue); }
+
+/* ============================================
+   UTILITIES MOBILE
+   ============================================ */
+
+/* Mostra apenas em desktop (≥ tablet) */
+.desktop-only { display: none; }
+@media (min-width: 1024px) {
+  .desktop-only { display: revert; }
+  .mobile-only  { display: none; }
+}
+
+/* Targets touch — garante mínimo 44×44px conforme WCAG/Apple HIG */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Carrossel horizontal com snap (usado em vários lugares no mobile) */
+.swipe-row {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--space-2);
+  /* Respeita notch em iPhones */
+  scroll-padding-inline: max(var(--space-4), env(safe-area-inset-left));
+}
+.swipe-row::-webkit-scrollbar { display: none; }
+.swipe-row > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Safe area insets — iPhone notch / Dynamic Island */
+@supports (padding: max(0px)) {
+  body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+}
+
+/* Inputs no mobile: garantir font-size ≥16px (senão iOS dá zoom involuntário) */
+@media (max-width: 1023px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}

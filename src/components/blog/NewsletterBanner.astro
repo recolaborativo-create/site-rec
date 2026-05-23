@@ -26,6 +26,15 @@
         autocomplete="email"
         required
       />
+      {/* Honeypot: invisível ao usuário, bots preenchem e são silenciados. */}
+      <input
+        type="text"
+        name="website"
+        class="hp-field"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+      />
       <button type="submit" class="news-submit">
         assinar
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -55,11 +64,16 @@
       if (btn) { btn.disabled = true; btn.textContent = 'enviando…' }
       if (input) input.disabled = true
 
+      const hp = form.querySelector<HTMLInputElement>('input[name="website"]')
+
       try {
         const res  = await fetch('/api/newsletter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: input.value.trim() }),
+          body: JSON.stringify({
+            email: input.value.trim(),
+            website: hp?.value ?? '',
+          }),
         })
         const data = await res.json().catch(() => ({}))
 
@@ -94,6 +108,16 @@
 </script>
 
 <style>
+/* Honeypot field: visualmente removido mas acessível pra bots crawlers */
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  tab-size: 0;
+}
 .news-banner {
   position: relative;
   overflow: hidden;

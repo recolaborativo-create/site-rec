@@ -1,0 +1,186 @@
+---
+// Segmented control no canto superior esquerdo: alternar visualização da rede.
+// Emite evento global 'partners-view-change' com detail.mode ∈ ['constellation', 'grid', 'segments']
+// Modo é persistido em localStorage.
+---
+<div class="view-toggle" data-view-toggle role="group" aria-label="modo de visualização">
+  <button class="view-btn active" data-view="constellation" type="button" aria-pressed="true" title="Constelação">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="2" fill="currentColor"/>
+      <circle cx="5" cy="5" r="1.5"/>
+      <circle cx="19" cy="5" r="1.5"/>
+      <circle cx="5" cy="19" r="1.5"/>
+      <circle cx="19" cy="19" r="1.5"/>
+      <line x1="6.5" y1="6.5" x2="10.5" y2="10.5"/>
+      <line x1="17.5" y1="6.5" x2="13.5" y2="10.5"/>
+      <line x1="6.5" y1="17.5" x2="10.5" y2="13.5"/>
+      <line x1="17.5" y1="17.5" x2="13.5" y2="13.5"/>
+    </svg>
+    <span class="view-label">constelação</span>
+  </button>
+
+  <button class="view-btn" data-view="grid" type="button" aria-pressed="false" title="Grade">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+    <span class="view-label">grade</span>
+  </button>
+
+  <button class="view-btn" data-view="segments" type="button" aria-pressed="false" title="Mapa por segmento">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="4" rx="1"/>
+      <rect x="3" y="11" width="12" height="4" rx="1"/>
+      <rect x="3" y="18" width="15" height="3" rx="1"/>
+    </svg>
+    <span class="view-label">por segmento</span>
+  </button>
+
+  <button class="view-btn view-btn-regions" data-view="regions" type="button" aria-pressed="false" title="Por região">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+    <span class="view-label">por região</span>
+  </button>
+
+  <span class="view-indicator" data-view-indicator aria-hidden="true"></span>
+</div>
+
+<script>
+  type ViewMode = 'constellation' | 'grid' | 'segments' | 'regions'
+
+  const root = document.querySelector<HTMLElement>('[data-view-toggle]')
+  if (root) {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('.view-btn')
+    const indicator = root.querySelector<HTMLElement>('[data-view-indicator]')!
+
+    function placeIndicator(activeBtn: HTMLButtonElement) {
+      const rect = activeBtn.getBoundingClientRect()
+      const parentRect = root!.getBoundingClientRect()
+      indicator.style.width = `${rect.width}px`
+      indicator.style.transform = `translateX(${rect.left - parentRect.left - 4}px)`
+    }
+
+    function setMode(mode: ViewMode, persist = true) {
+      buttons.forEach(b => {
+        const active = b.dataset.view === mode
+        b.classList.toggle('active', active)
+        b.setAttribute('aria-pressed', String(active))
+        if (active) placeIndicator(b)
+      })
+      if (persist) {
+        try { localStorage.setItem('rec.empresas.view', mode) } catch {}
+      }
+      document.dispatchEvent(new CustomEvent('partners-view-change', { detail: { mode } }))
+    }
+
+    buttons.forEach(b => b.addEventListener('click', () => setMode(b.dataset.view as ViewMode)))
+
+    // Hidrata modo salvo
+    let stored: ViewMode = 'constellation'
+    try {
+      const saved = localStorage.getItem('rec.empresas.view') as ViewMode | null
+      if (saved === 'constellation' || saved === 'grid' || saved === 'segments' || saved === 'regions') stored = saved
+    } catch {}
+
+    // No mobile, constelação não existe — força grid se estava em constellation
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches
+    if (isMobile && stored === 'constellation') {
+      stored = 'grid'
+    }
+
+    // Espera o layout assentar pra posicionar indicator corretamente
+    requestAnimationFrame(() => {
+      const initialBtn = root!.querySelector<HTMLButtonElement>(`.view-btn[data-view="${stored}"]`)
+      if (initialBtn) {
+        // Aplica sem disparar evento se for o default (constellation), pra não competir com inicialização
+        if (stored !== 'constellation') setMode(stored, false)
+        else placeIndicator(initialBtn)
+      }
+    })
+
+    // Reposiciona indicator no resize
+    window.addEventListener('resize', () => {
+      const active = root!.querySelector<HTMLButtonElement>('.view-btn.active')
+      if (active) placeIndicator(active)
+    })
+  }
+</script>
+
+<style>
+.view-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(1, 38, 89, 0.05);
+  border: 1px solid rgba(1, 38, 89, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(1, 38, 89, 0.04);
+}
+
+.view-btn {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(1, 38, 89, 0.55);
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--easing);
+}
+.view-btn:hover { color: var(--rec-blue); }
+.view-btn.active { color: var(--rec-blue); }
+.view-btn svg {
+  flex-shrink: 0;
+  transition: transform var(--motion-fast) var(--easing);
+}
+.view-btn:hover svg { transform: scale(1.08); }
+.view-label { line-height: 1; }
+
+.view-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow:
+    0 2px 6px rgba(1, 38, 89, 0.12),
+    0 1px 2px rgba(1, 38, 89, 0.06);
+  transition:
+    transform 380ms cubic-bezier(0.34, 1.2, 0.4, 1),
+    width 380ms cubic-bezier(0.34, 1.2, 0.4, 1);
+  z-index: 1;
+}
+
+/* No mobile, constelação é removida — só 3 botões (grade/segmentos/regiões) */
+@media (max-width: 1023px) {
+  .view-btn[data-view="constellation"] { display: none; }
+  .view-toggle {
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 100%;
+  }
+  .view-toggle::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 600px) {
+  .view-label { display: none; }
+  .view-btn { padding: 10px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .view-indicator { transition: none; }
+}
+</style>
