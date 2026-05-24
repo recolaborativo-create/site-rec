@@ -3,7 +3,7 @@
 
 backend:
   name: github
-  repo: HenriqueCallefi/REC-HUB-COMPLETO  # ⚠️ ATUALIZE com seu owner/repo do GitHub real
+  repo: recolaborativo-create/site-rec
   branch: main
   base_url: https://somosrecoficial.com.br
   auth_endpoint: /api/auth
@@ -57,15 +57,24 @@ collections:
         name: sector
         widget: select
         options:
+          - { label: Advocacia, value: advocacia }
+          - { label: Arquitetura, value: arquitetura }
+          - { label: Assessoria, value: assessoria }
           - { label: Beleza, value: beleza }
-          - { label: Saúde, value: saude }
+          - { label: Consultoria, value: consultoria }
+          - { label: Contabilidade, value: contabilidade }
           - { label: Educação, value: educacao }
+          - { label: Eventos, value: eventos }
           - { label: Gastronomia, value: gastronomia }
-          - { label: Serviços, value: servicos }
+          - { label: Imóveis, value: imoveis }
+          - { label: Marketing, value: marketing }
           - { label: Moda, value: moda }
+          - { label: Saúde, value: saude }
+          - { label: Serviços, value: servicos }
           - { label: Tech, value: tech }
+          - { label: Turismo, value: turismo }
           - { label: Outro, value: outro }
-        default: outro
+        default: servicos
       - label: Logo
         name: logo
         widget: image
