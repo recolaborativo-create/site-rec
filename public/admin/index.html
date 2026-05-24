@@ -194,6 +194,24 @@
 </head>
 <body>
 
+  <!-- ── Cache / SW cleanup — roda antes do Decap CMS para evitar 404 em cache ── -->
+  <script>
+    (function() {
+      // 1) Desregistrar todos os Service Workers registrados nesta origem
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(reg) { reg.unregister(); });
+        });
+      }
+      // 2) Limpar todos os caches de API do browser
+      if ('caches' in window) {
+        caches.keys().then(function(keys) {
+          keys.forEach(function(key) { caches.delete(key); });
+        });
+      }
+    })();
+  </script>
+
   <!-- ── Splash screen ──────────────────────────────────── -->
   <div id="rec-splash">
     <img class="splash-logo" src="/logo-text.png" alt="REC Colaborativo" />
@@ -203,7 +221,106 @@
   </div>
 
   <!-- ── Decap CMS ─────────────────────────────────────── -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Versão fixada 3.12.2 para evitar regressões de versão -->
+  <script src="https://unpkg.com/decap-cms@3.12.2/dist/decap-cms.js"></script>
+
+  <!-- ── Configuração inline — sem fetch de config.yml ──────────────────
+       Embeds the full CMS config in JS so the browser never needs to
+       fetch /admin/config.yml separately (eliminates the 404-cache bug).
+  ─────────────────────────────────────────────────────────────────────── -->
+  <script>
+    if (window.CMS) {
+      window.CMS.init({
+        config: {
+          backend: {
+            name: 'github',
+            repo: 'recolaborativo-create/site-rec',
+            branch: 'main',
+            base_url: 'https://somosrecoficial.com.br',
+            auth_endpoint: '/api/auth',
+          },
+          publish_mode: 'simple',
+          media_folder: 'site/public/partners',
+          public_folder: '/partners',
+          site_url: 'https://somosrecoficial.com.br',
+          display_url: 'https://somosrecoficial.com.br',
+          logo_url: 'https://somosrecoficial.com.br/logo-text.png',
+          locale: 'pt',
+          collections: [
+            {
+              name: 'empresas',
+              label: 'Empresas (novas)',
+              label_singular: 'Empresa',
+              description: 'Adicionar uma nova empresa parceira que aparece na constelação automaticamente.',
+              folder: 'site/src/content/partners',
+              create: true,
+              delete: true,
+              extension: 'json',
+              format: 'json',
+              identifier_field: 'id',
+              slug: '{{id}}',
+              summary: '{{name}} ({{sector}})',
+              fields: [
+                {
+                  label: 'Identificador', name: 'id', widget: 'string',
+                  hint: 'Slug curto e único — letras minúsculas e hífens. Exemplo: "boutique-flora"',
+                  pattern: ['^[a-z0-9-]+$', 'Use só letras minúsculas, números e hífens'],
+                },
+                {
+                  label: 'Nome de exibição', name: 'name', widget: 'string',
+                  hint: 'Como aparece no site. Ex: "Boutique Flora"',
+                },
+                {
+                  label: 'Instagram (opcional)', name: 'instagram', widget: 'string',
+                  required: false, hint: 'Com @ na frente. Ex: "@boutiqueflora"',
+                },
+                {
+                  label: 'Segmento', name: 'sector', widget: 'select',
+                  options: [
+                    { label: 'Advocacia',     value: 'advocacia'    },
+                    { label: 'Arquitetura',   value: 'arquitetura'  },
+                    { label: 'Assessoria',    value: 'assessoria'   },
+                    { label: 'Beleza',        value: 'beleza'       },
+                    { label: 'Consultoria',   value: 'consultoria'  },
+                    { label: 'Contabilidade', value: 'contabilidade'},
+                    { label: 'Educação',      value: 'educacao'     },
+                    { label: 'Eventos',       value: 'eventos'      },
+                    { label: 'Gastronomia',   value: 'gastronomia'  },
+                    { label: 'Imóveis',       value: 'imoveis'      },
+                    { label: 'Marketing',     value: 'marketing'    },
+                    { label: 'Moda',          value: 'moda'         },
+                    { label: 'Saúde',         value: 'saude'        },
+                    { label: 'Serviços',      value: 'servicos'     },
+                    { label: 'Tech',          value: 'tech'         },
+                    { label: 'Turismo',       value: 'turismo'      },
+                    { label: 'Outro',         value: 'outro'        },
+                  ],
+                  default: 'servicos',
+                },
+                {
+                  label: 'Logo', name: 'logo', widget: 'image',
+                  choose_url: false,
+                  media_library: { config: { max_file_size: 524288 } },
+                  hint: 'PNG/JPEG com fundo transparente ou branco. Recomendado 400x240px. Máximo 500KB.',
+                },
+                {
+                  label: 'Descrição', name: 'description', widget: 'text',
+                  required: false,
+                  pattern: ['^.{0,280}$', 'Máximo 280 caracteres (~5 linhas)'],
+                  hint: 'Até 5 linhas curtas (~280 caracteres) sobre o que a empresa faz.',
+                },
+                {
+                  label: 'Alcance (visual)', name: 'reach', widget: 'select',
+                  options: ['1', '2', '3', '4', '5'], default: '3',
+                  hint: 'Tamanho relativo na constelação. 3 é o padrão; 4-5 destaca empresas com mais visibilidade.',
+                },
+              ],
+            },
+          ],
+        },
+      });
+    }
+  </script>
 
   <script>
     // ── Splash fade + topbar injection ───────────────────
