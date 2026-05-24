@@ -221,6 +221,8 @@
   </div>
 
   <!-- ── Decap CMS ─────────────────────────────────────── -->
+  <!-- Desativa o auto-init para usarmos CMS.init() manual com config inline -->
+  <script>window.CMS_MANUAL_INIT = true;</script>
   <!-- Versão fixada 3.12.2 para evitar regressões de versão -->
   <script src="https://unpkg.com/decap-cms@3.12.2/dist/decap-cms.js"></script>
 
@@ -325,50 +327,31 @@
   <script>
     // ── Splash fade + topbar injection ───────────────────
     const splash = document.getElementById('rec-splash')
+    let splashHidden = false
 
     function hideSplash() {
-      if (!splash) return
+      if (splashHidden || !splash) return
+      splashHidden = true
       splash.classList.add('fade-out')
-      setTimeout(() => splash.remove(), 600)
+      setTimeout(() => { if (splash.parentNode) splash.parentNode.removeChild(splash) }, 600)
     }
 
-    // Injeta a topbar assim que o CMS começar a montar
     function injectTopbar() {
       if (document.getElementById('rec-topbar')) return
       const bar = document.createElement('div')
       bar.id = 'rec-topbar'
-      bar.innerHTML = `
-        <img src="/logo-white.png" alt="REC" />
-        <span>· Painel Admin</span>
-      `
+      bar.innerHTML = '<img src="/logo-white.png" alt="REC" /><span>· Painel Admin</span>'
       document.body.appendChild(bar)
       document.body.classList.add('cms-loaded')
     }
 
-    // Decap CMS expõe window.CMS — hookamos o preSave só pra detectar mount
-    if (window.CMS) {
-      window.CMS.registerEventListener({
-        name: 'preSave',
-        handler: ({ entry }) => entry.get('data'),
-      })
-    }
-
-    // Observer: quando o CMS montar no DOM, escondemos o splash
-    const observer = new MutationObserver(() => {
-      const cms = document.querySelector('[class*="AppHeader"], [class*="Navbar"], [class*="app-header"]')
-      if (cms) {
-        hideSplash()
-        injectTopbar()
-        observer.disconnect()
-      }
+    // Esconde splash via evento do Decap CMS (mais seguro que MutationObserver)
+    window.addEventListener('load', function() {
+      // Pequeno delay pra dar tempo ao CMS montar antes de mexer no DOM
+      setTimeout(function() { hideSplash(); injectTopbar(); }, 1200)
     })
-    observer.observe(document.body, { childList: true, subtree: true })
-
-    // Fallback: depois de 2.5s some o splash independente do CMS
-    setTimeout(() => {
-      hideSplash()
-      injectTopbar()
-    }, 2500)
+    // Fallback: 3.5s máximo
+    setTimeout(function() { hideSplash(); injectTopbar(); }, 3500)
   </script>
 </body>
 </html>
