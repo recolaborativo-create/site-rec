@@ -4,84 +4,254 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,nofollow" />
-  <title>REC · Painel</title>
+  <title>REC · Painel Admin</title>
   <link rel="icon" type="image/png" href="/favicon.png" />
   <style>
-    /* REC palette */
+    /* ── REC palette ─────────────────────────────────────── */
     :root {
-      --rec-purple: #6c5ab2;
-      --rec-teal: #00a198;
+      --rec-teal:      #00a198;
       --rec-teal-deep: #006d68;
-      --rec-dark: #253439;
-      --rec-bg: #faf9f6;
+      --rec-blue:      #012659;
+      --rec-purple:    #6c5ab2;
+      --rec-navy:      #253439;
+      --rec-bg:        #f5f8f9;
+      --rec-cream:     #faf9f6;
+      --rec-grad:      linear-gradient(135deg, #006d68 0%, #00a198 55%, #6c5ab2 100%);
     }
-    /* Welcome screen — shown briefly before Decap CMS bootstraps */
-    body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--rec-bg); color: var(--rec-dark); }
-    .rec-admin-welcome {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--rec-teal-deep) 0%, var(--rec-teal) 60%, var(--rec-purple) 100%);
+
+    /* ── Splash screen ───────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--rec-bg); }
+
+    #rec-splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--rec-grad);
+      transition: opacity 500ms ease;
+    }
+    #rec-splash.fade-out { opacity: 0; pointer-events: none; }
+
+    .splash-logo {
+      width: 140px; height: auto;
+      filter: brightness(0) invert(1);
+      margin-bottom: 28px;
+      animation: splash-in 600ms cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .splash-title {
       color: #fff;
-      transition: opacity 400ms ease;
-      z-index: 999;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      animation: splash-in 600ms 80ms cubic-bezier(0.22,1,0.36,1) both;
     }
-    .rec-admin-welcome.fade { opacity: 0; pointer-events: none; }
-    .rec-admin-welcome-inner { text-align: center; padding: 32px; max-width: 420px; }
-    .rec-admin-welcome img { width: 96px; height: auto; margin-bottom: 24px; filter: brightness(0) invert(1); opacity: 0.95; }
-    .rec-admin-welcome h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 8px; }
-    .rec-admin-welcome p { font-size: 0.95rem; opacity: 0.9; line-height: 1.5; margin: 0 0 28px; }
-    .rec-admin-spinner {
-      width: 36px;
-      height: 36px;
+    .splash-sub {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.85rem;
+      margin-bottom: 36px;
+      animation: splash-in 600ms 140ms cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .splash-spinner {
+      width: 40px; height: 40px;
       border: 3px solid rgba(255,255,255,0.25);
       border-top-color: #fff;
       border-radius: 50%;
-      margin: 0 auto;
-      animation: rec-spin 800ms linear infinite;
+      animation: spin 750ms linear infinite;
     }
-    @keyframes rec-spin { to { transform: rotate(360deg); } }
+    @keyframes splash-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Decap CMS theme overrides — applied once decap-cms boots */
-    .nc-app-header,
-    [class*="HeaderBar"],
-    [class*="NavToolbar"] {
-      background: linear-gradient(90deg, var(--rec-purple) 0%, var(--rec-teal-deep) 100%) !important;
+    /* ── Decap CMS overrides ─────────────────────────────── */
+    /* Header bar */
+    [class*="AppHeader"], [class*="app-header"],
+    [class*="Navbar"], [class*="nav-bar"],
+    header[class] {
+      background: var(--rec-grad) !important;
+      border-bottom: none !important;
+      box-shadow: 0 2px 16px rgba(0,109,104,0.18) !important;
     }
-    [class*="MainView"],
-    [class*="AppMainContainer"] {
-      background: var(--rec-bg) !important;
+
+    /* Logo/brand area inside header */
+    [class*="AppHeader"] [class*="logo"],
+    [class*="AppHeader"] img {
+      filter: brightness(0) invert(1) !important;
     }
+
+    /* Primary action buttons (Salvar, Publicar) */
+    button[class*="success"],
+    button[class*="primary"],
+    [class*="ToolbarButton"][class*="primary"],
+    button[data-testid*="save"],
+    button[data-testid*="publish"] {
+      background: var(--rec-teal) !important;
+      border-color: var(--rec-teal) !important;
+      color: #fff !important;
+    }
+    button[class*="success"]:hover,
+    button[class*="primary"]:hover {
+      background: var(--rec-teal-deep) !important;
+      border-color: var(--rec-teal-deep) !important;
+    }
+
+    /* Sidebar navigation */
+    [class*="Sidebar"], [class*="sidebar"],
+    nav[class*="Collection"] {
+      background: var(--rec-blue) !important;
+    }
+    [class*="Sidebar"] [class*="active"],
+    [class*="sidebar"] [class*="active"],
+    [class*="NavLink"][class*="active"] {
+      background: rgba(0,161,152,0.2) !important;
+      border-left: 3px solid var(--rec-teal) !important;
+      color: var(--rec-teal) !important;
+    }
+    [class*="Sidebar"] *, [class*="sidebar"] * {
+      color: rgba(255,255,255,0.85) !important;
+    }
+    [class*="Sidebar"] [class*="active"] *,
+    [class*="sidebar"] [class*="active"] * {
+      color: var(--rec-teal) !important;
+    }
+
+    /* Main content area */
+    [class*="MainView"], [class*="main-view"],
+    [class*="EditorContainer"], [class*="Collection"] > div:not([class*="Sidebar"]) {
+      background: var(--rec-cream) !important;
+    }
+
+    /* Form inputs focus */
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus,
+    [class*="TextInput"]:focus-within,
+    [class*="input"]:focus-within {
+      border-color: var(--rec-teal) !important;
+      box-shadow: 0 0 0 2px rgba(0,161,152,0.18) !important;
+    }
+
+    /* Collection header / page titles */
+    [class*="CollectionHeader"],
+    [class*="collection-header"] {
+      background: linear-gradient(135deg, var(--rec-teal-deep) 0%, var(--rec-blue) 100%) !important;
+      color: #fff !important;
+    }
+
+    /* Entry cards hover */
+    [class*="EntryCard"]:hover,
+    [class*="entry-card"]:hover {
+      border-color: var(--rec-teal) !important;
+      box-shadow: 0 4px 20px rgba(0,161,152,0.15) !important;
+    }
+
+    /* Secondary / outline buttons */
+    button[class*="secondary"],
+    button[class*="outline"],
+    [class*="ToolbarButton"]:not([class*="primary"]) {
+      border-color: var(--rec-teal) !important;
+      color: var(--rec-teal) !important;
+    }
+
+    /* Tags & badges */
+    [class*="Tag"], [class*="Badge"],
+    [class*="label"][class*="published"] {
+      background: rgba(0,161,152,0.12) !important;
+      color: var(--rec-teal-deep) !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); }
+    ::-webkit-scrollbar-thumb { background: var(--rec-teal); border-radius: 99px; }
+
+    /* ── Top bar strip logo (injected via JS) ────────────── */
+    #rec-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 8000;
+      height: 52px;
+      background: var(--rec-grad);
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+      box-shadow: 0 2px 12px rgba(0,109,104,0.22);
+      pointer-events: none; /* deixa o CMS clicável por baixo */
+    }
+    #rec-topbar img { height: 28px; filter: brightness(0) invert(1); opacity: 0.95; }
+    #rec-topbar span {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    /* Empurra o conteúdo do CMS para baixo da topbar quando ele carrega */
+    body.cms-loaded > div:first-child { padding-top: 52px !important; }
   </style>
 </head>
 <body>
-  <div class="rec-admin-welcome" id="rec-welcome">
-    <div class="rec-admin-welcome-inner">
-      <img src="/logo-text.png" alt="REC" />
-      <h1>Painel REC</h1>
-      <p>Carregando o painel — só uma fundadora pode entrar aqui.</p>
-      <div class="rec-admin-spinner"></div>
-    </div>
+
+  <!-- ── Splash screen ──────────────────────────────────── -->
+  <div id="rec-splash">
+    <img class="splash-logo" src="/logo-text.png" alt="REC Colaborativo" />
+    <p class="splash-title">Painel Admin</p>
+    <p class="splash-sub">Só a fundadora entra aqui ✦</p>
+    <div class="splash-spinner"></div>
   </div>
 
-  <!-- Decap CMS — git-based content management, hidden from public navigation -->
+  <!-- ── Decap CMS ─────────────────────────────────────── -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
   <script>
-    // Hide the welcome splash once Decap mounts its login screen
+    // ── Splash fade + topbar injection ───────────────────
+    const splash = document.getElementById('rec-splash')
+
+    function hideSplash() {
+      if (!splash) return
+      splash.classList.add('fade-out')
+      setTimeout(() => splash.remove(), 600)
+    }
+
+    // Injeta a topbar assim que o CMS começar a montar
+    function injectTopbar() {
+      if (document.getElementById('rec-topbar')) return
+      const bar = document.createElement('div')
+      bar.id = 'rec-topbar'
+      bar.innerHTML = `
+        <img src="/logo-white.png" alt="REC" />
+        <span>· Painel Admin</span>
+      `
+      document.body.appendChild(bar)
+      document.body.classList.add('cms-loaded')
+    }
+
+    // Decap CMS expõe window.CMS — hookamos o preSave só pra detectar mount
     if (window.CMS) {
       window.CMS.registerEventListener({
         name: 'preSave',
-        handler: () => {},
-      });
+        handler: ({ entry }) => entry.get('data'),
+      })
     }
-    // Fallback: fade welcome after 1.5s regardless of Decap state
+
+    // Observer: quando o CMS montar no DOM, escondemos o splash
+    const observer = new MutationObserver(() => {
+      const cms = document.querySelector('[class*="AppHeader"], [class*="Navbar"], [class*="app-header"]')
+      if (cms) {
+        hideSplash()
+        injectTopbar()
+        observer.disconnect()
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    // Fallback: depois de 2.5s some o splash independente do CMS
     setTimeout(() => {
-      const w = document.getElementById('rec-welcome');
-      if (w) w.classList.add('fade');
-      setTimeout(() => { if (w) w.remove(); }, 500);
-    }, 1500);
+      hideSplash()
+      injectTopbar()
+    }, 2500)
   </script>
 </body>
 </html>
