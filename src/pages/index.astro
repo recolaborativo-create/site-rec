@@ -90,7 +90,7 @@ const recentPosts = allPosts
       <div class="fund-header">
         <span class="uppercase-label" style="color: var(--rec-teal)">fundadora</span>
         <h2>Francielle Caleffi.</h2>
-        <p class="fund-role">CEO e fundadora REC Colaborativo</p>
+        <p class="fund-role">CEO e fundadora</p>
       </div>
 
       <div class="fund-image" data-fund-image>
@@ -101,9 +101,7 @@ const recentPosts = allPosts
              ORDEM IMPORTA: text-2 fica no TOPO (cresce pra cima quando expande, não desloca text-1).
              text-1, IG e botão ficam ancorados no bottom via justify-content: flex-end. -->
         <div class="fund-overlay-mobile">
-          <p class="fund-overlay-text fund-overlay-text-2">Hoje conecta +90 empresas e +10 mil oportunidades reais. Acredita que <em>movimento gera movimento</em> — ecossistemas fortes nascem quando pessoas se conectam com intenção.</p>
           <p class="fund-overlay-text fund-overlay-text-1">Empreendedora, visionária e idealizadora do REC. Em 2018 começou um movimento que virou ecossistema.</p>
-          <a class="fund-overlay-instagram" href="https://instagram.com/franciellecaleffi" target="_blank" rel="noopener">@franciellecaleffi →</a>
           <button type="button" class="fund-expand-btn" data-fund-expand>ver mais →</button>
         </div>
       </div>
@@ -112,10 +110,10 @@ const recentPosts = allPosts
       <div class="fund-text" data-fund-text>
         <span class="uppercase-label fund-header-desktop" style="color: var(--rec-teal)">fundadora</span>
         <h2 class="fund-header-desktop">Francielle Caleffi.</h2>
-        <p class="fund-role fund-header-desktop">CEO e fundadora REC Colaborativo</p>
+        <p class="fund-role fund-header-desktop">CEO e fundadora</p>
         <p>Empreendedora, visionária e idealizadora do REC. Em 2018 começou um movimento de empresas no Rio Grande do Sul que virou um ecossistema. Hoje conectando mais de 90 empresas e com mais de 10 mil conexões geradas.</p>
         <p>Acredita que <em>movimento gera movimento</em>. Que ecossistemas fortes nascem quando pessoas, empresas e oportunidades se conectam com intenção, visão e confiança.</p>
-        <a href="https://instagram.com/franciellecaleffi" target="_blank" rel="noopener" class="fund-cta">@franciellecaleffi →</a>
+        <a href="https://instagram.com/francicaleffi" target="_blank" rel="noopener" class="fund-cta">@francicaleffi →</a>
       </div>
     </div>
   </section>
@@ -473,9 +471,11 @@ const recentPosts = allPosts
   .fund-header { display: block; text-align: left; }
   .fund-header h2 { font-size: clamp(2rem, 8vw, 2.8rem); margin: var(--space-2) 0 var(--space-1); line-height: 1; }
   .fund-header .fund-role { margin-bottom: 0; font-size: 0.72rem; }
-  /* No mobile, header desktop oculto e bloco de texto longo oculto */
+  /* No mobile, header desktop oculto e bloco de texto longo oculto por padrão */
   .fund-header-desktop { display: none; }
   .fund-text { display: none; }
+  /* "ver mais" expande o bloco de texto ABAIXO da imagem */
+  .fund-text.is-open { display: block; }
 
   /* Imagem cresce ao expandir (aspect-ratio menor → mais altura).
      Expansão agressiva (3/5.4) garante espaço pra text-2 sem mover text-1. */
@@ -613,13 +613,13 @@ const recentPosts = allPosts
   import { initReveal } from '../utils/reveal'
   initReveal()
 
-  // Fundadora mobile: "ver mais" expande a imagem com mais texto sobreposto
+  // Fundadora mobile: "ver mais" revela o bloco de texto ABAIXO da imagem
   const fundBtn = document.querySelector<HTMLButtonElement>('[data-fund-expand]')
-  const fundImage = document.querySelector<HTMLElement>('[data-fund-image]')
-  if (fundBtn && fundImage) {
+  const fundText = document.querySelector<HTMLElement>('[data-fund-text]')
+  if (fundBtn && fundText) {
     fundBtn.addEventListener('click', () => {
-      const expanded = fundImage.classList.toggle('is-expanded')
-      fundBtn.innerHTML = expanded ? 'ver menos ↑' : 'ver mais →'
+      const open = fundText.classList.toggle('is-open')
+      fundBtn.innerHTML = open ? 'ver menos ↑' : 'ver mais →'
     })
   }
 </script>

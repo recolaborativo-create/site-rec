@@ -74,49 +74,49 @@ export const comunidadePlan: ComunidadePlan = {
       icon: 'eye',
       title: 'Visibilidade que vira oportunidade',
       description:
-        'Sua empresa aparece no site do REC e na vitrine de associadas. Toda a rede vê.',
+        'Sua empresa no site do REC e na vitrine de associadas.',
     },
     {
       icon: 'mic',
       title: 'Protagonismo nos eventos',
       description:
-        'Você não só participa: apresenta. Espaço de fala e momentos de pitch nos encontros.',
+        'Espaço de fala e momentos de pitch nos encontros.',
     },
     {
       icon: 'ticket',
       title: 'Condições especiais em eventos',
       description:
-        'Valores reduzidos ou cortesia em eventos pagos, com prioridade nas inscrições.',
+        'Preços reduzidos ou cortesia em eventos, com prioridade de inscrição.',
     },
     {
       icon: 'compass',
       title: 'Consultoria em grupo trimestral',
       description:
-        'Encontros de estratégia a cada três meses com curadoria temática da rede.',
+        'Estratégia em grupo a cada três meses com curadoria temática.',
     },
     {
       icon: 'tag',
       title: 'Clube de desconto',
       description:
-        'Fornecedores e serviços parceiros com condições especiais exclusivas.',
+        'Parceiros com condições exclusivas de desconto para associadas.',
     },
     {
       icon: 'spark',
       title: 'Engajamento digital',
       description:
-        'Sua marca compartilhada nas redes do REC, com indicações cruzadas entre membras.',
+        'Sua marca nas redes do REC com indicações cruzadas entre membras.',
     },
     {
       icon: 'store',
       title: 'Página de vendas no site',
       description:
-        'Espaço próprio dentro do site do REC pra mostrar o que você faz e captar leads.',
+        'Página própria no site do REC pra mostrar seu trabalho e captar leads.',
     },
     {
       icon: 'gift',
       title: 'Benefícios exclusivos',
       description:
-        'Acesso a sorteios, prêmios e oportunidades que só circulam entre quem está dentro.',
+        'Sorteios, prêmios e oportunidades exclusivas para quem está na rede.',
     },
   ],
   steps: [
