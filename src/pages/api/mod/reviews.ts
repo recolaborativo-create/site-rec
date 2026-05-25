@@ -9,7 +9,11 @@ export const prerender = false
 // GET  /api/mod/reviews   → lista avaliações pendentes
 // PATCH /api/mod/reviews  → { id, action: 'approve'|'reject' }
 
-const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL
+const SUPABASE_URL =
+  process.env.PUBLIC_SUPABASE_URL ??
+  process.env.SUPABASE_URL ??
+  import.meta.env.PUBLIC_SUPABASE_URL ??
+  'https://ovrqfgjqpwucgeqhnbce.supabase.co'
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE ?? import.meta.env.SUPABASE_SERVICE_ROLE
 const MOD_SECRET   = process.env.MOD_SECRET ?? import.meta.env.MOD_SECRET
 const COOKIE_NAME  = 'rec_mod'
