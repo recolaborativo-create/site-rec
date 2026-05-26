@@ -11,7 +11,8 @@ export const prerender = false
 // "fazer login" e o cookie passa a substituir.
 
 const COOKIE_NAME = 'rec_mod'
-const MOD_SECRET = import.meta.env.MOD_SECRET
+// Usa || pra descartar string vazia — mesmo padrão de reviews.ts
+const MOD_SECRET = process.env.MOD_SECRET || import.meta.env.MOD_SECRET
 const secretParam = Astro.url.searchParams.get('s')
 
 // Lê cookie (sem dependência de bibliotecas)
