@@ -30,8 +30,8 @@ export const GET: APIRoute = async ({ url, request }) => {
     return new Response('Invalid state', { status: 400 })
   }
 
-  const clientId = import.meta.env.GITHUB_OAUTH_CLIENT_ID
-  const clientSecret = import.meta.env.GITHUB_OAUTH_CLIENT_SECRET
+  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID || import.meta.env.GITHUB_OAUTH_CLIENT_ID
+  const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET || import.meta.env.GITHUB_OAUTH_CLIENT_SECRET
   if (!clientId || !clientSecret) {
     return new Response('OAuth not configured. Set env vars in Vercel.', { status: 500 })
   }

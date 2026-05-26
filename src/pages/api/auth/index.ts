@@ -7,7 +7,7 @@ import type { APIRoute } from 'astro'
 export const prerender = false
 
 export const GET: APIRoute = ({ url, redirect }) => {
-  const clientId = import.meta.env.GITHUB_OAUTH_CLIENT_ID
+  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID || import.meta.env.GITHUB_OAUTH_CLIENT_ID
   if (!clientId) {
     return new Response('OAuth not configured. Set GITHUB_OAUTH_CLIENT_ID in Vercel env.', {
       status: 500,
