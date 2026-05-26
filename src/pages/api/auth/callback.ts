@@ -56,18 +56,29 @@ export const GET: APIRoute = async ({ url, request }) => {
     </body></html>`)
   }
 
-  // Send token back to Decap CMS via postMessage and close the popup
-  const payload = JSON.stringify({ token: tokenJson.access_token, provider: 'github' })
+  // Send token back to Decap CMS.
+  // Suporta dois fluxos:
+  //   1) Popup (padrão): window.opener existe → postMessage + fecha popup
+  //   2) Redirect (sem popup / popup bloqueado): salva token no localStorage
+  //      com a chave que o Decap CMS lê e redireciona pra /admin
+  const token = tokenJson.access_token
   return html(`<!doctype html><html><head><title>Authorizing</title></head><body>
     <p style="font-family:sans-serif;text-align:center;padding:32px">autenticando…</p>
     <script>
       (function() {
-        function send(status, content) {
-          const message = 'authorization:github:' + status + ':' + JSON.stringify(content);
-          window.opener && window.opener.postMessage(message, '*');
+        var token = ${JSON.stringify(token)};
+        var provider = 'github';
+        var msg = 'authorization:github:success:' + JSON.stringify({token:token,provider:provider});
+        if (window.opener) {
+          // Fluxo popup — envia pro pai e fecha
+          window.opener.postMessage(msg, window.location.origin);
+          window.opener.postMessage(msg, '*');
+          setTimeout(function(){ window.close(); }, 200);
+        } else {
+          // Fluxo redirect — salva no localStorage e volta pro admin
+          try { localStorage.setItem('netlify-cms-user', JSON.stringify({token:token,provider:provider,backendName:'github'})); } catch(e){}
+          window.location.replace('/admin');
         }
-        send('success', ${payload});
-        window.close();
       })();
     </script>
   </body></html>`)

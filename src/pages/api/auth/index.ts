@@ -24,12 +24,13 @@ export const GET: APIRoute = ({ url, redirect }) => {
     scope,
     state,
   })
-  // 10-minute state cookie to prevent CSRF
+  // SameSite=None;Secure garante que o cookie seja enviado de volta quando o GitHub
+  // redireciona para /api/auth/callback — mesmo dentro de um popup (cross-site navigation).
   return new Response(null, {
     status: 302,
     headers: {
       Location: `https://github.com/login/oauth/authorize?${params}`,
-      'Set-Cookie': `oauth_state=${state}; Path=/api/auth; HttpOnly; SameSite=Lax; Secure; Max-Age=600`,
+      'Set-Cookie': `oauth_state=${state}; Path=/api/auth; HttpOnly; SameSite=None; Secure; Max-Age=600`,
     },
   })
 }
