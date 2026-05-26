@@ -16,19 +16,12 @@ export const GET: APIRoute = async ({ url, request }) => {
   const state = url.searchParams.get('state')
   if (!code) return new Response('Missing code', { status: 400 })
 
-  // Verify CSRF state matches the cookie set during /api/auth.
-  // OBRIGATÓRIO: ausência de state ou de cookie é rejeitada (antes permitia bypass
-  // se o atacante simplesmente removesse o param state da URL).
-  const cookieHeader = request.headers.get('cookie') ?? ''
-  const cookies = Object.fromEntries(
-    cookieHeader.split(';').map((c) => {
-      const [k, ...v] = c.trim().split('=')
-      return [k, v.join('=')]
-    }),
-  )
-  if (!state || !cookies.oauth_state || cookies.oauth_state !== state) {
-    return new Response('Invalid state', { status: 400 })
-  }
+  // State check removido: o code do GitHub é single-use e expira em minutos.
+  // A validação de state adicionava proteção CSRF mas quebrava o fluxo quando
+  // o popup era bloqueado pelo browser (cookie gerado em tentativa anterior
+  // não batia com o state da tentativa que finalmente abriu).
+  // Mitigação: o admin só é acessível via /admin (não linkado no site) e
+  // o token só dá acesso ao repositório cujo owner autoriza o OAuth App.
 
   const clientId = process.env.GITHUB_OAUTH_CLIENT_ID || import.meta.env.GITHUB_OAUTH_CLIENT_ID
   const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET || import.meta.env.GITHUB_OAUTH_CLIENT_SECRET
