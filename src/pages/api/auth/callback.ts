@@ -50,28 +50,65 @@ export const GET: APIRoute = async ({ url, request }) => {
   }
 
   // Send token back to Decap CMS.
-  // Suporta dois fluxos:
-  //   1) Popup (padrão): window.opener existe → postMessage + fecha popup
-  //   2) Redirect (sem popup / popup bloqueado): salva token no localStorage
-  //      com a chave que o Decap CMS lê e redireciona pra /admin
+  // Três canais em ordem de prioridade:
+  //   1) BroadcastChannel → aba /admin aberta recebe o token sem precisar de window.opener
+  //   2) postMessage via window.opener → fluxo popup clássico (fecha o popup)
+  //   3) IndexedDB (localForage) → fluxo redirect puro; redireciona pra /admin que já lê o token
   const token = tokenJson.access_token
-  return html(`<!doctype html><html><head><title>Authorizing</title></head><body>
-    <p style="font-family:sans-serif;text-align:center;padding:32px">autenticando…</p>
+  return html(`<!doctype html><html><head><title>Authorizing…</title></head><body>
+    <p style="font-family:sans-serif;text-align:center;padding:40px 24px;color:#555">
+      Autenticando… pode fechar esta aba se ela não fechar automaticamente.
+    </p>
     <script>
       (function() {
         var token = ${JSON.stringify(token)};
         var provider = 'github';
         var msg = 'authorization:github:success:' + JSON.stringify({token:token,provider:provider});
+
+        // ── Canal 1: BroadcastChannel ──────────────────────────────────────────
+        // Funciona mesmo sem window.opener (popup bloqueado, nova aba, etc.)
+        // A aba /admin ouve este canal e despacha um MessageEvent sintético.
+        var sent = false;
+        try {
+          var bc = new BroadcastChannel('rec-cms-auth');
+          bc.postMessage({token:token,provider:provider});
+          bc.close();
+          sent = true;
+        } catch(e) {}
+
+        // ── Canal 2: postMessage clássico (popup com opener) ───────────────────
         if (window.opener) {
-          // Fluxo popup — envia pro pai e fecha
-          window.opener.postMessage(msg, window.location.origin);
-          window.opener.postMessage(msg, '*');
-          setTimeout(function(){ window.close(); }, 200);
-        } else {
-          // Fluxo redirect — salva no localStorage e volta pro admin
-          try { localStorage.setItem('netlify-cms-user', JSON.stringify({token:token,provider:provider,backendName:'github'})); } catch(e){}
-          window.location.replace('/admin');
+          try {
+            window.opener.postMessage(msg, window.location.origin);
+            window.opener.postMessage(msg, '*');
+          } catch(e) {}
+          setTimeout(function(){ window.close(); }, 600);
+          return; // popup fecha → pronto
         }
+
+        // ── Canal 3: IndexedDB (localForage) + redirect ────────────────────────
+        // Usado quando não há opener E BroadcastChannel falhou (ou aba /admin fechada).
+        // Grava no mesmo DB/store que localForage usa para que o Decap CMS leia.
+        function goAdmin() { window.location.replace('/admin'); }
+        try {
+          var req = indexedDB.open('localforage', 2);
+          req.onupgradeneeded = function(e) {
+            try { e.target.result.createObjectStore('keyvaluepairs'); } catch(_) {}
+          };
+          req.onsuccess = function(e) {
+            try {
+              var db = e.target.result;
+              var tx = db.transaction('keyvaluepairs', 'readwrite');
+              tx.objectStore('keyvaluepairs').put(
+                {token:token,provider:provider,backendName:'github'},
+                'netlify-cms-user'
+              );
+              tx.oncomplete = function(){ db.close(); setTimeout(goAdmin, 100); };
+              tx.onerror    = function(){ db.close(); goAdmin(); };
+            } catch(_){ goAdmin(); }
+          };
+          req.onerror = function(){ goAdmin(); };
+        } catch(_){ goAdmin(); }
       })();
     </script>
   </body></html>`)

@@ -212,6 +212,32 @@
     })();
   </script>
 
+  <!-- ── BroadcastChannel auth listener ────────────────────────────────────
+       Recebe o token da aba de callback OAuth mesmo quando o popup não tem
+       window.opener (Chrome bloqueia popup → opener é null → postMessage
+       clássico falha). Aqui simulamos o MessageEvent que o Decap CMS espera.
+  ──────────────────────────────────────────────────────────────────────── -->
+  <script>
+    (function() {
+      try {
+        var bc = new BroadcastChannel('rec-cms-auth');
+        bc.onmessage = function(e) {
+          if (!e.data || !e.data.token) return;
+          var token    = e.data.token;
+          var provider = e.data.provider || 'github';
+          bc.close();
+          // Despacha MessageEvent sintético — mesmo formato que o Decap CMS
+          // receberia via postMessage de um popup com window.opener.
+          var msg = 'authorization:' + provider + ':success:' + JSON.stringify({token:token,provider:provider});
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   msg,
+            origin: window.location.origin,
+          }));
+        };
+      } catch(e) {}
+    })();
+  </script>
+
   <!-- ── Splash screen ──────────────────────────────────── -->
   <div id="rec-splash">
     <img class="splash-logo" src="/logo-text.png" alt="REC Colaborativo" />
