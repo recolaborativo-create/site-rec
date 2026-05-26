@@ -50,65 +50,65 @@ export const GET: APIRoute = async ({ url, request }) => {
   }
 
   // Send token back to Decap CMS.
-  // Três canais em ordem de prioridade:
-  //   1) BroadcastChannel → aba /admin aberta recebe o token sem precisar de window.opener
-  //   2) postMessage via window.opener → fluxo popup clássico (fecha o popup)
-  //   3) IndexedDB (localForage) → fluxo redirect puro; redireciona pra /admin que já lê o token
+  // Canais em ordem de prioridade:
+  //   1) postMessage via window.opener   → popup clássico (fecha o popup)
+  //   2) localStorage + storage event    → cross-tab sem opener; aba /admin recebe via event
+  //   3) fragment de URL (/admin#cms-auth=...) → redirect puro; admin lê no load
+  //
+  // Obs: window.close() é sempre tentado — funciona mesmo sem opener se aberto via window.open()
   const token = tokenJson.access_token
-  return html(`<!doctype html><html><head><title>Authorizing…</title></head><body>
-    <p style="font-family:sans-serif;text-align:center;padding:40px 24px;color:#555">
-      Autenticando… pode fechar esta aba se ela não fechar automaticamente.
+  return html(`<!doctype html><html><head><title>Autorizando…</title></head><body>
+    <p id="msg" style="font-family:sans-serif;text-align:center;padding:40px 24px;color:#555;font-size:1.1rem">
+      Autorizando… aguarde
     </p>
     <script>
       (function() {
-        var token = ${JSON.stringify(token)};
+        var token    = ${JSON.stringify(token)};
         var provider = 'github';
-        var msg = 'authorization:github:success:' + JSON.stringify({token:token,provider:provider});
+        var msg      = 'authorization:' + provider + ':success:' + JSON.stringify({token:token,provider:provider});
+        var LS_KEY   = 'rec-cms-pending-auth';
 
-        // ── Canal 1: BroadcastChannel ──────────────────────────────────────────
-        // Funciona mesmo sem window.opener (popup bloqueado, nova aba, etc.)
-        // A aba /admin ouve este canal e despacha um MessageEvent sintético.
-        var sent = false;
-        try {
-          var bc = new BroadcastChannel('rec-cms-auth');
-          bc.postMessage({token:token,provider:provider});
-          bc.close();
-          sent = true;
-        } catch(e) {}
-
-        // ── Canal 2: postMessage clássico (popup com opener) ───────────────────
-        if (window.opener) {
-          try {
-            window.opener.postMessage(msg, window.location.origin);
-            window.opener.postMessage(msg, '*');
-          } catch(e) {}
-          setTimeout(function(){ window.close(); }, 600);
-          return; // popup fecha → pronto
+        function setMsg(t) {
+          var el = document.getElementById('msg');
+          if (el) el.textContent = t;
         }
 
-        // ── Canal 3: IndexedDB (localForage) + redirect ────────────────────────
-        // Usado quando não há opener E BroadcastChannel falhou (ou aba /admin fechada).
-        // Grava no mesmo DB/store que localForage usa para que o Decap CMS leia.
-        function goAdmin() { window.location.replace('/admin'); }
+        // ── Canal 1: postMessage clássico (popup com opener) ──────────────
+        if (window.opener) {
+          setMsg('Enviando token para o painel…');
+          try { window.opener.postMessage(msg, window.location.origin); } catch(_){}
+          try { window.opener.postMessage(msg, '*'); } catch(_){}
+          setTimeout(function(){ window.close(); }, 800);
+          return;
+        }
+
+        // ── Canal 2: localStorage → storage event na aba /admin ──────────
+        // O event 'storage' dispara SOMENTE em outras abas (não nesta).
+        // A aba /admin escuta este evento e injeta o MessageEvent no Decap CMS.
+        setMsg('Login realizado! Voltando ao painel…');
         try {
-          var req = indexedDB.open('localforage', 2);
-          req.onupgradeneeded = function(e) {
-            try { e.target.result.createObjectStore('keyvaluepairs'); } catch(_) {}
-          };
-          req.onsuccess = function(e) {
-            try {
-              var db = e.target.result;
-              var tx = db.transaction('keyvaluepairs', 'readwrite');
-              tx.objectStore('keyvaluepairs').put(
-                {token:token,provider:provider,backendName:'github'},
-                'netlify-cms-user'
-              );
-              tx.oncomplete = function(){ db.close(); setTimeout(goAdmin, 100); };
-              tx.onerror    = function(){ db.close(); goAdmin(); };
-            } catch(_){ goAdmin(); }
-          };
-          req.onerror = function(){ goAdmin(); };
-        } catch(_){ goAdmin(); }
+          localStorage.setItem(LS_KEY, JSON.stringify({
+            token    : token,
+            provider : provider,
+            ts       : Date.now(),           // timestamp pra evitar reusar token antigo
+          }));
+        } catch(_){}
+
+        // Tenta fechar o popup — funciona se foi aberto via window.open()
+        // mesmo sem opener (Chrome pode desvinculá-lo mas ainda consegue fechar).
+        try { window.close(); } catch(_){}
+
+        // ── Canal 3: redirect com fragment (se não fechou = aba normal) ──
+        // Pequeno delay pra dar tempo ao window.close() de funcionar.
+        // Se chegarmos aqui, é porque não é um popup.
+        setTimeout(function() {
+          try {
+            var frag = encodeURIComponent(JSON.stringify({token:token,provider:provider}));
+            window.location.replace('/admin#cms-auth=' + frag);
+          } catch(_){
+            window.location.replace('/admin');
+          }
+        }, 500);
       })();
     </script>
   </body></html>`)

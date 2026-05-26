@@ -212,29 +212,92 @@
     })();
   </script>
 
-  <!-- ── BroadcastChannel auth listener ────────────────────────────────────
-       Recebe o token da aba de callback OAuth mesmo quando o popup não tem
-       window.opener (Chrome bloqueia popup → opener é null → postMessage
-       clássico falha). Aqui simulamos o MessageEvent que o Decap CMS espera.
+  <!-- ── Auth token receiver (localStorage + URL fragment) ─────────────────
+       Recebe o token do callback OAuth sem depender de window.opener.
+
+       Três situações cobertas:
+       A) Popup sem opener → callback escreve em localStorage → 'storage' event
+          dispara aqui imediatamente enquanto o popup tenta fechar.
+       B) Redirect (aba normal) → callback coloca token no fragment #cms-auth=
+          → esta página carrega com o fragment → lê no load.
+       C) Fallback: checa localStorage no load (token gravado há < 3 min).
+
+       Em A e B: armazena o token e inicia retry loop que despacha o
+       MessageEvent sintético para o Decap CMS a cada 400ms (até 8x).
+       O Decap CMS remove o listener ao receber — idempotente.
   ──────────────────────────────────────────────────────────────────────── -->
   <script>
     (function() {
-      try {
-        var bc = new BroadcastChannel('rec-cms-auth');
-        bc.onmessage = function(e) {
-          if (!e.data || !e.data.token) return;
-          var token    = e.data.token;
-          var provider = e.data.provider || 'github';
-          bc.close();
-          // Despacha MessageEvent sintético — mesmo formato que o Decap CMS
-          // receberia via postMessage de um popup com window.opener.
-          var msg = 'authorization:' + provider + ':success:' + JSON.stringify({token:token,provider:provider});
+      var LS_KEY = 'rec-cms-pending-auth';
+      var _injected = false;
+
+      function injectToken(token, provider) {
+        if (_injected) return;
+        _injected = true;
+        // Limpa a chave do localStorage imediatamente para não reusar
+        try { localStorage.removeItem(LS_KEY); } catch(_){}
+        // Remove fragment da URL sem recarregar a página
+        if (window.location.hash.indexOf('cms-auth=') !== -1) {
+          history.replaceState(null, '', '/admin');
+        }
+
+        var msg = 'authorization:' + provider + ':success:' + JSON.stringify({token:token,provider:provider});
+
+        // Retry loop: Decap CMS pode não ter registrado o listener ainda.
+        // Dispara até 8 vezes a cada 400ms (~3,2s total).
+        var tries = 0;
+        function fire() {
+          if (tries >= 8) return;
+          tries++;
           window.dispatchEvent(new MessageEvent('message', {
             data:   msg,
             origin: window.location.origin,
+            source: window,
           }));
-        };
-      } catch(e) {}
+          setTimeout(fire, 400);
+        }
+        fire();
+      }
+
+      function parsePayload(raw) {
+        try {
+          var data = JSON.parse(raw);
+          if (data && data.token) return data;
+        } catch(_){}
+        return null;
+      }
+
+      // ── A) storage event (popup sem opener escreveu em localStorage) ──
+      window.addEventListener('storage', function(e) {
+        if (e.key !== LS_KEY || !e.newValue) return;
+        var data = parsePayload(e.newValue);
+        if (!data) return;
+        // Ignora tokens com mais de 3 minutos (segurança)
+        if (Date.now() - (data.ts || 0) > 180000) return;
+        injectToken(data.token, data.provider || 'github');
+      });
+
+      // ── B) URL fragment (#cms-auth=...) ──────────────────────────────
+      var hash = window.location.hash;
+      var fragMatch = hash.match(/[#&]cms-auth=([^&]+)/);
+      if (fragMatch) {
+        var data = parsePayload(decodeURIComponent(fragMatch[1]));
+        if (data && data.token) {
+          // Fragment presente: Decap CMS ainda está carregando → espera 1s
+          setTimeout(function() { injectToken(data.token, data.provider || 'github'); }, 1000);
+        }
+      }
+
+      // ── C) localStorage no load (token recente, popup já fechou) ─────
+      try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          var data = parsePayload(raw);
+          if (data && data.token && Date.now() - (data.ts || 0) < 180000) {
+            setTimeout(function() { injectToken(data.token, data.provider || 'github'); }, 1000);
+          }
+        }
+      } catch(_){}
     })();
   </script>
 
