@@ -9,7 +9,7 @@ interface Props {
   /** Schemas adicionais opcionais (Event, BlogPosting, Breadcrumb…) que ficam ao lado do LocalBusiness padrão */
   schemas?: Array<Record<string, unknown>>
 }
-const { title, description, path, ogImage = '/NORMAL - FT.png', schemas = [] } = Astro.props
+const { title, description, path, ogImage = '/og-preview.jpg', schemas = [] } = Astro.props
 const SITE_URL = 'https://somosrecoficial.com.br'
 const canonical = `${SITE_URL}${path}`
 const ogImageAbs = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
