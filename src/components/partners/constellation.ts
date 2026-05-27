@@ -112,6 +112,10 @@ export function initConstellation(container: HTMLElement, partners: Partner[]) {
     }
     // Hint the GPU we'll be transforming this element a lot
     el.style.willChange = 'transform'
+    // Logos com muito espaço em branco na imagem — reduz padding pra ampliar área visível
+    if ((n as any).logoPaddingOverride) {
+      el.style.padding = (n as any).logoPaddingOverride
+    }
     const img = document.createElement('img')
     img.src = n.logo
     img.alt = n.name

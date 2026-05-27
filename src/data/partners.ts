@@ -52,6 +52,8 @@ export interface Partner {
   address?: string
   /** Site oficial da empresa. */
   website?: string
+  /** Override do padding CSS do nó na constelação — reduz para logos com muito espaço em branco na imagem. Ex: '1px 2px' */
+  logoPaddingOverride?: string
 }
 
 /** Versão serializada/client-side do Partner — usada nos script blocks dos componentes de filtro. */
@@ -127,7 +129,7 @@ export const partners: Partner[] = [
   { id: 'rocsana', name: 'Rocsana - Turismo Terapêutico', sector: 'turismo', reach: 3, logo: '/partners/LOGOS-SITE-rocsana-200x120.png', description: 'Turismo terapêutico, viagens com propósito de bem-estar, autoconhecimento e conexão verdadeira.' , instagram: '@rocsanatrautmann', whatsapp: '5551992964585', hideGoogle: true, city: 'Canela, RS'},
   { id: 's2', name: 'S2 Assessoria Estudantil Internacional', instagram: '@s2_estudantil', phone: '551195316709', sector: 'educacao', reach: 3, logo: '/partners/LOGOS-SITE-s2-200x120.png', description: 'Consultoria educacional pra brasileiros que querem estudar Medicina na Argentina. Matrícula, moradia e adaptação cuidadas.', googleSearchOverride: 'S2 Assessoria Estudantil Internacional Ltda Rosario Argentina' , whatsapp: '5511953167093', city: 'Novo Hamburgo, RS'},
   { id: 'sandra', name: 'Sandra Colleoni', instagram: '@sandra.colleoni', sector: 'servicos', reach: 3, logo: '/partners/LOGOS-SITE-sandra-200x120.png', description: 'Atendimento sob medida com Sandra Colleoni, soluções pensadas pra cada cliente, com cuidado e atenção.' , whatsapp: '5551995593015'},
-  { id: 'sheila', name: 'Estúdio Sheila Luz', instagram: '@estudiosheilaluz', sector: 'beleza', reach: 3, logo: '/partners/LOGOS-SITE-SHEILA-200x120.png', description: 'Estúdio de beleza assinado por Sheila Luz, micropigmentação, design e cuidados que valorizam você.' , whatsapp: '5551993555397'},
+  { id: 'sheila', name: 'Estúdio Sheila Luz', instagram: '@estudiosheilaluz', sector: 'educacao', reach: 3, logo: '/partners/LOGOS-SITE-SHEILA-200x120.png', description: 'Estúdio de beleza assinado por Sheila Luz, micropigmentação, design e cuidados que valorizam você.' , whatsapp: '5551993555397', city: 'Cachoeirinha, RS'},
   { id: 'superfantastico', name: 'Superfantástico - Salão de Festas', instagram: '@superfantasticofestas', sector: 'eventos', reach: 3, logo: '/partners/LOGOS-SITE-superfantastico-200x120.png', description: 'Salão de festas Superfantástico, espaço completo pra aniversários, casamentos e celebrações marcantes.' , whatsapp: '5551993555397'},
 
   { id: 'preto-renatta-200x96png', name: 'Renatta Hoher Advocacia', instagram: '@renattahoheradv', sector: 'advocacia', reach: 3, logo: '/partners/preto-renatta-200x96.png', description: 'Renatta Hoher Advocacia, direito criminal com atuação estratégica, técnica e defesa firme.' , whatsapp: '5551999125707'},
@@ -193,6 +195,7 @@ export const partners: Partner[] = [
     logo: '/partners/LOGOS-SITE-appe-go-200x120.png',
     description: 'Imobiliária especializada em Canoas e região. Compra, venda, locação e governança imobiliária com dedicação constante na negociação do seu imóvel.',
     city: 'Canoas, RS',
+    logoPaddingOverride: '1px 2px',
   },
   {
     id: 'ana-paula-moller',
@@ -205,6 +208,7 @@ export const partners: Partner[] = [
     whatsapp: '5551999961901',
     website: 'https://calendly.com/anapaulamoller/agenda',
     city: 'Canoas, RS',
+    logoPaddingOverride: '1px 2px',
   },
   {
     id: 'carobdamiani',
@@ -217,6 +221,7 @@ export const partners: Partner[] = [
     whatsapp: '5551999121709',
     hideGoogle: true,
     city: 'Porto Alegre',
+    logoPaddingOverride: '1px 2px',
   },
   {
     id: 'arkos',
@@ -266,6 +271,7 @@ export const partners: Partner[] = [
     description: 'Terapeuta integrativa e mentora espiritual. Cursos, consultorias e acompanhamento para quem busca equilíbrio, autoconhecimento e expansão de consciência.',
     hideGoogle: true,
     city: 'Canoas',
+    logoPaddingOverride: '1px 2px',
   },
   {
     id: 'mschock',
