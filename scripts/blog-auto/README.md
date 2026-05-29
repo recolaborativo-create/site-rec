@@ -1,16 +1,16 @@
 # 🤖 Blog Automático — REC Colaborativo
 
-Sistema que gera 9 posts por mês usando IA, deixa pra revisão humana, e
+Sistema que gera 9 posts por semana usando IA, deixa pra revisão humana, e
 publica os aprovados como `.md` no repositório (Vercel rebuilda automático).
 
-## Como funciona, do dia 1 do mês até o post no ar
+## Como funciona, do domingo até o post no ar
 
 ```
-DIA 1, 06h BRT
+DOMINGO, 06h BRT
    │
    ▼
 1. Cron Vercel chama POST /api/cron/generate-blog-drafts
-   ├─ Busca notícias do mês passado (Brave Search ou tópicos evergreen)
+   ├─ Busca notícias da última semana (Brave Search ou tópicos evergreen)
    ├─ Chama Claude com prompt master + regras de escrita
    ├─ Recebe 9 posts em JSON
    ├─ Pra cada um: busca imagem no Unsplash
@@ -28,7 +28,7 @@ DIA 1, 06h BRT
         ▼
 3. /api/blog-mod/publish faz pra cada aprovado:
    ├─ Monta arquivo .md com frontmatter correto
-   ├─ Commita em site/src/content/blog/{slug}.md via GitHub API
+   ├─ Commita em src/content/blog/{slug}.md via GitHub API
    ├─ Marca status=published no Supabase
    └─ Vercel detecta push → rebuilda → post sai no ar (~2-3 min)
 ```
@@ -48,19 +48,19 @@ pra lista completa. As novas pro blog auto são:
 - `UNSPLASH_ACCESS_KEY` — chave Unsplash
 - `BRAVE_SEARCH_KEY` — opcional, busca notícias reais
 - `GITHUB_PAT` — Personal Access Token com escopo `repo`
-- `GITHUB_OWNER` — default `HenriqueCallefi`
-- `GITHUB_REPO` — default `REC-HUB-COMPLETO`
+- `GITHUB_OWNER` — default `recolaborativo-create`
+- `GITHUB_REPO` — default `site-rec`
 - `GITHUB_BRANCH` — default `main`
 - `CRON_SECRET` — qualquer string aleatória (token pra invocar manualmente)
-- `BLOG_NOTIFY_EMAIL` — email pra receber notificação mensal
+- `BLOG_NOTIFY_EMAIL` — email pra receber notificação semanal
 
 ### 3. Cron já está configurado em `vercel.json`
 ```json
 "crons": [
-  { "path": "/api/cron/generate-blog-drafts", "schedule": "0 9 1 * *" }
+  { "path": "/api/cron/generate-blog-drafts", "schedule": "0 9 * * 0" }
 ]
 ```
-Schedule `0 9 1 * *` = às 09:00 UTC do dia 1 de cada mês = 06:00 BRT.
+Schedule `0 9 * * 0` = às 09:00 UTC de todo domingo = 06:00 BRT.
 
 ## Rodar manualmente (testes)
 

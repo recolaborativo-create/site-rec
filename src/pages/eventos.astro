@@ -5,7 +5,12 @@
 // =============================================================
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { whatsappLink, whatsappEventLink, messages } from '../utils/whatsapp'
-import { events, type RecEvent } from '../data/events'
+import { getEvents, type RecEvent } from '../data/events'
+
+// SSR: lê o Notion ao vivo a cada visita (com cache de 60s no módulo).
+// Edita no Notion → aparece no site sem rebuild.
+export const prerender = false
+const events = await getEvents()
 
 const monthsShort = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 

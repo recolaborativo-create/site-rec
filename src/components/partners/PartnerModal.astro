@@ -178,7 +178,19 @@
 </div>
 
 <script>
+  import { sortReviews, REVIEWS_VISIBLE } from '../../utils/review-sort'
+
   type Review = { rating: number; name?: string; comment?: string; createdAt: number }
+
+  // Escapa entidades HTML — reviews sobem sem moderação, então sanitiza no render.
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  }
 
   const overlay = document.querySelector<HTMLElement>('[data-partner-modal]')
   if (overlay) {
@@ -232,17 +244,16 @@
       paintStars(avg)
       metaEl.textContent = `${avg.toFixed(1)} · ${reviews.length} ${reviews.length === 1 ? 'avaliação' : 'avaliações'}`
       const fmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-      listEl.innerHTML = reviews
-        .slice()
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 6)
-        .map(r => {
+      // 5★ no topo, empate pela mais recente. Mostra 2; resto vem no "ver mais".
+      const sorted = sortReviews(reviews)
+      const items = sorted
+        .map((r, i) => {
           const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
-          const safeName = (r.name || 'anônimo').replace(/[<>&"]/g, '')
-          const safeComment = (r.comment || '').replace(/[<>&"]/g, '')
+          const safeName = escapeHtml(r.name || 'anônimo')
+          const safeComment = escapeHtml(r.comment || '')
           const date = fmt.format(new Date(r.createdAt))
           const initial = safeName.charAt(0).toUpperCase()
-          return `<li class="review-item">
+          return `<li class="review-item${i >= REVIEWS_VISIBLE ? ' review-extra' : ''}">
             <div class="review-header">
               <div class="review-avatar">${initial}</div>
               <div class="review-author-info">
@@ -255,6 +266,11 @@
           </li>`
         })
         .join('')
+      const hidden = sorted.length - REVIEWS_VISIBLE
+      const moreBtn = hidden > 0
+        ? `<li class="review-more-row"><button type="button" class="reviews-more-btn" data-reviews-more>ver mais ${hidden} ${hidden === 1 ? 'avaliação' : 'avaliações'}</button></li>`
+        : ''
+      listEl.innerHTML = items + moreBtn
     }
 
     async function loadReviews(partnerId: string) {
@@ -375,6 +391,14 @@
 
     toggleBtn.addEventListener('click', showReviewForm)
     cancelBtn.addEventListener('click', hideReviewForm)
+
+    // "ver mais": revela avaliações escondidas e remove o botão
+    listEl.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-reviews-more]')
+      if (!btn) return
+      listEl.querySelectorAll('.review-extra').forEach(el => el.classList.remove('review-extra'))
+      btn.closest('.review-more-row')?.remove()
+    })
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault()
@@ -898,6 +922,26 @@
 }
 .reviews-list:empty { display: none; }
 /* :global() necessário — estes elementos são injetados via innerHTML (JS) e não recebem o hash de escopo do Astro */
+:global(.review-extra) { display: none; }
+:global(.review-more-row) { list-style: none; }
+:global(.reviews-more-btn) {
+  width: 100%;
+  padding: var(--space-3);
+  background: transparent;
+  border: 1px dashed rgba(0, 161, 152, 0.4);
+  border-radius: 12px;
+  color: var(--rec-teal);
+  font: inherit;
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+:global(.reviews-more-btn:hover) {
+  background: rgba(0, 161, 152, 0.06);
+  border-color: var(--rec-teal);
+}
 :global(.review-item) {
   padding: var(--space-4);
   background: #fff;

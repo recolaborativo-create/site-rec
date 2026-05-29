@@ -1,6 +1,6 @@
 ---
 import { getCategoryInfo, type Pillar } from '../../utils/blog-category'
-import { events } from '../../data/events'
+import { getEvents } from '../../data/events'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
@@ -8,6 +8,8 @@ interface Props {
 }
 
 const { related } = Astro.props
+
+const events = await getEvents()
 
 // Próximos 2 eventos (não encerrados, em ordem cronológica)
 const upcoming = events

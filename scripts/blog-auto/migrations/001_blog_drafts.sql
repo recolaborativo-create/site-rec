@@ -1,11 +1,12 @@
 -- =============================================================
--- Blog Automation — Tabela de Rascunhos Mensais
+-- Blog Automation — Tabela de Rascunhos Semanais
 -- Rodar no SQL Editor do Supabase: https://supabase.com/dashboard/project/ooufmzqdiehrxnqoqvsi/sql
 -- =============================================================
 
 CREATE TABLE IF NOT EXISTS blog_drafts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  -- Lote (mês de geração: '2026-06'). Permite agrupar os 9 posts do mês.
+  -- Lote (data do domingo da semana: '2026-05-31'). Agrupa os 9 posts da semana.
+  -- Nome histórico 'batch_month' mantido; hoje guarda a semana, não o mês.
   batch_month TEXT NOT NULL,
   -- Posição 1-9 dentro do lote (para ordem visual estável).
   position INT NOT NULL,
@@ -71,8 +72,8 @@ ALTER TABLE blog_drafts ENABLE ROW LEVEL SECURITY;
 -- =============================================================
 -- Comentários úteis pra futuros mantenedores
 -- =============================================================
-COMMENT ON TABLE blog_drafts IS 'Rascunhos de posts gerados automaticamente pela IA mensalmente. Após aprovação manual, viram arquivos .md no repositório.';
-COMMENT ON COLUMN blog_drafts.batch_month IS 'Formato YYYY-MM. Agrupa os 9 posts gerados num mesmo ciclo mensal.';
+COMMENT ON TABLE blog_drafts IS 'Rascunhos de posts gerados automaticamente pela IA semanalmente. Após aprovação manual, viram arquivos .md no repositório.';
+COMMENT ON COLUMN blog_drafts.batch_month IS 'Formato YYYY-MM-DD (domingo da semana). Agrupa os 9 posts gerados num mesmo ciclo semanal.';
 COMMENT ON COLUMN blog_drafts.position IS 'Posição visual 1-9 dentro do batch (mantém ordem na página de aprovação).';
 COMMENT ON COLUMN blog_drafts.content IS 'Markdown completo do post (sem frontmatter — a publicação adiciona).';
 COMMENT ON COLUMN blog_drafts.status IS 'pending = aguarda revisão | approved = decidido publicar | rejected = descartado | published = já está no /blog do site.';

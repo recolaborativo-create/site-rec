@@ -1,15 +1,14 @@
 // Envio de email via Brevo (mesma API que a newsletter já usa).
-// Notifica o Henrique quando o ciclo mensal terminou e precisa aprovar.
+// Notifica o Henrique quando o ciclo semanal terminou e precisa aprovar.
+import { weekLabel } from './batch.mjs'
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY
 const TO_EMAIL = process.env.BLOG_NOTIFY_EMAIL || 'henrique.callefi@gmail.com'
 const FROM_EMAIL = process.env.CONTATO_FROM_EMAIL || 'site@somosrecoficial.com.br'
 const SITE_URL = 'https://somosrecoficial.com.br'
 
-const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
-
 /**
- * Manda email avisando que os 9 drafts mensais estão prontos pra revisão.
+ * Manda email avisando que os 9 drafts semanais estão prontos pra revisão.
  * @param {{batchMonth:string, count:number}} result
  */
 export async function sendDraftsReadyEmail({ batchMonth, count }) {
@@ -18,8 +17,7 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
     return { skipped: true }
   }
 
-  const [year, month] = batchMonth.split('-')
-  const monthLabel = `${MONTH_NAMES[parseInt(month, 10) - 1]} de ${year}`
+  const monthLabel = weekLabel(batchMonth)
   const approvalUrl = `${SITE_URL}/aprovacao-blog/${batchMonth}`
 
   const html = `
@@ -27,7 +25,7 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
 
       <div style="border-left: 4px solid #00A198; padding: 4px 0 4px 16px; margin-bottom: 28px;">
         <p style="margin: 0; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #00A198; font-weight: 700;">
-          blog mensal automático
+          blog semanal automático
         </p>
         <h1 style="margin: 6px 0 0; font-size: 24px; font-weight: 300; line-height: 1.2;">
           ${count} posts prontos pra você revisar
@@ -35,7 +33,7 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
       </div>
 
       <p style="font-size: 15px; line-height: 1.6; color: #012659; margin: 0 0 16px;">
-        Os ${count} artigos de <strong>${monthLabel}</strong> foram gerados automaticamente
+        Os ${count} artigos da <strong>${monthLabel}</strong> foram gerados automaticamente
         e estão aguardando sua aprovação no painel.
       </p>
 
@@ -56,8 +54,8 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
           ⏰ prazo recomendado
         </p>
         <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #012659;">
-          Idealmente até o dia 5. Drafts não revisados em 10 dias são arquivados
-          automaticamente (não publicam).
+          Idealmente nos primeiros dias da semana, antes do próximo lote chegar
+          no domingo seguinte.
         </p>
       </div>
 
@@ -79,7 +77,7 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
       body: JSON.stringify({
         sender: { name: 'REC Blog Auto', email: FROM_EMAIL },
         to: [{ email: TO_EMAIL }],
-        subject: `📝 ${count} posts de ${monthLabel} aguardando aprovação`,
+        subject: `📝 ${count} posts da ${monthLabel} aguardando aprovação`,
         htmlContent: html,
       }),
     })

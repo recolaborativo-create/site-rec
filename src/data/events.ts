@@ -127,4 +127,14 @@ async function fetchFromNotion(): Promise<RecEvent[]> {
   }
 }
 
-export const events: RecEvent[] = await fetchFromNotion()
+// Cache em memória: numa instância serverless quente, evita bater no Notion
+// a cada request da página SSR /eventos. TTL curto pra refletir edições rápido.
+let _cache: { at: number; data: RecEvent[] } | null = null
+const CACHE_TTL_MS = 60_000
+
+export async function getEvents(): Promise<RecEvent[]> {
+  if (_cache && Date.now() - _cache.at < CACHE_TTL_MS) return _cache.data
+  const data = await fetchFromNotion()
+  _cache = { at: Date.now(), data }
+  return data
+}

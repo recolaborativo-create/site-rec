@@ -1,11 +1,12 @@
 import type { APIRoute } from 'astro'
 import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
+import { isValidBatch } from '../../../utils/blog-batch'
 
 export const prerender = false
 
 // POST /api/blog-mod/publish
-// Body: { batchMonth: '2026-06' }
+// Body: { batchMonth: '2026-05-31' } (data do domingo do lote)
 // Pega TODOS os drafts com status='approved' do batch e commita como arquivos
 // .md no repositório via GitHub API. Vercel rebuilda automaticamente e os posts
 // aparecem em somosrecoficial.com.br/blog em ~2-3 minutos.
@@ -18,14 +19,14 @@ export const POST: APIRoute = async ({ request }) => {
   try { body = await request.json() } catch { return json({ error: 'JSON inválido' }, 400) }
 
   const { batchMonth } = body
-  if (!batchMonth || !/^\d{4}-\d{2}$/.test(batchMonth)) {
-    return json({ error: 'batchMonth obrigatório (YYYY-MM)' }, 400)
+  if (!isValidBatch(batchMonth)) {
+    return json({ error: 'batchMonth obrigatório (YYYY-MM-DD)' }, 400)
   }
 
   // Env config GitHub
   const GH_TOKEN = import.meta.env.GITHUB_PAT
-  const GH_OWNER = import.meta.env.GITHUB_OWNER || 'HenriqueCallefi'
-  const GH_REPO = import.meta.env.GITHUB_REPO || 'REC-HUB-COMPLETO'
+  const GH_OWNER = import.meta.env.GITHUB_OWNER || 'recolaborativo-create'
+  const GH_REPO = import.meta.env.GITHUB_REPO || 'site-rec'
   const GH_BRANCH = import.meta.env.GITHUB_BRANCH || 'main'
 
   if (!GH_TOKEN) {
@@ -48,13 +49,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // 2) Commita um arquivo por draft via GitHub API
-  // Cada arquivo: site/src/content/blog/{slug}.md
+  // Cada arquivo: src/content/blog/{slug}.md
   const published: string[] = []
   const failed: Array<{ slug: string; error: string }> = []
 
   for (const draft of approved) {
     try {
-      const filePath = `site/src/content/blog/${draft.slug}.md`
+      const filePath = `src/content/blog/${draft.slug}.md`
       const markdown = buildMarkdownFile(draft)
       const sha = await getExistingSha(GH_OWNER, GH_REPO, filePath, GH_BRANCH, GH_TOKEN)
 

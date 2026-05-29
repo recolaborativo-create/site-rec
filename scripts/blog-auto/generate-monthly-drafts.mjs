@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // =============================================================
-// Blog Automation — Gerador Mensal de Rascunhos
-// Roda via cron Vercel todo dia 1 do mês, OU manualmente:
+// Blog Automation — Gerador Semanal de Rascunhos
+// Roda via cron Vercel todo domingo, OU manualmente:
 //   node scripts/blog-auto/generate-monthly-drafts.mjs
-//   node scripts/blog-auto/generate-monthly-drafts.mjs --month 2026-06
-//   node scripts/blog-auto/generate-monthly-drafts.mjs --month 2026-06 --dry-run
+//   node scripts/blog-auto/generate-monthly-drafts.mjs --week 2026-05-31
+//   node scripts/blog-auto/generate-monthly-drafts.mjs --week 2026-05-31 --dry-run
 // =============================================================
 
 // Carrega .env automaticamente se rodando como script CLI (não no Vercel,
@@ -32,33 +32,23 @@ import { supabaseAdmin } from './lib/supabase.mjs'
 import { generatePosts } from './lib/anthropic.mjs'
 import { fetchCoverImage } from './lib/unsplash.mjs'
 import { gatherNewsContext } from './lib/news.mjs'
-
-const MONTH_NAMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
+import { sundayBatchKey, weekLabel } from './lib/batch.mjs'
 
 function parseArgs(argv) {
-  const args = { month: null, dryRun: false }
+  const args = { week: null, dryRun: false }
   for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === '--month' && argv[i + 1]) { args.month = argv[++i] }
+    if ((argv[i] === '--week' || argv[i] === '--month') && argv[i + 1]) { args.week = argv[++i] }
     else if (argv[i] === '--dry-run') { args.dryRun = true }
   }
   return args
 }
 
-/** Default: mês ATUAL no formato YYYY-MM (rodou dia 1 do mês = pega o próprio mês) */
-function defaultBatchMonth() {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
-
-function monthLabel(batchMonth) {
-  const [y, m] = batchMonth.split('-')
-  return `${MONTH_NAMES[parseInt(m, 10) - 1]} de ${y}`
-}
-
 async function main() {
   const args = parseArgs(process.argv)
-  const batchMonth = args.month || defaultBatchMonth()
-  const label = monthLabel(batchMonth)
+  // batchMonth mantém o nome da coluna no Supabase, mas agora guarda a data do
+  // domingo da semana (YYYY-MM-DD). Ciclo passou de mensal pra semanal.
+  const batchMonth = args.week || sundayBatchKey()
+  const label = weekLabel(batchMonth)
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log(`🤖  Gerando blog do REC — ${label}`)

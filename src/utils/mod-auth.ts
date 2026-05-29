@@ -1,6 +1,5 @@
-// Autenticação compartilhada entre /api/mod/* (reviews de empresas) e
-// /api/blog-mod/* (drafts de blog). Usa o mesmo cookie `rec_mod` setado
-// pela página /moderacao após login com ?s=MOD_SECRET.
+// Autenticação das rotas /api/blog-mod/* (drafts de blog). Usa o cookie
+// `rec_mod` setado pela página /moderacao após login com ?s=MOD_SECRET.
 
 const COOKIE_NAME = 'rec_mod'
 

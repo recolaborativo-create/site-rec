@@ -1,17 +1,18 @@
 import type { APIRoute } from 'astro'
 import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
+import { isValidBatch } from '../../../utils/blog-batch'
 
 export const prerender = false
 
-// GET /api/blog-mod/list?batchMonth=2026-06
+// GET /api/blog-mod/list?batchMonth=2026-05-31
 // Retorna todos os drafts do batch ordenados por position.
 export const GET: APIRoute = async ({ request, url }) => {
   if (!isModAuthorized(request)) return unauthorizedResponse()
 
   const batchMonth = url.searchParams.get('batchMonth')
-  if (!batchMonth || !/^\d{4}-\d{2}$/.test(batchMonth)) {
-    return json({ error: 'batchMonth obrigatório no formato YYYY-MM' }, 400)
+  if (!isValidBatch(batchMonth)) {
+    return json({ error: 'batchMonth obrigatório no formato YYYY-MM-DD' }, 400)
   }
 
   const supa = getSupabaseAdmin()

@@ -1,4 +1,4 @@
-// Busca de notícias do mês passado pra inspirar a IA.
+// Busca de notícias da última semana pra inspirar a IA.
 // Usa Brave Search API (2000 queries/mês free). Fallback pra lista temática genérica.
 //
 // Get key: https://brave.com/search/api/
@@ -64,7 +64,7 @@ async function searchBrave(query, freshness = 'pw') {
 }
 
 /**
- * Coleta inspirações de notícias do mês passado.
+ * Coleta inspirações de notícias da última semana.
  * Retorna texto markdown pra injetar no prompt da IA.
  */
 export async function gatherNewsContext() {
@@ -76,7 +76,7 @@ export async function gatherNewsContext() {
   console.log(`[news] buscando ${QUERIES.length} queries no Brave...`)
   const all = []
   for (const q of QUERIES) {
-    const results = await searchBrave(q, 'pm') // past month
+    const results = await searchBrave(q, 'pw') // past week (ciclo semanal)
     if (results.length) all.push({ query: q, results })
     // Educado: Brave pede no máximo 1 req/sec no plano free
     await new Promise(r => setTimeout(r, 1100))

@@ -1,17 +1,18 @@
 ---
 // =============================================================
 // Painel de Aprovação de Blog — visual idêntico ao /blog
-// Acesso: /aprovacao-blog/2026-06 (depois de logar via /moderacao?s=...)
+// Acesso: /aprovacao-blog/2026-05-31 (depois de logar via /moderacao?s=...)
 // =============================================================
 import { safeJson } from '../../utils/safe-json'
+import { isValidBatch, batchLabel } from '../../utils/blog-batch'
 
 export const prerender = false
 
 const { mes } = Astro.params
 
-// Validação básica do parâmetro
-if (!mes || !/^\d{4}-\d{2}$/.test(mes)) {
-  return new Response('Formato inválido. Use /aprovacao-blog/AAAA-MM', { status: 400 })
+// Validação básica do parâmetro (data do domingo do lote)
+if (!isValidBatch(mes)) {
+  return new Response('Formato inválido. Use /aprovacao-blog/AAAA-MM-DD', { status: 400 })
 }
 
 // Auth: usa o mesmo cookie rec_mod
@@ -37,9 +38,7 @@ if (!cookieToken || cookieToken !== MOD_SECRET) {
   return new Response(null, { status: 404 })
 }
 
-const MONTH_NAMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
-const [year, month] = mes.split('-')
-const monthLabel = `${MONTH_NAMES[parseInt(month, 10) - 1]} de ${year}`
+const monthLabel = batchLabel(mes!)
 ---
 <!DOCTYPE html>
 <html lang="pt-BR">

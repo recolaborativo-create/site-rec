@@ -3,8 +3,8 @@ import type { APIRoute } from 'astro'
 export const prerender = false
 
 // =============================================================
-// Cron Vercel: gera os 9 drafts mensais e dispara email pro Henrique.
-// Schedule definido em vercel.json: "0 9 1 * *" (UTC) = 06h BR dia 1.
+// Cron Vercel: gera os 9 drafts semanais e dispara email pro Henrique.
+// Schedule definido em vercel.json: "0 9 * * 0" (UTC) = domingo 06h BR.
 //
 // Segurança: Vercel envia header `x-vercel-cron-signature` que valida origem.
 // Adicionalmente exigimos `CRON_SECRET` no header `authorization` pra evitar
