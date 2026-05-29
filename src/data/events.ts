@@ -15,32 +15,12 @@ export interface RecEvent {
   featured?: boolean
 }
 
-const NOTION_DATABASE_ID = '36278c6a-4c30-81b9-8d77-fb56266a16e2'
+const NOTION_DATABASE_ID = '04db9462-e005-47cc-8487-ce2124449caa'
 const NOTION_VERSION     = '2022-06-28'
 
 // ── Fallback (usado se Notion offline ou token ausente) ──────
+// Atualizado em 29/mai/2026 com dados reais do Notion
 const EVENTS_FALLBACK: RecEvent[] = [
-  {
-    id: 'workshop-redes-mai-2026',
-    name: 'Workshop Redes Sociais + Faturamento',
-    type: 'workshop',
-    city: 'Canoas, RS',
-    date: '2026-05-25',
-    time: '19h',
-    description: 'Inscrições abertas, vagas limitadas para empreendedores(as). Aprenda a transformar presença digital em faturamento real.',
-    status: 'inscricoes',
-    featured: true,
-  },
-  {
-    id: 'hh-canoas-mai-2026',
-    name: 'Happy Hour de Negócios',
-    type: 'happy hour',
-    city: 'Canoas, RS',
-    date: '2026-05-26',
-    time: '19h',
-    description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
-    status: 'inscricoes',
-  },
   {
     id: 'hh-pa-sul-jun-2026',
     name: 'Happy Hour de Negócios',
@@ -50,6 +30,7 @@ const EVENTS_FALLBACK: RecEvent[] = [
     time: '19h',
     description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
     status: 'inscricoes',
+    featured: true,
   },
   {
     id: 'hh-pa-norte-jun-2026',
@@ -59,6 +40,26 @@ const EVENTS_FALLBACK: RecEvent[] = [
     date: '2026-06-16',
     time: '19h',
     description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
+    status: 'inscricoes',
+  },
+  {
+    id: 'hh-sapiranga-jun-2026',
+    name: 'Happy Hour de Negócios',
+    type: 'happy hour',
+    city: 'Sapiranga, RS',
+    date: '2026-06-23',
+    time: '19h',
+    description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
+    status: 'inscricoes',
+  },
+  {
+    id: 'hh-canoas-jul-2026',
+    name: 'Happy Hour de Negócios',
+    type: 'happy hour',
+    city: 'Canoas, RS',
+    date: '2026-07-17',
+    time: '19h',
+    description: 'Inscrições abertas com vagas limitadas para empreendedores(as). Aprenda a transformar presença digital em faturamento real.',
     status: 'inscricoes',
   },
 ]
