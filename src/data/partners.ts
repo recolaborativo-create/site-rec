@@ -298,4 +298,16 @@ export const partners: Partner[] = [
     website: 'https://www.santameson.com.br/',
     hideGoogle: true,
   },
+  {
+    id: 'conte-conect-rh',
+    name: 'Conte & Conect RH',
+    instagram: '@conteeconectrh',
+    whatsapp: '5551991380053',
+    sector: 'consultoria',
+    reach: 3,
+    logo: '/partners/LOGOS-SITE-conte-conect-rh-200x120.png',
+    description: 'Consultoria de RH estratégica e humanizada: recrutamento e seleção, desenvolvimento de lideranças, mentoria de carreira, implantação de RH do zero e RH terceirizado.',
+    hideGoogle: true,
+    city: 'Porto Alegre',
+  },
 ]

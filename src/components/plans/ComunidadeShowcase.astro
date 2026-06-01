@@ -200,7 +200,7 @@ const initial = comunidadePlan.adesoes[0]
 
       <p class="clube-brands-note">e centenas de outras marcas — entre na sua conta para ver tudo</p>
 
-      <!-- Card de CPF (input + abre nova aba) -->
+      <!-- Card Clube Certo (botão direto pra página personalizada REC) -->
       <div class="clube-cpf-card">
         <div class="clube-cpf-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -212,32 +212,23 @@ const initial = comunidadePlan.adesoes[0]
 
         <h4 class="clube-cpf-title">Ver todos os descontos</h4>
         <p class="clube-cpf-explain">
-          Digite seu CPF. Abrimos o Clube Certo em uma nova aba com seus benefícios já carregados.
+          Acesse a página exclusiva do Clube Certo para associadas REC e aproveite todos os benefícios.
         </p>
 
-        <form class="clube-cpf-form" id="clube-cpf-form" novalidate>
-          <label class="sr-only" for="clube-cpf-input">CPF</label>
-          <input
-            id="clube-cpf-input"
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="000.000.000-00"
-            maxlength="14"
-            aria-describedby="clube-cpf-error"
-            required
-          />
-          <button type="submit" class="clube-cpf-submit">
-            ver meus descontos
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M14 3h7v7M21 3l-9 9M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
-            </svg>
-          </button>
-        </form>
-        <p class="clube-cpf-error" id="clube-cpf-error" role="alert"></p>
+        <a
+          class="clube-cpf-submit"
+          href="https://www.hotsite.clubecerto.com.br/rec"
+          target="_blank"
+          rel="noopener"
+        >
+          ver meus descontos
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 3h7v7M21 3l-9 9M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
+          </svg>
+        </a>
 
         <p class="clube-cpf-help">
-          O acesso só funciona com CPF previamente cadastrado pela equipe REC. Se for associada e não conseguir entrar,
+          O acesso é exclusivo para associadas REC. Se for associada e não conseguir entrar,
           <a href="https://wa.me/5551984632545?text=Olá! Quero ativar meu acesso ao Clube Certo." target="_blank" rel="noopener">fale com a gente</a>.
         </p>
       </div>
@@ -708,59 +699,6 @@ const initial = comunidadePlan.adesoes[0]
     }
   }
 
-  // CLUBE CERTO — máscara CPF + abrir Clube Certo em nova aba com CPF pré-preenchido
-  const clubeForm  = document.getElementById('clube-cpf-form') as HTMLFormElement | null
-  const clubeInput = document.getElementById('clube-cpf-input') as HTMLInputElement | null
-  const clubeError = document.getElementById('clube-cpf-error')
-
-  function maskCpf(value: string): string {
-    const d = value.replace(/\D/g, '').slice(0, 11)
-    if (d.length > 9)      return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`
-    if (d.length > 6)      return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`
-    if (d.length > 3)      return `${d.slice(0,3)}.${d.slice(3)}`
-    return d
-  }
-
-  function isValidCpf(cpf: string): boolean {
-    const d = cpf.replace(/\D/g, '')
-    if (d.length !== 11) return false
-    if (/^(\d)\1+$/.test(d)) return false
-    let sum = 0
-    for (let i = 0; i < 9; i++) sum += parseInt(d[i]) * (10 - i)
-    let r = (sum * 10) % 11
-    if (r === 10) r = 0
-    if (r !== parseInt(d[9])) return false
-    sum = 0
-    for (let i = 0; i < 10; i++) sum += parseInt(d[i]) * (11 - i)
-    r = (sum * 10) % 11
-    if (r === 10) r = 0
-    return r === parseInt(d[10])
-  }
-
-  if (clubeInput) {
-    clubeInput.addEventListener('input', () => {
-      clubeInput.value = maskCpf(clubeInput.value)
-      clubeInput.classList.remove('has-error')
-      if (clubeError) clubeError.textContent = ''
-    })
-  }
-
-  if (clubeForm && clubeInput && clubeError) {
-    clubeForm.addEventListener('submit', (e) => {
-      e.preventDefault()
-      const raw = clubeInput.value.replace(/\D/g, '')
-      if (!isValidCpf(clubeInput.value)) {
-        clubeInput.classList.add('has-error')
-        clubeError.textContent = raw.length < 11
-          ? 'Digite os 11 números do seu CPF.'
-          : 'CPF inválido. Confira os números e tente novamente.'
-        return
-      }
-      // Abre o Clube Certo em nova aba já com o CPF preenchido
-      const url = `https://app.clubecerto.com.br/?cpf=${encodeURIComponent(raw)}&ent=rec445`
-      window.open(url, '_blank', 'noopener,noreferrer')
-    })
-  }
 </script>
 
 <style>
@@ -1771,41 +1709,13 @@ const initial = comunidadePlan.adesoes[0]
   margin-right: auto;
 }
 
-.clube-cpf-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-.clube-cpf-form input {
-  width: 100%;
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(1,38,89,0.15);
-  background: #fafcfe;
-  font-family: var(--font-ui);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--rec-blue);
-  text-align: center;
-  letter-spacing: 0.06em;
-  transition: border-color 200ms ease, background 200ms ease;
-}
-.clube-cpf-form input:focus {
-  outline: none;
-  border-color: var(--rec-teal);
-  background: #fff;
-}
-.clube-cpf-form input.has-error {
-  border-color: #e07b7b;
-  background: rgba(224,123,123,0.04);
-}
-
 .clube-cpf-submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  width: 100%;
+  margin-bottom: var(--space-3);
   padding: 14px 24px;
   background: var(--rec-teal);
   color: #fff;
@@ -1816,6 +1726,7 @@ const initial = comunidadePlan.adesoes[0]
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-decoration: none;
   cursor: pointer;
   transition: background 200ms ease, transform 200ms var(--easing), box-shadow 200ms ease;
 }
@@ -1826,13 +1737,6 @@ const initial = comunidadePlan.adesoes[0]
 }
 .clube-cpf-submit svg { width: 16px; height: 16px; }
 
-.clube-cpf-error {
-  font-size: 0.78rem;
-  color: #c0382b;
-  font-weight: 600;
-  min-height: 1.2em;
-  margin-bottom: var(--space-3);
-}
 .clube-cpf-help {
   font-size: 0.78rem;
   color: rgba(1,38,89,0.55);
