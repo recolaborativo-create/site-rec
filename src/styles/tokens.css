@@ -14,6 +14,45 @@
   --rec-dark: var(--rec-blue);
   --rec-bg: var(--rec-white);
 
+  /* =====================================================================
+     SEMANTIC TOKENS — camada de tema (light por padrão).
+     Componentes devem usar ESTES, não cores cruas, pra responder ao dark.
+     O modo escuro só redefine este bloco em [data-theme="dark"].
+     ===================================================================== */
+
+  /* Superfícies (fundos) */
+  --surface:        #FFFFFF;          /* fundo base da página */
+  --surface-2:      #F4EFE6;          /* fundo alternado/quente (cream) */
+  --surface-3:      #fafcfe;          /* inputs/áreas sutis */
+  --surface-raised: #FFFFFF;          /* cards, navbar, modais */
+  --surface-inverse:#012659;         /* seções escuras intencionais (footer, hero CTA) */
+
+  /* Texto */
+  --text:        #012659;             /* texto principal */
+  --text-strong: #012659;             /* títulos */
+  --text-muted:  rgba(1,38,89,0.65);  /* texto secundário */
+  --text-soft:   rgba(1,38,89,0.45);  /* legendas/hints */
+  --text-on-accent: #FFFFFF;          /* texto sobre teal/azul */
+  --text-on-inverse: #FFFFFF;         /* texto sobre superfície escura */
+
+  /* Bordas / divisores */
+  --border:       rgba(37,52,57,0.10);
+  --border-soft:  rgba(1,38,89,0.08);
+  --border-strong:rgba(1,38,89,0.15);
+
+  /* Acento (marca) — teal/azul; podem clarear no dark p/ contraste */
+  --accent:        #00a198;
+  --accent-strong: #008b83;
+  --accent-soft:   #B8E0DD;
+  --accent-tint:   rgba(0,161,152,0.08);  /* fundos/realces sutis de teal */
+  --brand:         #012659;
+  --brand-2:       #02377A;
+
+  /* Sombras */
+  --shadow-sm: 0 3px 8px rgba(62,64,149,0.08);
+  --shadow-md: 0 8px 20px rgba(62,64,149,0.22);
+  --shadow-lg: 0 8px 28px rgba(0,161,152,0.25);
+
   /* Subtle gradients */
   --grad-soft-teal: linear-gradient(135deg, #fff 0%, #fff 55%, rgba(0,161,152,0.08) 100%);
   --grad-hero-teal: linear-gradient(135deg, #012659 0%, #02377A 55%, #00a198 110%);
@@ -84,6 +123,51 @@
   --vh-90:   90dvh;
   --vh-80:   80vh;
   --vh-80:   80dvh;
+}
+
+/* =====================================================================
+   DARK MODE — só redefine os tokens semânticos. Ativado por
+   <html data-theme="dark"> (script no <head> evita flash).
+   ===================================================================== */
+:root[data-theme="dark"] {
+  --surface:        #0E1116;
+  --surface-2:      #161b22;
+  --surface-3:      #1c2230;
+  --surface-raised: #161b22;
+  --surface-inverse:#05080d;
+
+  --text:        #e8eef5;
+  --text-strong: #f3f7fb;
+  --text-muted:  rgba(232,238,245,0.68);
+  --text-soft:   rgba(232,238,245,0.45);
+  --text-on-accent: #04120f;
+  --text-on-inverse: #e8eef5;
+
+  --border:        rgba(255,255,255,0.12);
+  --border-soft:   rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.18);
+
+  --accent:        #2dd4c4;          /* teal mais claro p/ contraste no escuro */
+  --accent-strong: #4ee0d2;
+  --accent-soft:   rgba(45,212,196,0.22);
+  --accent-tint:   rgba(45,212,196,0.10);
+  --brand:         #3b6fd4;          /* azul clareado, legível no escuro */
+  --brand-2:       #5a8ae8;
+
+  --shadow-sm: 0 3px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 20px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,0.55);
+
+  --grad-soft-teal: linear-gradient(135deg, #161b22 0%, #161b22 55%, rgba(45,212,196,0.08) 100%);
+  --grad-footer: linear-gradient(135deg, #05080d 0%, #0E1116 100%);
+}
+
+/* Transição suave ao trocar de tema (mas não durante o view-transition do toggle) */
+:root:not(.theme-switching) body,
+:root:not(.theme-switching) .adaptive-nav {
+  transition: background-color var(--motion-medium) var(--easing),
+              color var(--motion-medium) var(--easing),
+              border-color var(--motion-medium) var(--easing);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -20,6 +20,16 @@ const { title, description, path, currentSection, schemas } = Astro.props
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  {/* Tema: aplica antes do paint pra evitar flash de cor errada */}
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('rec-theme')
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark')
+      } catch (e) {}
+    })()
+  </script>
   <SeoHead {title} {description} {path} {schemas} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
