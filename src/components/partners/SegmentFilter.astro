@@ -287,8 +287,8 @@ const sorted = sectors
   padding: 0 var(--space-6) var(--space-4);
 }
 .filter-inner {
-  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.03) 100%);
-  border: 1px solid rgba(108,90,178,0.12);
+  background: linear-gradient(180deg, var(--surface-raised) 0%, var(--accent-tint) 100%);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: var(--space-5) var(--space-6);
   box-shadow: 0 4px 20px rgba(37,52,57,0.04);
@@ -301,7 +301,7 @@ const sorted = sectors
   gap: var(--space-3);
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid rgba(37,52,57,0.06);
+  border-bottom: 1px solid var(--border-soft);
 }
 .filter-title-wrap { display: inline-flex; align-items: center; gap: 8px; }
 .filter-icon {
@@ -318,7 +318,7 @@ const sorted = sectors
   font-size: var(--type-small);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--rec-dark);
+  color: var(--text);
   font-weight: 700;
 }
 .filter-count {
@@ -340,8 +340,8 @@ const sorted = sectors
   gap: 8px;
   margin-bottom: var(--space-4);
   padding: 10px 14px;
-  background: #fff;
-  border: 1.5px solid rgba(1, 38, 89, 0.1);
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border);
   border-radius: 12px;
   transition: all var(--motion-fast) var(--easing);
 }
@@ -353,7 +353,7 @@ const sorted = sectors
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(1, 38, 89, 0.4);
+  color: var(--text-soft);
   flex-shrink: 0;
   transition: color var(--motion-fast) var(--easing);
 }
@@ -366,11 +366,11 @@ const sorted = sectors
   background: transparent;
   font-family: var(--font-ui);
   font-size: 0.95rem;
-  color: var(--rec-blue);
+  color: var(--text);
   padding: 2px 0;
 }
 .search-input::placeholder {
-  color: rgba(1, 38, 89, 0.38);
+  color: var(--text-soft);
   font-weight: 400;
 }
 /* Remove o X nativo do input[type=search] */
@@ -383,8 +383,8 @@ const sorted = sectors
   height: 24px;
   border-radius: 50%;
   border: none;
-  background: rgba(1, 38, 89, 0.06);
-  color: rgba(1, 38, 89, 0.55);
+  background: var(--surface-3);
+  color: var(--text-muted);
   cursor: pointer;
   flex-shrink: 0;
   transition: all var(--motion-fast) var(--easing);
@@ -427,8 +427,8 @@ const sorted = sectors
   font-size: var(--type-micro);
   letter-spacing: 0.04em;
   font-weight: 600;
-  color: var(--rec-dark);
-  background: rgba(37,52,57,0.04);
+  color: var(--text);
+  background: var(--surface-3);
   border: 1.5px solid transparent;
   transition: all var(--motion-fast) var(--easing);
   cursor: pointer;

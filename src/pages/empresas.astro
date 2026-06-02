@@ -150,7 +150,7 @@ const sectorCount = sectors.length
   position: relative;
   overflow: hidden;
   padding: var(--space-20) var(--space-6) var(--space-10);
-  background: linear-gradient(180deg, #fbfcfe 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
   text-align: center;
 }
 .hero-bg { position: absolute; inset: 0; pointer-events: none; }
@@ -193,14 +193,14 @@ const sectorCount = sectors.length
   font-weight: 200;
   line-height: 1.02;
   letter-spacing: -0.035em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0 0 var(--space-5);
 }
 .hero-title em { color: var(--rec-teal); font-style: italic; font-weight: 300; }
 .hero-lead {
   font-size: clamp(1rem, 1.3vw, 1.15rem);
   line-height: 1.65;
-  color: rgba(1, 38, 89, 0.72);
+  color: var(--text-muted);
   max-width: 580px;
   margin: 0 auto var(--space-8);
 }
@@ -210,7 +210,7 @@ const sectorCount = sectors.length
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-4) var(--space-6);
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface-raised);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 161, 152, 0.18);
@@ -227,7 +227,7 @@ const sectorCount = sectors.length
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 400;
-  color: var(--rec-blue);
+  color: var(--text);
   letter-spacing: -0.02em;
   line-height: 1;
 }
@@ -237,7 +237,7 @@ const sectorCount = sectors.length
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(1, 38, 89, 0.6);
+  color: var(--text-muted);
 }
 .hero-stat-sep {
   width: 1px;
@@ -252,10 +252,10 @@ const sectorCount = sectors.length
   position: sticky;
   top: 64px;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--surface-raised);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 161, 152, 0.1);
+  border-bottom: 1px solid var(--border);
   padding: var(--space-3) 0;
 }
 .controls-inner {
@@ -295,7 +295,7 @@ const sectorCount = sectors.length
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(1, 38, 89, 0.38);
+  color: var(--text-soft);
   margin: 0 0 var(--space-2);
   padding: 0 var(--space-6);
 }
@@ -323,6 +323,10 @@ const sectorCount = sectors.length
   );
   text-align: center;
 }
+:global(:root[data-theme="dark"]) .empresas-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .empresas-final-bars { mix-blend-mode: normal; }
 .empresas-final::after {
   content: '';
   position: absolute;
@@ -338,7 +342,7 @@ const sectorCount = sectors.length
   position: absolute;
   top: 0; left: 0; right: 0; height: 22%;
   pointer-events: none;
-  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+  background: linear-gradient(to bottom, var(--surface) 0%, var(--surface) 30%, transparent 100%);
 }
 .empresas-final-bars {
   position: absolute;
@@ -350,9 +354,9 @@ const sectorCount = sectors.length
   mix-blend-mode: multiply;
 }
 .empresas-final-bars span { display: block; border-radius: 999px; height: 10px; }
-.empresas-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
-.empresas-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
-.empresas-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+.empresas-final-bars span:nth-child(1) { width: 95px; background: var(--brand); }
+.empresas-final-bars span:nth-child(2) { width: 78px; background: var(--accent); }
+.empresas-final-bars span:nth-child(3) { width: 48px; background: var(--brand); }
 @media (max-width: 768px) { .empresas-final-bars { display: none; } }
 
 .empresas-final-inner { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
@@ -373,9 +377,9 @@ const sectorCount = sectors.length
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: var(--space-4);
-  color: var(--rec-blue);
+  color: var(--text);
 }
-.empresas-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.empresas-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }
 .empresas-final p {
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.7;

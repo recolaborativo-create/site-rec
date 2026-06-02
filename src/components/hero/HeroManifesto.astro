@@ -58,6 +58,23 @@ import StatCounter from '../ui/StatCounter.astro'
   );
   pointer-events: none;
 }
+/* Dark: o fade inferior precisa emendar com a superfície escura da home,
+   não com branco (senão cria a faixa branca quebrada). */
+:global(:root[data-theme="dark"]) .hero-manifesto::after {
+  background: linear-gradient(
+    180deg,
+    rgba(1,38,89,0.72) 0%,
+    rgba(1,38,89,0.68) 12%,
+    rgba(5,12,20,0.62) 38%,
+    rgba(5,12,20,0.55) 50%,
+    rgba(14,17,22,0.55) 62%,
+    rgba(14,17,22,0.72) 74%,
+    rgba(14,17,22,0.88) 82%,
+    rgba(14,17,22,0.95) 89%,
+    var(--surface) 96%,
+    var(--surface) 100%
+  );
+}
 .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.42; filter: saturate(0.85) contrast(0.95) brightness(0.85); animation: hero-video-fade 1.6s ease-out both; }
 @keyframes hero-video-fade { from { opacity: 0; } to { opacity: 0.42; } }
 .hero-content { max-width: var(--container-max); margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: var(--space-6); flex: 1; justify-content: center; padding: var(--space-12) 0; }

@@ -88,14 +88,14 @@
   top: 110vh;
 }
 .sg-bar { display: block; height: 14px; border-radius: 999px; }
-.sg-bars .sg-bar:nth-child(1) { width: 140px; background: var(--rec-blue); }
-.sg-bars .sg-bar:nth-child(2) { width: 115px; background: var(--rec-teal); }
-.sg-bars .sg-bar:nth-child(3) { width: 70px;  background: var(--rec-blue); }
+.sg-bars .sg-bar:nth-child(1) { width: 140px; background: var(--brand); }
+.sg-bars .sg-bar:nth-child(2) { width: 115px; background: var(--accent); }
+.sg-bars .sg-bar:nth-child(3) { width: 70px;  background: var(--brand); }
 .sg-bars-sm { left: auto; right: 5vw; top: 500vh; }
 .sg-bars-sm .sg-bar { height: 10px; }
-.sg-bars-sm .sg-bar:nth-child(1) { width: 95px; background: var(--rec-blue); }
-.sg-bars-sm .sg-bar:nth-child(2) { width: 78px; background: var(--rec-teal); }
-.sg-bars-sm .sg-bar:nth-child(3) { width: 48px; background: var(--rec-blue); }
+.sg-bars-sm .sg-bar:nth-child(1) { width: 95px; background: var(--brand); }
+.sg-bars-sm .sg-bar:nth-child(2) { width: 78px; background: var(--accent); }
+.sg-bars-sm .sg-bar:nth-child(3) { width: 48px; background: var(--brand); }
 
 /* ---- 2. Dot ring ---- */
 .sg-dots {
@@ -141,6 +141,13 @@
 @media (max-width: 640px) {
   .scroll-graphics { display: none; }
 }
+
+/* DARK: multiply esconderia os gráficos no escuro — usa screen e clareia. */
+:global(:root[data-theme="dark"]) .scroll-graphics { mix-blend-mode: screen; opacity: 0.55; }
+:global(:root[data-theme="dark"]) .sg-dots { color: rgba(120,160,220,0.45); }
+:global(:root[data-theme="dark"]) .sg-squiggle { color: rgba(45,212,196,0.65); }
+:global(:root[data-theme="dark"]) .sg-diamonds { color: rgba(45,212,196,0.4); }
+:global(:root[data-theme="dark"]) .sg-circle { background: radial-gradient(circle at 30% 30%, rgba(45,212,196,0.35), rgba(45,212,196,0) 70%); }
 </style>
 
 <script>

@@ -213,13 +213,13 @@ const regions = [...grouped.entries()]
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 400;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0 0 6px;
 }
 .regions-empty-sub {
   font-family: var(--font-ui);
   font-size: 0.9rem;
-  color: rgba(1, 38, 89, 0.55);
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -252,7 +252,7 @@ const regions = [...grouped.entries()]
   font-size: clamp(1.2rem, 2.2vw, 1.55rem);
   font-weight: 400;
   letter-spacing: -0.015em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0;
   /* Cidades em capitalize (Porto Alegre, Canoas, etc) */
 }
@@ -285,7 +285,7 @@ const regions = [...grouped.entries()]
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: #fff;
+  background: var(--surface-raised);
   border: 1px solid rgba(1, 38, 89, 0.08);
   border-radius: 12px;
   cursor: pointer;

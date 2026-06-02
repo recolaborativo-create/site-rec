@@ -65,7 +65,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 
   <!-- SOBRE / MANIFESTO -->
   <section class="com-about">
-    <img class="com-about-logo" src="/logo-icon.png" alt="" aria-hidden="true" />
+    <img class="com-about-logo theme-light-only" src="/logo-icon.png" alt="" aria-hidden="true" />
+    <img class="com-about-logo theme-dark-only" src="/logo-icon-white.png" alt="" aria-hidden="true" />
     <div class="com-about-wrap">
       <div class="com-about-inner" data-reveal>
         <span class="uppercase-label" style="color: var(--rec-teal)">o que é a comunidade</span>
@@ -771,9 +772,9 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   mix-blend-mode: multiply;
 }
 .com-final-bars span { display: block; border-radius: 999px; height: 10px; }
-.com-final-bars span:nth-child(1) { width: 95px; background: var(--rec-blue); }
-.com-final-bars span:nth-child(2) { width: 78px; background: var(--rec-teal); }
-.com-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
+.com-final-bars span:nth-child(1) { width: 95px; background: var(--brand); }
+.com-final-bars span:nth-child(2) { width: 78px; background: var(--accent); }
+.com-final-bars span:nth-child(3) { width: 48px; background: var(--brand); }
 @media (max-width: 768px) { .com-final-bars { display: none; } }
 
 /* ===================================
@@ -806,6 +807,12 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   );
   text-align: center;
 }
+/* Dark: começa na superfície escura (não no azul-claro) e desce pro navy,
+   emendando limpo com o rodapé. h2 já é var(--text) (clara no dark). */
+:global(:root[data-theme="dark"]) .com-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .com-final-bars { mix-blend-mode: normal; }
 .com-final-inner { position: relative; max-width: 680px; margin: 0 auto; }
 .com-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--text); }
 .com-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }

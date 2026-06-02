@@ -47,6 +47,12 @@ main { display: block; position: relative; z-index: 0; isolation: isolate; overf
 
 ::selection { background: rgba(0, 161, 152, 0.25); color: var(--text); }
 
+/* Troca de assets por tema (logos claras/escuras). Usar em pares:
+   <img class="theme-light-only"> + <img class="theme-dark-only">. */
+.theme-dark-only { display: none !important; }
+:root[data-theme="dark"] .theme-light-only { display: none !important; }
+:root[data-theme="dark"] .theme-dark-only { display: revert !important; }
+
 /* View Transition do toggle de tema: desliga o cross-fade padrão pra
    deixar só o reveal circular (animado via JS no clip-path do snapshot novo). */
 ::view-transition-old(root),

@@ -137,12 +137,12 @@
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: rgba(1, 38, 89, 0.55);
+  color: var(--text-muted);
   cursor: pointer;
   transition: color var(--motion-fast) var(--easing);
 }
-.view-btn:hover { color: var(--rec-blue); }
-.view-btn.active { color: var(--rec-blue); }
+.view-btn:hover { color: var(--text); }
+.view-btn.active { color: var(--text); }
 .view-btn svg {
   flex-shrink: 0;
   transition: transform var(--motion-fast) var(--easing);
@@ -155,7 +155,7 @@
   top: 4px;
   bottom: 4px;
   left: 0;
-  background: #fff;
+  background: var(--surface-raised);
   border-radius: 8px;
   box-shadow:
     0 2px 6px rgba(1, 38, 89, 0.12),

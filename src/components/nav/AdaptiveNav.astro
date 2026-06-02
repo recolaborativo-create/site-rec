@@ -6,8 +6,10 @@ const { current } = Astro.props
 <nav data-adaptive-nav class="adaptive-nav" aria-label="navegação principal">
   <div class="nav-inner">
     <a href="/" aria-label="REC início" class="nav-logo-wrap">
-      <img src="/logo-icon.png" alt="" aria-hidden="true" class="nav-icon" />
-      <img src="/NORMAL - FT.png" alt="REC" class="nav-logo" />
+      <img src="/logo-icon.png" alt="" aria-hidden="true" class="nav-icon theme-light-only" />
+      <img src="/logo-icon-white.png" alt="" aria-hidden="true" class="nav-icon theme-dark-only" />
+      <img src="/NORMAL - FT.png" alt="REC" class="nav-logo theme-light-only" />
+      <img src="/logo-white.png" alt="REC" class="nav-logo nav-logo--white theme-dark-only" />
     </a>
 
     <button

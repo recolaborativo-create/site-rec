@@ -415,6 +415,16 @@ const recentPosts = allPosts
 .home-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); }
 .home-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
 .home-final h2 .final-light { font-weight: 400; }
+/* Dark: a seção final precisa emendar com a superfície escura (não começar
+   no azul-claro), pra transição limpa até o rodapé. */
+:global(:root[data-theme="dark"]) .home-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .home-final::before {
+  background: linear-gradient(to bottom, var(--surface) 0%, var(--surface) 30%, transparent 100%);
+}
+:global(:root[data-theme="dark"]) .home-final h2,
+:global(:root[data-theme="dark"]) .home-final h2 em { color: var(--text-strong); }
 .home-final p { color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: var(--space-8); }
 .final-cta { display: inline-block; background: transparent; color: var(--rec-teal); padding: 20px 60px; border-radius: 999px; border: 2px solid var(--rec-teal); font-weight: 700; letter-spacing: 0.08em; font-size: 1.05rem; transition: background var(--motion-fast) var(--easing), color var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), transform var(--motion-fast) var(--easing); animation: cta-pulse 2.8s ease-in-out infinite; min-height: 52px; }
 .final-cta:hover { background: var(--rec-teal); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,161,152,0.45); animation: none; }
