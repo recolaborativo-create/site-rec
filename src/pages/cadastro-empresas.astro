@@ -43,6 +43,7 @@ const SECTORS = [
     .logo-box { width:200px; height:130px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .logo-box img { max-width:100%; max-height:100%; object-fit:contain; }
     .logo-box .noimg { color:#999; font-size:.75rem; text-align:center; padding:8px; }
+    .hint { font-size:.74rem; color:var(--muted); margin:10px 0 0; line-height:1.5; }
     .fields { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 14px; }
     .fields label { display:flex; flex-direction:column; gap:3px; font-size:.7rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
     .fields .full { grid-column:1 / -1; }
@@ -84,6 +85,7 @@ const SECTORS = [
       el.innerHTML = `
         <div>
           <div class="logo-box">${thumb ? `<img src="${thumb}" alt="" onerror="this.parentElement.innerHTML='<span class=noimg>logo não pôde ser pré-visualizada (mas será baixada ao publicar)</span>'"/>` : '<span class="noimg">sem logo detectada</span>'}</div>
+          <p class="hint">${s.contactName ? '👤 ' + esc(s.contactName) : ''}${s.segment ? '<br>🏷️ ' + esc(s.segment) : ''}</p>
         </div>
         <div class="fields">
           <label>Identificador (slug)<input name="id" value="${esc(s.suggestedId)}"/></label>
@@ -102,8 +104,8 @@ const SECTORS = [
             <span class="msg"></span>
           </div>
         </div>`
-      // default sector "outro"
-      el.querySelector('[name=sector]').value = 'outro'
+      // pré-seleciona o setor detectado pelo segmento (revisor ajusta se quiser)
+      el.querySelector('[name=sector]').value = s.suggestedSector || 'outro'
       el.querySelector('.pub').onclick = () => publish(el, s)
       el.querySelector('.dis').onclick = () => dismiss(el, s)
       return el

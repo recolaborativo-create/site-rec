@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro'
 import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
-import { fetchSubmissions } from '../../../utils/sheet-csv'
+import { fetchSubmissions, guessSector } from '../../../utils/sheet-csv'
 
 export const prerender = false
 
@@ -46,20 +46,29 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const pending = submissions
-    .filter(s => !done.has(s.key) && (s.name || s.instagram))
-    .map(s => ({
-      key: s.key,
-      suggestedId: slugify(s.name || s.instagram.replace('@', '')),
-      name: s.name,
-      instagram: s.instagram.startsWith('@') || !s.instagram ? s.instagram : '@' + s.instagram,
-      city: s.city,
-      whatsapp: onlyDigits(s.whatsapp),
-      website: /^https?:\/\//i.test(s.website) ? s.website : '',
-      hasGoogle: s.hasGoogle,
-      description: s.description,
-      logoRef: s.logoRef,
-      raw: s.raw,
-    }))
+    // inscrição válida = tem algo identificável (logo, descrição, contato ou instagram)
+    .filter(s => !done.has(s.key) && (s.logoRef || s.description || s.contactName || s.instagram))
+    .map(s => {
+      // Form não coleta nome da empresa → sugere pelo @ (sem o @), revisor ajusta
+      const igHandle = s.instagram.replace(/^@/, '').trim()
+      const suggestedName = s.name || igHandle
+      return {
+        key: s.key,
+        suggestedId: slugify(suggestedName || s.contactName),
+        name: suggestedName,
+        contactName: s.contactName,
+        segment: s.segment,
+        suggestedSector: guessSector(s.segment),
+        instagram: !s.instagram || s.instagram.startsWith('@') ? s.instagram : '@' + s.instagram,
+        city: s.city,
+        whatsapp: onlyDigits(s.whatsapp),
+        website: /^https?:\/\//i.test(s.website) ? s.website : '',
+        hasGoogle: s.hasGoogle,
+        description: s.description,
+        logoRef: s.logoRef,
+        raw: s.raw,
+      }
+    })
 
   return json({ pending, count: pending.length })
 }
