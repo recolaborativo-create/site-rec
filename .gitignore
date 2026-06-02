@@ -24,3 +24,8 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+
+# pastas de trabalho (assets brutos, não deployar)
+/public/novas-fotos/
+/public/Novas logos para ser add/
+_*.mjs
