@@ -3,7 +3,7 @@ title: "Posicionamento de marca: como se destacar sem brigar por preço"
 excerpt: "Quando todo mundo parece fazer a mesma coisa, a tentação é baixar o preço. Mas existe uma saída mais inteligente e mais lucrativa."
 pillar: estrategia
 publishedAt: 2026-05-02
-cover: /fotos-blog/posicionamento-de-marca.png
+cover: /fotos-blog/posicionamento-de-marca.webp
 coverAlt: Empreendedora posicionando sua marca com clareza e diferenciação
 author: REC
 ---

@@ -3,7 +3,7 @@ title: "O que a inteligência artificial pode fazer pelo seu negócio agora"
 excerpt: "IA não é assunto de empresa grande. Veja o que empreendedoras de pequenos negócios já estão usando para ganhar tempo e vender mais."
 pillar: empreendedorismo
 publishedAt: 2026-05-10
-cover: /fotos-blog/ia-para-empreendedoras-negocios.png
+cover: /fotos-blog/ia-para-empreendedoras-negocios.webp
 coverAlt: Empreendedora usando inteligência artificial no negócio
 author: REC
 ---

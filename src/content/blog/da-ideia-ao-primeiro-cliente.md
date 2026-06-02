@@ -3,7 +3,7 @@ title: "Da ideia ao primeiro cliente: o caminho que ninguém conta"
 excerpt: "Todo negócio começa com uma ideia. Mas entre a ideia e o primeiro cliente real existe um gap que a maioria dos empreendedores subestima, e paga caro por isso."
 pillar: empreendedorismo
 publishedAt: 2026-03-18
-cover: /fotos-blog/da-ideia-ao-primeiro-cliente.png
+cover: /fotos-blog/da-ideia-ao-primeiro-cliente.webp
 coverAlt: Da ideia ao primeiro cliente
 author: REC
 ---

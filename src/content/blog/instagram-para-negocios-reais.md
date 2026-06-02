@@ -3,7 +3,7 @@ title: "Instagram para negócios reais: gere clientes, não só curtidas"
 excerpt: "Muita empreendedora está trabalhando muito para o algoritmo e pouco para o negócio. Entenda a diferença entre presença digital que impressiona e a que vende."
 pillar: negocios
 publishedAt: 2026-03-05
-cover: /fotos-blog/instagram-para-negocios-reais.png
+cover: /fotos-blog/instagram-para-negocios-reais.webp
 coverAlt: Empreendedora usando celular para gerenciar perfil no Instagram
 author: REC
 ---
