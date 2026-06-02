@@ -306,7 +306,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 <style>
 /* REVEAL */
 [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing); }
-[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+[data-reveal].in-view { opacity: 1; transform: none; }
 
 /* ===================================
    BACKGROUND DECORATIVE GRAPHICS
@@ -337,7 +337,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 .com-bg-ring {
   right: -110px;
   top: 172vh;
-  color: rgba(1,38,89,0.18);
+  color: var(--border-strong);
   animation: bgFadeIn 1.4s ease-out 0.4s forwards, slowRotate 80s linear infinite;
 }
 @keyframes slowRotate {
@@ -648,7 +648,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 .com-pillar-featured { border-color: rgba(0,161,152,0.35); background: linear-gradient(160deg, var(--accent-tint) 0%, var(--surface-raised) 60%); transform: translateY(-12px); }
 .com-pillar-featured::before { transform: scaleX(1); }
 .com-pillar-featured:hover { transform: translateY(-18px); }
-.com-pillar-num { position: absolute; top: var(--space-5); right: var(--space-6); font-size: 3rem; font-weight: 800; color: rgba(1,38,89,0.06); line-height: 1; letter-spacing: var(--letter-tight); }
+.com-pillar-num { position: absolute; top: var(--space-5); right: var(--space-6); font-size: 3rem; font-weight: 800; color: var(--border-strong); line-height: 1; letter-spacing: var(--letter-tight); }
 .com-pillar-icon {
   width: 52px;
   height: 52px;

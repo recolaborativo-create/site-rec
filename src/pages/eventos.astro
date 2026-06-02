@@ -717,7 +717,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
    REVEAL
    ========================================================= */
 [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms), transform 700ms cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0ms); }
-[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+[data-reveal].in-view { opacity: 1; transform: none; }
 
 /* =========================================================
    COMPARTILHADOS
@@ -735,7 +735,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
 .ev-hero-inner { max-width: var(--container-max); margin: 0 auto; }
 .ev-hero h1 { font-family: var(--font-display); font-size: clamp(2.6rem,6.5vw,5rem); font-weight: 300; line-height: 1; letter-spacing: -0.02em; margin: var(--space-4) 0 var(--space-5); color: var(--text); max-width: 920px; }
 .ev-hero h1 em { color: var(--rec-teal); font-style: italic; font-weight: 400; }
-.ev-hero-lead { font-size: 1.1rem; line-height: 1.7; color: #4a5868; max-width: 620px; margin: 0; }
+.ev-hero-lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); max-width: 620px; margin: 0; }
 
 /* =========================================================
    2. PRÓXIMOS EVENTOS
@@ -768,16 +768,16 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
 .ev-card-body { padding: var(--space-4) var(--space-6) var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
 .ev-card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
 .ev-card h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 500; line-height: 1.2; margin: 4px 0 0; color: var(--text); }
-.ev-card p { font-size: 0.9rem; line-height: 1.6; color: #5b6878; margin: 0; flex: 1; }
-.ev-card-info { display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: 0.82rem; color: #6a7888; margin-top: 6px; }
+.ev-card p { font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin: 0; flex: 1; }
+.ev-card-info { display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: 0.82rem; color: var(--text-soft); margin-top: 6px; }
 .ev-card-info span { display: inline-flex; align-items: center; gap: 6px; }
 .ev-card-info svg { width: 14px; height: 14px; color: var(--rec-teal); }
 .ev-card-cta { display: inline-flex; color: var(--rec-teal); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: var(--space-3); padding-bottom: 6px; border-bottom: 1.5px solid var(--rec-teal); align-self: flex-start; transition: color var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
 .ev-card-cta:hover { color: var(--text); border-color: var(--text); }
 .ev-tag { font-family: var(--font-ui); font-size: 0.66rem; letter-spacing: 0.12em; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; font-weight: 700; }
-.ev-tag--type { background: rgba(0,161,152,0.1); color: #007a73; }
+.ev-tag--type { background: rgba(0,161,152,0.1); color: var(--accent); }
 .ev-featured .ev-tag--type { background: rgba(0,161,152,0.2); color: var(--rec-teal); }
-.ev-tag--inscricoes { background: rgba(0,161,152,0.18); color: #007a73; }
+.ev-tag--inscricoes { background: rgba(0,161,152,0.18); color: var(--accent); }
 .ev-tag--proximo { background: rgba(1,38,89,0.08); color: var(--text); }
 .ev-tag--encerrado { background: rgba(120,120,120,0.12); color: #777; }
 .ev-featured .ev-tag--inscricoes { background: rgba(0,161,152,0.25); color: var(--rec-teal); }
@@ -1274,7 +1274,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
 .ev-about-body p {
   font-size: var(--type-body);
   line-height: 1.75;
-  color: rgba(1,38,89,0.72);
+  color: var(--text);
   margin: 0;
 }
 .ev-about-body p strong {

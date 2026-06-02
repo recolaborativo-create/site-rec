@@ -81,7 +81,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 
 <style>
 [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing); }
-[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+[data-reveal].in-view { opacity: 1; transform: none; }
 
 /* ============================================
    HERO — leve, claro, sem ruído
@@ -144,7 +144,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 .hero-lead {
   font-size: clamp(1rem, 1.3vw, 1.15rem);
   line-height: 1.65;
-  color: rgba(1,38,89,0.7);
+  color: var(--text);
   max-width: 540px;
   margin: 0 auto var(--space-8);
 }
