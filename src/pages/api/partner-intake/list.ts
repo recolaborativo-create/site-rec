@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
+import { isModAuthorized, unauthorizedResponse, json } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
 import { fetchSubmissions, guessSector } from '../../../utils/sheet-csv'
 
@@ -73,9 +73,3 @@ export const GET: APIRoute = async ({ request }) => {
   return json({ pending, count: pending.length })
 }
 
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

@@ -1,54 +1,13 @@
 ---
 export const prerender = false
 
-// Página de login interno — URL secreta, não linkada no site.
-// Avaliações de empresas agora são auto-aprovadas (sem painel de moderação).
-// Esta página segue existindo só como porta de login: seta o cookie `rec_mod`
-// usado pela aprovação de blog (/aprovacao-blog/*).
-// Fluxo (NÃO usa secret na URL além do primeiro acesso, evita vazamento por logs):
-//   1) GET /moderacao?s=SEU_TOKEN  → valida, seta cookie httpOnly, redireciona p/ /moderacao
-//   2) GET /moderacao              → valida cookie e mostra atalho pro painel de blog
+// Página de login interno — URL secreta, não linkada no site. Seta o cookie
+// `rec_mod` usado pelos painéis internos (/aprovacao-blog/*, /cadastro-empresas).
+// Gate compartilhado em utils/mod-auth (?s=token → cookie 12h → redireciona).
+import { modPageGate } from '../utils/mod-auth'
 
-const COOKIE_NAME = 'rec_mod'
-// Usa || pra descartar string vazia — mesmo padrão de reviews.ts
-const MOD_SECRET = process.env.MOD_SECRET || import.meta.env.MOD_SECRET
-const secretParam = Astro.url.searchParams.get('s')
-
-// Lê cookie (sem dependência de bibliotecas)
-function readCookie(name: string): string | null {
-  const raw = Astro.request.headers.get('cookie') ?? ''
-  for (const part of raw.split(';')) {
-    const [k, ...v] = part.trim().split('=')
-    if (k === name) return decodeURIComponent(v.join('='))
-  }
-  return null
-}
-
-if (!MOD_SECRET) {
-  return new Response(null, { status: 404 })
-}
-
-// Fluxo 1: query param presente → seta cookie e remove da URL
-if (secretParam) {
-  if (secretParam !== MOD_SECRET) {
-    return new Response(null, { status: 404 })
-  }
-  // Cookie httpOnly + Secure + SameSite=Strict, validade 12h
-  const cookie = `${COOKIE_NAME}=${encodeURIComponent(secretParam)}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${60 * 60 * 12}`
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: '/moderacao',
-      'Set-Cookie': cookie,
-    },
-  })
-}
-
-// Fluxo 2: sem query, valida cookie
-const cookieToken = readCookie(COOKIE_NAME)
-if (!cookieToken || cookieToken !== MOD_SECRET) {
-  return new Response(null, { status: 404 })
-}
+const gate = modPageGate(Astro.request, Astro.url, '/moderacao')
+if (gate) return gate
 ---
 <!DOCTYPE html>
 <html lang="pt-BR">

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
+import { isModAuthorized, unauthorizedResponse, json } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
 import { commitFiles } from '../../../utils/github-commit'
 import { normalizeLogo } from '../../../utils/normalize-logo'
@@ -95,6 +95,3 @@ export const POST: APIRoute = async ({ request }) => {
   return json({ ok: true, id, note: 'Empresa publicada. Vercel rebuilda em ~2-3 min e ela aparece na constelação.' })
 }
 
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}

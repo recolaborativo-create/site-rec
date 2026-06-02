@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { isModAuthorized, unauthorizedResponse } from '../../../utils/mod-auth'
+import { isModAuthorized, unauthorizedResponse, json } from '../../../utils/mod-auth'
 import { getSupabaseAdmin } from '../../../utils/supabase-admin'
 
 export const prerender = false
@@ -22,6 +22,3 @@ export const POST: APIRoute = async ({ request }) => {
   return json({ ok: true })
 }
 
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}

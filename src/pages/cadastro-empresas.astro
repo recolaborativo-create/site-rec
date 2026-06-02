@@ -3,30 +3,10 @@ export const prerender = false
 
 // Página interna (não linkada, noindex) pra revisar e publicar empresas que
 // se inscreveram pelo Google Form. Mesmo cookie `rec_mod` da /moderacao.
-const COOKIE_NAME = 'rec_mod'
-const MOD_SECRET = process.env.MOD_SECRET || import.meta.env.MOD_SECRET
+import { modPageGate } from '../utils/mod-auth'
 
-function readCookie(name: string): string | null {
-  const raw = Astro.request.headers.get('cookie') ?? ''
-  for (const part of raw.split(';')) {
-    const [k, ...v] = part.trim().split('=')
-    if (k === name) return decodeURIComponent(v.join('='))
-  }
-  return null
-}
-
-if (!MOD_SECRET) return new Response(null, { status: 404 })
-
-// Atalho: /cadastro-empresas?s=SEGREDO → seta o cookie e redireciona (sem passar pela /moderacao)
-const secretParam = Astro.url.searchParams.get('s')
-if (secretParam) {
-  if (secretParam !== MOD_SECRET) return new Response(null, { status: 404 })
-  const cookie = `${COOKIE_NAME}=${encodeURIComponent(secretParam)}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${60 * 60 * 12}`
-  return new Response(null, { status: 302, headers: { Location: '/cadastro-empresas', 'Set-Cookie': cookie } })
-}
-
-const cookieToken = readCookie(COOKIE_NAME)
-if (!cookieToken || cookieToken !== MOD_SECRET) return new Response(null, { status: 404 })
+const gate = modPageGate(Astro.request, Astro.url, '/cadastro-empresas')
+if (gate) return gate
 
 const SECTORS = [
   'beleza','saude','educacao','gastronomia','contabilidade','advocacia','marketing','tech',
