@@ -199,7 +199,7 @@ function staticImg(id: string): string {
 <style>
 .ig-section {
   padding: var(--space-16) var(--space-6) var(--space-12);
-  background: linear-gradient(180deg, #fff 0%, rgba(0,161,152,0.03) 50%, #fff 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--accent-tint) 50%, var(--surface) 100%);
   opacity: 0;
   transform: translateY(20px);
   transition: opacity var(--motion-slow) var(--easing), transform var(--motion-slow) var(--easing);
@@ -239,7 +239,7 @@ function staticImg(id: string): string {
 .ig-sub {
   max-width: 540px;
   margin: 0 auto;
-  color: #556;
+  color: var(--text-muted);
   line-height: 1.65;
   font-size: var(--type-body);
 }
@@ -274,7 +274,7 @@ function staticImg(id: string): string {
   border-radius: 14px;
   position: relative;
   isolation: isolate;
-  background: #fff;
+  background: var(--surface-raised);
   padding: 3px;
   transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing), filter var(--motion-fast) var(--easing);
 }
@@ -402,9 +402,9 @@ function staticImg(id: string): string {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #fff;
-  border: 1px solid rgba(37,52,57,0.1);
-  color: var(--rec-purple);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--brand);
   cursor: pointer;
   transition: all var(--motion-fast) var(--easing);
   display: inline-flex;
