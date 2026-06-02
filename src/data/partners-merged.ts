@@ -38,6 +38,10 @@ export async function loadAllPartners(): Promise<Partner[]> {
     reach: (e.data.reach || 3) as 1 | 2 | 3 | 4 | 5,
     logo: e.data.logo,
     description: e.data.description,
+    whatsapp: (e.data as any).whatsapp || undefined,
+    city: (e.data as any).city || undefined,
+    website: (e.data as any).website || undefined,
+    hideGoogle: (e.data as any).hideGoogle || undefined,
   }))
   // CMS partners win on id collision
   const map = new Map<string, Partner>()

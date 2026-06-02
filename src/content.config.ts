@@ -35,10 +35,18 @@ const partners = defineCollection({
     id: z.string(),
     name: z.string(),
     instagram: z.string().optional(),
-    sector: z.enum(['beleza', 'saude', 'educacao', 'gastronomia', 'servicos', 'moda', 'tech', 'outro']),
+    sector: z.enum([
+      'beleza', 'saude', 'educacao', 'gastronomia', 'contabilidade', 'advocacia',
+      'marketing', 'tech', 'consultoria', 'arquitetura', 'eventos', 'moda',
+      'imoveis', 'turismo', 'servicos', 'outro',
+    ]),
     logo: z.string(),
     description: z.string().optional(),
     reach: z.coerce.number().int().min(1).max(5).default(3),
+    whatsapp: z.string().optional(),
+    city: z.string().optional(),
+    website: z.string().optional(),
+    hideGoogle: z.boolean().optional(),
   }),
 })
 
