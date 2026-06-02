@@ -1,9 +1,10 @@
-# Partners managed via Decap CMS
+# Empresas parceiras (storage)
 #
-# Each *.json file in this folder represents a partner added via the CMS at /admin.
-# The CMS auto-creates these — don't edit by hand unless you know what you're doing.
+# Cada *.json aqui representa uma empresa que aparece na constelação.
+# São criados automaticamente pela página interna de cadastro (/cadastro-empresas)
+# ao publicar uma inscrição vinda do Google Form.
 #
-# Schema (validated by src/content.config.ts):
+# Schema (validado por src/content.config.ts):
 #   { id, name, instagram?, sector, logo, description?, reach? }
 #
-# These merge with the static partners list at src/data/partners.ts via loadAllPartners().
+# Faz merge com a lista estática em src/data/partners.ts via loadAllPartners().

@@ -27,7 +27,7 @@ const blog = defineCollection({
   }),
 })
 
-// Partners managed via Decap CMS at /admin
+// Partners — criados pela página interna /cadastro-empresas (a partir do Google Form).
 // Schema mirrors the static partners.ts shape so they can be merged at render time.
 const partners = defineCollection({
   loader: glob({ pattern: '*.json', base: './src/content/partners' }),
