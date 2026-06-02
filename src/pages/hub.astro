@@ -445,11 +445,11 @@ const method = [
 
 /* Shared eyebrow / heads */
 .hub-eyebrow { font-family: var(--font-ui); font-size: var(--type-micro); letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; color: var(--rec-teal); display: inline-block; }
-.hub-eyebrow-dark { color: var(--rec-blue); opacity: 0.7; }
+.hub-eyebrow-dark { color: var(--text); opacity: 0.7; }
 .hub-section-head { max-width: 720px; margin: 0 auto var(--space-10); text-align: center; }
-.hub-section-head h2 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-3); font-weight: 300; color: var(--rec-blue); }
+.hub-section-head h2 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.05; margin: var(--space-3) 0 var(--space-3); font-weight: 300; color: var(--text); }
 .hub-section-head h2 em { color: var(--rec-teal); font-style: italic; }
-.hub-section-head p { color: #556; font-size: var(--type-body); line-height: 1.65; max-width: 580px; margin: 0 auto; }
+.hub-section-head p { color: var(--text-muted); font-size: var(--type-body); line-height: 1.65; max-width: 580px; margin: 0 auto; }
 .hub-section-head.light-head h2 { color: #fff; }
 .hub-section-head.light-head .hub-eyebrow { color: rgba(255,255,255,0.6); }
 
@@ -459,7 +459,7 @@ const method = [
 .hub-btn-primary svg { transition: transform var(--motion-fast) var(--easing); }
 .hub-btn-primary:hover svg { transform: translateX(3px); }
 .hub-btn-primary--big { padding: 18px 36px; font-size: 1rem; }
-.hub-btn-primary--alt { background: #fff; color: var(--rec-blue); }
+.hub-btn-primary--alt { background: var(--surface-raised); color: var(--text); }
 .hub-btn-primary--alt:hover { background: var(--rec-teal); color: #fff; }
 
 .hub-btn-ghost { display: inline-flex; align-items: center; color: rgba(255,255,255,0.85); padding: 18px 26px; font-weight: 600; font-size: 1.05rem; letter-spacing: 0.04em; border-bottom: 1px solid rgba(255,255,255,0.3); transition: color var(--motion-fast) var(--easing), border-color var(--motion-fast) var(--easing); }
@@ -572,18 +572,18 @@ const method = [
 /* =====================================
    2. MANIFESTO
    ===================================== */
-.hub-manifesto { background: #fff; padding: var(--space-16) var(--space-6); }
+.hub-manifesto { background: var(--surface-raised); padding: var(--space-16) var(--space-6); }
 .hub-manifesto-inner { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
-.hub-manifesto-text { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.85rem); line-height: 1.45; color: var(--rec-blue); margin: 0; }
-.hub-manifesto-text strong { font-weight: 600; color: var(--rec-blue); }
+.hub-manifesto-text { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.85rem); line-height: 1.45; color: var(--text); margin: 0; }
+.hub-manifesto-text strong { font-weight: 600; color: var(--text); }
 .hub-manifesto-text a { color: var(--rec-teal); border-bottom: 1px solid currentColor; padding-bottom: 1px; transition: color var(--motion-fast) var(--easing); }
-.hub-manifesto-text a:hover { color: var(--rec-blue); }
+.hub-manifesto-text a:hover { color: var(--text); }
 
 /* =====================================
    3. SOLUÇÕES — ORBIT (constelação)
    ===================================== */
 .hub-solutions {
-  background: linear-gradient(180deg, #fbfafa 0%, #f1f3f6 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   padding: var(--space-10) 0 var(--space-12);
   position: relative;
   overflow: visible;
@@ -716,8 +716,8 @@ const method = [
   /* Base transform: centraliza o card no ponto orbital */
   transform: translate(-50%, -50%) scale(0.88);
   width: 265px;
-  background: #fff;
-  border: 1px solid rgba(1,38,89,0.08);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
   border-radius: 14px;
   padding: 18px 20px;
   display: flex; flex-direction: column;
@@ -753,7 +753,7 @@ const method = [
     box-shadow 350ms ease,
     border-color 350ms ease,
     background 350ms ease;
-  background: linear-gradient(160deg, #ffffff 0%, rgba(0,161,152,0.04) 100%);
+  background: linear-gradient(160deg, var(--surface-raised) 0%, var(--accent-tint) 100%);
 }
 
 /* ── Linha-varredura (scan sincronizada com o spark) ─────────────────── */
@@ -823,7 +823,7 @@ const method = [
 .orbit-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .orbit-card-icon {
   width: 30px; height: 30px;
-  color: var(--rec-blue);
+  color: var(--text);
   display: flex; align-items: center; justify-content: center;
   transition: color 300ms ease, transform 400ms cubic-bezier(0.22,1,0.36,1);
 }
@@ -840,7 +840,7 @@ const method = [
   font-size: 1.08rem;
   font-weight: 500;
   line-height: 1.15;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0;
 }
 .orbit-card p {
@@ -908,8 +908,8 @@ const method = [
     .hub-solutions-stack::-webkit-scrollbar { display: none; }
   }
   .stack-tile {
-    background: #fff;
-    border: 1px solid rgba(1,38,89,0.08);
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
     border-radius: 16px;
     padding: var(--space-5);
     display: grid;
@@ -941,7 +941,7 @@ const method = [
   }
   .stack-tile-body { display: flex; flex-direction: column; gap: 4px; }
   .stack-tile-code { font-family: var(--font-ui); font-size: var(--type-micro); letter-spacing: 0.15em; color: rgba(1,38,89,0.4); font-weight: 600; }
-  .stack-tile h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: var(--rec-blue); margin: 0; line-height: 1.2; }
+  .stack-tile h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: var(--text); margin: 0; line-height: 1.2; }
   .stack-tile p { font-family: var(--font-body); font-size: 0.85rem; line-height: 1.55; color: #4a5868; margin: 4px 0 0; }
   .stack-tile-tags { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 5px; }
   .stack-tile-tags li {
@@ -989,7 +989,7 @@ const method = [
    5. EMBAIXADORAS (FEATURE DARK PANEL)
    ===================================== */
 .hub-ambassadors {
-  background: #fff;
+  background: var(--surface-raised);
   padding: var(--space-12) var(--space-6) var(--space-20);
   position: relative;
 }
@@ -1063,7 +1063,7 @@ const method = [
   padding: var(--space-24) var(--space-6);
   background: linear-gradient(
     180deg,
-    #fbfcfe  0%,
+    var(--surface)  0%,
     #f5fafd  3%,
     #eef6fc  6%,
     #eef6fc  9%,
@@ -1107,9 +1107,9 @@ const method = [
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    #fbfcfe 0%,
-    #fbfcfe 30%,
-    rgba(251,252,254,0) 100%
+    var(--surface) 0%,
+    var(--surface) 30%,
+    transparent 100%
   );
 }
 .hub-final-bars {
@@ -1129,8 +1129,8 @@ const method = [
 .hub-final-bars span:nth-child(3) { width: 48px; background: var(--rec-blue); }
 @media (max-width: 768px) { .hub-final-bars { display: none; } }
 .hub-final-inner { position: relative; max-width: 680px; margin: 0 auto; z-index: 2; }
-.hub-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--rec-blue); }
-.hub-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.hub-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--text); }
+.hub-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }
 .hub-final-light { font-weight: 300; }
 .hub-final p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: var(--space-8); font-size: var(--type-body); }
 .hub-final-cta {
@@ -1305,4 +1305,10 @@ const method = [
     text-align: center;
   }
 }
+
+/* DARK: seção final emenda na superfície escura (não no azul-claro) → rodapé limpo */
+:global(:root[data-theme="dark"]) .hub-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .hub-final-bars { mix-blend-mode: normal; }
 </style>

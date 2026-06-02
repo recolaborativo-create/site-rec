@@ -343,7 +343,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
 .article-body :global(p:first-of-type) {
   font-size: 1.18rem;
   line-height: 1.65;
-  color: var(--rec-blue);
+  color: var(--text);
   font-weight: 400;
 }
 
@@ -353,7 +353,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: var(--space-12) 0 var(--space-5);
   scroll-margin-top: 100px;
 }
@@ -362,7 +362,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: var(--space-8) 0 var(--space-3);
   scroll-margin-top: 100px;
 }
@@ -378,7 +378,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
   background-color: rgba(0,161,152,0.18);
 }
 
-.article-body :global(strong) { color: var(--rec-blue); font-weight: 600; }
+.article-body :global(strong) { color: var(--text); font-weight: 600; }
 .article-body :global(em) { font-style: italic; }
 
 .article-body :global(blockquote) {
@@ -424,7 +424,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
 
 .article-body :global(code) {
   background: rgba(0,161,152,0.08);
-  color: var(--rec-blue);
+  color: var(--text);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Space Mono', ui-monospace, monospace;
@@ -453,7 +453,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
   padding: var(--space-24) var(--space-6);
   background: linear-gradient(
     180deg,
-    #fbfcfe  0%,
+    var(--surface)  0%,
     #f5fafd  3%,
     #eef6fc  6%,
     #e4f0fa  9%,
@@ -493,7 +493,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
   height: 22%;
   pointer-events: none;
   z-index: 1;
-  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+  background: linear-gradient(to bottom, var(--surface) 0%, var(--surface) 30%, transparent 100%);
 }
 
 .article-final-bars {
@@ -526,9 +526,9 @@ const articleSchemas: Array<Record<string, unknown>> = [
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: var(--space-4);
-  color: var(--rec-blue);
+  color: var(--text);
 }
-.article-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.article-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }
 .article-final p {
   color: rgba(255,255,255,0.85);
   line-height: 1.7;
@@ -602,4 +602,10 @@ const articleSchemas: Array<Record<string, unknown>> = [
 @media (prefers-reduced-motion: reduce) {
   .article-footer-btn:hover { transform: none; }
 }
+
+/* DARK: seção final emenda na superfície escura (não no azul-claro) → rodapé limpo */
+:global(:root[data-theme="dark"]) .article-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .article-final-bars { mix-blend-mode: normal; }
 </style>

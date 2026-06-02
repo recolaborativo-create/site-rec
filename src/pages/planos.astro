@@ -90,7 +90,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   position: relative;
   overflow: hidden;
   padding: var(--space-24) var(--space-6) var(--space-12);
-  background: linear-gradient(180deg, #fbfcfe 0%, #fff 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
   text-align: center;
 }
 
@@ -136,7 +136,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   font-weight: 200;
   line-height: 1.02;
   letter-spacing: -0.035em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0 0 var(--space-5);
 }
 .hero-title em { color: var(--rec-teal); font-style: italic; font-weight: 300; }
@@ -170,7 +170,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   padding: var(--space-24) var(--space-6);
   background: linear-gradient(
     180deg,
-    #fbfcfe  0%, #f5fafd  3%, #eef6fc  6%, #e4f0fa  9%,
+    var(--surface)  0%, #f5fafd  3%, #eef6fc  6%, #e4f0fa  9%,
     #d6e9f7 12%, #c5dff3 16%, #b0d2ee 20%, #97c3e7 24%,
     #7ab0de 29%, #5d9cd3 34%, #4287c5 39%, #2c73b6 45%,
     #1a60a6 51%, #0f4e95 57%, #083e81 63%, #052e6a 70%,
@@ -193,7 +193,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   position: absolute;
   top: 0; left: 0; right: 0; height: 22%;
   pointer-events: none;
-  background: linear-gradient(to bottom, #fbfcfe 0%, #fbfcfe 30%, rgba(251,252,254,0) 100%);
+  background: linear-gradient(to bottom, var(--surface) 0%, var(--surface) 30%, transparent 100%);
 }
 
 .planos-final-bars {
@@ -229,9 +229,9 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: var(--space-4);
-  color: var(--rec-blue);
+  color: var(--text);
 }
-.planos-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.planos-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }
 .planos-final p {
   color: rgba(255,255,255,0.85);
   line-height: 1.7;
@@ -295,4 +295,10 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 @media (prefers-reduced-motion: reduce) {
   .planos-final-cta { animation: none; }
 }
+
+/* DARK: seção final emenda na superfície escura (não no azul-claro) → rodapé limpo */
+:global(:root[data-theme="dark"]) .planos-final {
+  background: linear-gradient(180deg, var(--surface) 0%, #04193f 45%, #042050 100%);
+}
+:global(:root[data-theme="dark"]) .planos-final-bars { mix-blend-mode: normal; }
 </style>
