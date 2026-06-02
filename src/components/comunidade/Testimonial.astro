@@ -38,8 +38,8 @@ const hasVideo = !!video
 <style>
 .testimonial {
   position: relative;
-  background: #fff;
-  border: 1px solid rgba(37,52,57,0.08);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
   border-radius: 20px;
   padding: var(--space-7);
   display: flex;
@@ -76,12 +76,12 @@ const hasVideo = !!video
 }
 
 .t-author { display: flex; flex-direction: column; gap: 2px; }
-.t-author strong { color: var(--rec-blue); font-weight: 800; font-size: 1rem; letter-spacing: var(--letter-tight); }
-.t-author span { color: #667; font-size: var(--type-small); }
+.t-author strong { color: var(--text); font-weight: 800; font-size: 1rem; letter-spacing: var(--letter-tight); }
+.t-author span { color: var(--text-soft); font-size: var(--type-small); }
 
 .t-quote {
   font-size: var(--type-body);
-  color: #2c3e50;
+  color: var(--text-muted);
   line-height: 1.7;
   font-style: italic;
   flex: 1;
@@ -109,9 +109,9 @@ const hasVideo = !!video
 }
 .t-cta svg { width: 14px; height: 14px; transition: transform 0.25s var(--easing); }
 .t-cta .t-arrow { width: 16px; height: 16px; }
-.t-cta:hover { color: var(--rec-blue); gap: 14px; }
+.t-cta:hover { color: var(--text); gap: 14px; }
 .t-cta:hover .t-arrow { transform: translateX(3px); }
 .t-cta:hover svg:first-child { transform: scale(1.15); }
 
-.t-pending { display: block; font-size: var(--type-micro); color: #999; letter-spacing: 0.1em; text-transform: uppercase; margin-top: auto; }
+.t-pending { display: block; font-size: var(--type-micro); color: var(--text-soft); letter-spacing: 0.1em; text-transform: uppercase; margin-top: auto; }
 </style>

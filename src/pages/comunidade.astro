@@ -434,7 +434,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   line-height: 1.02;
   font-weight: 800;
   letter-spacing: var(--letter-tight);
-  color: var(--rec-blue);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -458,8 +458,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   to { transform: translateY(0); }
 }
 
-.com-lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: #1d3a55; line-height: 1.6; max-width: 540px; font-weight: 500; }
-.com-lead-secondary { font-size: var(--type-body); color: #3a4a55; line-height: 1.75; max-width: 540px; }
+.com-lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--text-muted); line-height: 1.6; max-width: 540px; font-weight: 500; }
+.com-lead-secondary { font-size: var(--type-body); color: var(--text-muted); line-height: 1.75; max-width: 540px; }
 
 .com-hero-ctas { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; margin-top: var(--space-2); }
 .com-cta-primary {
@@ -490,7 +490,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 .com-cta-primary:hover::after { left: 100%; }
 
 .com-cta-secondary {
-  color: var(--rec-blue);
+  color: var(--text);
   font-weight: 600;
   font-size: var(--type-small);
   text-transform: uppercase;
@@ -517,7 +517,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   position: absolute;
   bottom: -20px;
   left: -20px;
-  background: #fff;
+  background: var(--surface-raised);
   padding: var(--space-4) var(--space-5);
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(1,38,89,0.16);
@@ -531,8 +531,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
 }
-.com-badge-val { font-size: 1.8rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); line-height: 1; }
-.com-badge-label { font-size: var(--type-micro); color: #556; text-transform: uppercase; letter-spacing: 0.1em; }
+.com-badge-val { font-size: 1.8rem; font-weight: 800; color: var(--text); letter-spacing: var(--letter-tight); line-height: 1; }
+.com-badge-label { font-size: var(--type-micro); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
 @media (max-width: 800px) {
   .com-hero-inner { grid-template-columns: 1fr; gap: var(--space-10); }
@@ -559,12 +559,12 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 /* ===================================
    ABOUT
    =================================== */
-.com-about { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, #fff 0%, rgba(184,224,221,0.10) 100%); overflow: visible; }
+.com-about { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, var(--surface) 0%, var(--accent-tint) 100%); overflow: visible; }
 .com-about-wrap { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center; }
 .com-about-inner { display: flex; flex-direction: column; gap: var(--space-5); }
-.com-about-inner h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin-top: var(--space-2); line-height: 1.05; }
+.com-about-inner h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--text); margin-top: var(--space-2); line-height: 1.05; }
 .com-about-inner h2 em { color: var(--rec-teal); font-style: normal; }
-.com-about-inner p { font-size: var(--type-body); color: #3a4a55; line-height: 1.8; }
+.com-about-inner p { font-size: var(--type-body); color: var(--text-muted); line-height: 1.8; }
 .com-about-inner p em { color: var(--rec-teal); font-style: italic; font-weight: 600; }
 
 /* CONSTELAÇÃO */
@@ -572,8 +572,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 .constellation-svg { width: 100%; max-width: 420px; height: auto; overflow: visible; }
 
 /* Linhas */
-.c-line { stroke: rgba(1,38,89,0.15); stroke-width: 1.2; stroke-dasharray: 400; stroke-dashoffset: 400; animation: drawLine 1.8s ease-out forwards; }
-.c-line-faint { stroke: rgba(1,38,89,0.07); }
+.c-line { stroke: var(--border-strong); stroke-width: 1.2; stroke-dasharray: 400; stroke-dashoffset: 400; animation: drawLine 1.8s ease-out forwards; }
+.c-line-faint { stroke: var(--border-soft); }
 @keyframes drawLine { to { stroke-dashoffset: 0; } }
 .c-line:nth-child(1)  { animation-delay: 0.1s; }
 .c-line:nth-child(2)  { animation-delay: 0.25s; }
@@ -612,19 +612,19 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 /* ===================================
    PILARES
    =================================== */
-.com-pillars { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.10) 0%, rgba(184,224,221,0.30) 100%); }
+.com-pillars { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, var(--accent-tint) 0%, var(--surface-2) 100%); }
 .com-pillars-inner { max-width: var(--container-max); margin: 0 auto; }
 .com-pillars-header { text-align: center; margin-bottom: var(--space-12); }
-.com-pillars-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin: var(--space-3) 0; line-height: 1.05; }
+.com-pillars-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--text); margin: var(--space-3) 0; line-height: 1.05; }
 .com-pillars-header h2 em { color: var(--rec-teal); font-style: normal; }
-.com-pillars-sub { color: #556; font-size: var(--type-body); max-width: 560px; margin: 0 auto; }
+.com-pillars-sub { color: var(--text-muted); font-size: var(--type-body); max-width: 560px; margin: 0 auto; }
 .com-pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
 .com-pillar {
   position: relative;
   padding: var(--space-8) var(--space-7);
   border-radius: 20px;
-  background: #fff;
-  border: 1px solid rgba(37,52,57,0.08);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -644,7 +644,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 }
 .com-pillar:hover { transform: translateY(-8px); box-shadow: 0 20px 48px rgba(1,38,89,0.14); border-color: rgba(0,161,152,0.25); }
 .com-pillar:hover::before { transform: scaleX(1); }
-.com-pillar-featured { border-color: rgba(0,161,152,0.35); background: linear-gradient(160deg, rgba(0,161,152,0.06) 0%, #fff 60%); transform: translateY(-12px); }
+.com-pillar-featured { border-color: rgba(0,161,152,0.35); background: linear-gradient(160deg, var(--accent-tint) 0%, var(--surface-raised) 60%); transform: translateY(-12px); }
 .com-pillar-featured::before { transform: scaleX(1); }
 .com-pillar-featured:hover { transform: translateY(-18px); }
 .com-pillar-num { position: absolute; top: var(--space-5); right: var(--space-6); font-size: 3rem; font-weight: 800; color: rgba(1,38,89,0.06); line-height: 1; letter-spacing: var(--letter-tight); }
@@ -662,32 +662,32 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 }
 .com-pillar-icon svg { width: 26px; height: 26px; }
 .com-pillar:hover .com-pillar-icon { transform: scale(1.1) rotate(-4deg); }
-.com-pillar h3 { font-size: 1.6rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); }
+.com-pillar h3 { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: var(--letter-tight); }
 .com-pillar-featured h3 { color: var(--rec-teal); }
-.com-pillar p { font-size: var(--type-small); color: #3a4a55; line-height: 1.65; }
+.com-pillar p { font-size: var(--type-small); color: var(--text-muted); line-height: 1.65; }
 .com-pillar-list { list-style: none; padding: 0; margin-top: auto; padding-top: var(--space-4); border-top: 1px solid rgba(37,52,57,0.08); display: flex; flex-direction: column; gap: var(--space-2); }
-.com-pillar-list li { font-size: var(--type-small); color: #3a4a55; padding-left: 18px; position: relative; }
+.com-pillar-list li { font-size: var(--type-small); color: var(--text-muted); padding-left: 18px; position: relative; }
 .com-pillar-list li::before { content: ''; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--rec-teal); }
 @media (max-width: 900px) { .com-pillars-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; } .com-pillar-featured { transform: none; } }
 
 /* ===================================
    PARA QUEM É
    =================================== */
-.com-forwho { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.30) 0%, #fff 100%); }
+.com-forwho { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%); }
 .com-forwho-inner { max-width: var(--container-max); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--space-16); align-items: start; }
 .com-forwho-header { text-align: left; display: flex; flex-direction: column; gap: var(--space-3); }
-.com-forwho-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--rec-blue); margin: var(--space-2) 0 var(--space-3); line-height: 1.05; }
+.com-forwho-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: var(--letter-tight); color: var(--text); margin: var(--space-2) 0 var(--space-3); line-height: 1.05; }
 .com-forwho-header h2 em { color: var(--rec-teal); font-style: normal; }
-.com-forwho-sub { font-size: var(--type-body); color: #3a4a55; line-height: 1.75; max-width: 460px; }
+.com-forwho-sub { font-size: var(--type-body); color: var(--text-muted); line-height: 1.75; max-width: 460px; }
 .com-forwho-cta-desktop { margin-top: var(--space-5); align-self: flex-start; }
 
 .com-forwho-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: var(--space-5); }
 .com-forwho-card {
   position: relative;
-  background: #fff;
+  background: var(--surface-raised);
   padding: var(--space-6);
   border-radius: 16px;
-  border: 1px solid rgba(37,52,57,0.08);
+  border: 1px solid var(--border-soft);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -708,8 +708,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 }
 .com-forwho-icon svg { width: 20px; height: 20px; }
 .com-forwho-card:hover .com-forwho-icon { transform: scale(1.1) rotate(-4deg); }
-.com-forwho-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--rec-blue); letter-spacing: var(--letter-tight); }
-.com-forwho-card p { font-size: var(--type-small); color: #3a4a55; line-height: 1.6; }
+.com-forwho-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: var(--letter-tight); }
+.com-forwho-card p { font-size: var(--type-small); color: var(--text-muted); line-height: 1.6; }
 
 @media (max-width: 900px) {
   .com-forwho-inner { grid-template-columns: 1fr; gap: var(--space-10); }
@@ -720,10 +720,10 @@ import { whatsappLink, messages } from '../utils/whatsapp'
 /* ===================================
    DEPOIMENTOS
    =================================== */
-.com-testimonials { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, rgba(184,224,221,0.10) 0%, #fff 100%); }
+.com-testimonials { position: relative; z-index: 5; padding: var(--space-32) var(--space-6); background: linear-gradient(180deg, var(--accent-tint) 0%, var(--surface) 100%); }
 .com-testimonials-inner { max-width: var(--container-max); margin: 0 auto; }
 .com-test-header { text-align: center; margin-bottom: var(--space-10); }
-.com-test-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; margin: var(--space-3) 0 0; color: var(--rec-blue); letter-spacing: var(--letter-tight); line-height: 1.05; }
+.com-test-header h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; margin: var(--space-3) 0 0; color: var(--text); letter-spacing: var(--letter-tight); line-height: 1.05; }
 .com-test-header h2 em { color: var(--rec-teal); font-style: normal; }
 .com-testimonials-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6); max-width: 980px; margin: 0 auto; }
 @media (max-width: 800px) { .com-testimonials-grid { grid-template-columns: 1fr; max-width: 500px; } }
@@ -750,9 +750,9 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    #fbfcfe 0%,
-    #fbfcfe 30%,
-    rgba(251,252,254,0) 100%
+    var(--surface) 0%,
+    var(--surface) 30%,
+    transparent 100%
   );
 }
 
@@ -807,8 +807,8 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   text-align: center;
 }
 .com-final-inner { position: relative; max-width: 680px; margin: 0 auto; }
-.com-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--rec-blue); }
-.com-final h2 em { color: var(--rec-blue); font-style: normal; font-weight: 800; }
+.com-final h2 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: var(--letter-tight); line-height: 1.1; margin-bottom: var(--space-4); color: var(--text); }
+.com-final h2 em { color: var(--text); font-style: normal; font-weight: 800; }
 .com-final-light { font-weight: 400; }
 .com-final p { color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: var(--space-8); font-size: var(--type-body); }
 .com-final-cta {
@@ -857,7 +857,7 @@ import { whatsappLink, messages } from '../utils/whatsapp'
   .com-lead-secondary {
     font-size: 0.88rem;
     line-height: 1.55;
-    color: rgba(58,74,85,0.85);
+    color: var(--text-muted);
   }
   .com-hero-img-frame { animation: none; }
   .com-cta-primary {
