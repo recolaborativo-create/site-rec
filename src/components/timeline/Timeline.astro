@@ -258,7 +258,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
 .tl-year-node:hover .tl-dot { box-shadow: 0 0 0 8px rgba(62,64,149,0.14); }
 .tl-year-node.is-active .tl-dot {
   background: var(--brand);
-  border-color: var(--brand);
+  border-color: var(--text);
   box-shadow: 0 0 0 10px rgba(108,90,178,0.18);
 }
 .tl-dot {
@@ -271,7 +271,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
   margin: 0 auto;
   transition: all var(--motion-fast) var(--easing);
 }
-.tl-past .tl-dot { background: var(--surface-raised); border-color: var(--brand); }
+.tl-past .tl-dot { background: var(--surface-raised); border-color: var(--text); }
 .tl-now .tl-dot {
   background: var(--rec-teal);
   border-color: var(--rec-teal);
@@ -306,7 +306,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
   letter-spacing: -0.01em;
 }
 .tl-now .tl-year-num { color: var(--rec-teal); }
-.tl-year-node.is-active .tl-year-num { color: var(--brand); }
+.tl-year-node.is-active .tl-year-num { color: var(--text); }
 .tl-year-meta {
   font-size: 0.65rem;
   letter-spacing: 0.1em;
@@ -314,13 +314,13 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
   color: var(--text-soft);
   font-weight: 500;
 }
-.tl-year-node.has-events .tl-year-meta { color: var(--brand); font-weight: 700; }
+.tl-year-node.has-events .tl-year-meta { color: var(--text); font-weight: 700; }
 .hint {
   text-align: center;
   font-size: var(--type-micro);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--brand);
+  color: var(--text);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -452,7 +452,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
   background: rgba(37,52,57,0.12);
   transition: all var(--motion-fast) var(--easing);
 }
-.month-cell.has-event .month-label { color: var(--brand); }
+.month-cell.has-event .month-label { color: var(--text); }
 .month-cell.has-event .month-dot {
   background: var(--rec-teal);
   box-shadow: 0 0 0 4px rgba(0,161,152,0.18);
@@ -542,7 +542,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
   font-size: var(--type-small);
   letter-spacing: 0.05em;
 }
-.empty-cta:hover { color: var(--brand); }
+.empty-cta:hover { color: var(--text); }
 
 /* Hidden source data */
 .year-data-source { display: none !important; }

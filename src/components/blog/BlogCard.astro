@@ -164,7 +164,7 @@ const minutes = body ? readingTime(body) : 4
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.96);
+  background: var(--surface-raised);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   padding: 6px 12px;
@@ -197,7 +197,7 @@ const minutes = body ? readingTime(body) : 4
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -212,7 +212,7 @@ const minutes = body ? readingTime(body) : 4
 .blog-card-excerpt {
   font-size: 0.98rem;
   line-height: 1.6;
-  color: rgba(1,38,89,0.65);
+  color: var(--text-muted);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -227,7 +227,7 @@ const minutes = body ? readingTime(body) : 4
   font-family: var(--font-ui);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
-  color: rgba(1,38,89,0.5);
+  color: var(--text-soft);
   text-transform: lowercase;
   margin-top: 4px;
 }

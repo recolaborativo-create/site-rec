@@ -127,7 +127,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   gap: 0 var(--space-7);
   padding: var(--space-6) var(--space-4);
   text-decoration: none;
-  color: var(--rec-blue);
+  color: var(--text);
   transition: padding 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .archival-item-wrap:hover .archival-row {
@@ -141,7 +141,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   font-size: 1rem;
   font-weight: 400;
   letter-spacing: -0.01em;
-  color: rgba(1,38,89,0.3);
+  color: var(--text-soft);
   font-feature-settings: 'tnum';
   white-space: nowrap;
   transition: color 280ms var(--easing);
@@ -157,7 +157,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: -0.015em;
-  color: var(--rec-blue);
+  color: var(--text);
   margin: 0;
   /* Permite até 2 linhas — mas título curto ocupa 1 só */
   display: -webkit-box;
@@ -167,7 +167,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   transition: color 280ms var(--easing);
 }
 .archival-item-wrap:hover .archival-row-title {
-  color: rgba(1,38,89,0.9);
+  color: var(--text);
 }
 
 /* Categoria */
@@ -192,7 +192,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(1,38,89,0.25);
+  color: var(--text-soft);
   transition: transform 280ms var(--easing), color 280ms var(--easing);
 }
 .archival-row-arrow svg { width: 20px; height: 20px; }
@@ -247,7 +247,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   font-family: var(--font-ui);
   font-size: 0.68rem;
   letter-spacing: 0.1em;
-  color: rgba(1,38,89,0.5);
+  color: var(--text-soft);
   text-transform: lowercase;
 }
 .archival-expand-sep { opacity: 0.5; }
@@ -256,7 +256,7 @@ const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month:
   font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(1,38,89,0.72);
+  color: var(--text-muted);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;

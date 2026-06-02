@@ -250,8 +250,8 @@ const recentPosts = allPosts
 .path-num { position: absolute; top: var(--space-4); right: var(--space-6); font-size: 4rem; font-weight: 800; color: var(--border-strong); line-height: 1; letter-spacing: var(--letter-tight); pointer-events: none; }
 .path-tag { font-size: var(--type-micro); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; }
 .path-comunidade .path-tag { color: var(--accent); }
-.path-hub .path-tag { color: var(--brand); }
-.path-eventos .path-tag { color: var(--brand); }
+.path-hub .path-tag { color: var(--text); }
+.path-eventos .path-tag { color: var(--text); }
 .path h3 { font-size: clamp(1.4rem, 2.5vw, 1.85rem); font-weight: 800; letter-spacing: var(--letter-tight); margin-top: var(--space-2); color: var(--text); }
 .path p { color: var(--text-muted); line-height: 1.6; font-size: var(--type-small); }
 .path-bullets { list-style: none; padding: 0; margin: var(--space-3) 0; display: flex; flex-direction: column; gap: var(--space-2); }
@@ -261,7 +261,7 @@ const recentPosts = allPosts
 .path-eventos .path-bullets li::before { background: var(--brand); }
 .path-cta { margin-top: auto; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--type-micro); padding-top: var(--space-4); border-top: 1px solid var(--border); transition: color var(--motion-fast) var(--easing); }
 .path-comunidade .path-cta { color: var(--accent); }
-.path-hub .path-cta { color: var(--brand); }
+.path-hub .path-cta { color: var(--text); }
 .path-eventos .path-cta { color: var(--accent); }
 .path-cta:hover { color: var(--text); }
 @media (max-width: 980px) { .paths-grid { grid-template-columns: 1fr; max-width: 560px; } }
@@ -287,10 +287,10 @@ const recentPosts = allPosts
   text-transform: uppercase;
 }
 .fund-text h2 { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: var(--letter-tight); margin: var(--space-3) 0 var(--space-2); line-height: 1; }
-.fund-role { font-size: var(--type-micro); letter-spacing: 0.15em; text-transform: uppercase; color: var(--brand); font-weight: 700; margin-bottom: var(--space-5); }
+.fund-role { font-size: var(--type-micro); letter-spacing: 0.15em; text-transform: uppercase; color: var(--text); font-weight: 700; margin-bottom: var(--space-5); }
 .fund-text p { color: var(--text-muted); line-height: 1.7; max-width: 540px; margin-bottom: var(--space-3); font-size: var(--type-body); }
 .fund-text p em { color: var(--accent); font-weight: 600; font-style: italic; }
-.fund-cta { display: inline-block; margin-top: var(--space-3); color: var(--brand); font-weight: 700; letter-spacing: 0.05em; transition: color var(--motion-fast) var(--easing); }
+.fund-cta { display: inline-block; margin-top: var(--space-3); color: var(--text); font-weight: 700; letter-spacing: 0.05em; transition: color var(--motion-fast) var(--easing); }
 .fund-cta:hover { color: var(--accent); }
 @media (max-width: 800px) {
   .fund-inner { grid-template-columns: 1fr; gap: var(--space-8); }
@@ -304,7 +304,7 @@ const recentPosts = allPosts
 .impact-text h2 em { color: var(--rec-teal); font-style: italic; }
 .impact-text p { color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: var(--space-6); }
 .impact-image { max-width: 320px; justify-self: end; width: 100%; }
-.impact-cta { color: var(--brand); font-weight: 700; letter-spacing: 0.05em; transition: color var(--motion-fast) var(--easing); }
+.impact-cta { color: var(--text); font-weight: 700; letter-spacing: 0.05em; transition: color var(--motion-fast) var(--easing); }
 .impact-cta:hover { color: var(--accent); }
 @media (max-width: 760px) {
   .impact-inner { grid-template-columns: 1fr; gap: var(--space-8); }
@@ -317,7 +317,7 @@ const recentPosts = allPosts
 .blog-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: var(--space-8); position: relative; }
 .blog-header h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: var(--letter-tight); margin: var(--space-3) 0; }
 .blog-header h2 em { color: var(--rec-teal); font-style: italic; }
-.blog-all { color: var(--brand); font-weight: 600; font-size: var(--type-small); transition: color var(--motion-fast) var(--easing); }
+.blog-all { color: var(--text); font-weight: 600; font-size: var(--type-small); transition: color var(--motion-fast) var(--easing); }
 .blog-all:hover { color: var(--accent); }
 .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
 .home-post-card { display: flex; flex-direction: column; gap: var(--space-3); border-radius: 12px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-soft); transition: transform var(--motion-fast) var(--easing), box-shadow var(--motion-fast) var(--easing); }
@@ -351,7 +351,7 @@ const recentPosts = allPosts
 .home-post-meta time { font-size: var(--type-micro); color: var(--text-soft); letter-spacing: 0.05em; }
 .home-post-body h3 { font-size: 1.15rem; line-height: 1.3; color: var(--text); font-weight: 800; letter-spacing: var(--letter-tight); }
 .home-post-body p { font-size: var(--type-small); color: var(--text-muted); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.home-post-cta { font-size: var(--type-micro); font-weight: 700; letter-spacing: 0.12em; color: var(--brand); text-transform: uppercase; margin-top: auto; }
+.home-post-cta { font-size: var(--type-micro); font-weight: 700; letter-spacing: 0.12em; color: var(--text); text-transform: uppercase; margin-top: auto; }
 .home-post-card:hover .home-post-cta { color: var(--accent); }
 @media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
 /* MOBILE — blog vira carrossel horizontal scroll-snap (1.15 cards visíveis) */

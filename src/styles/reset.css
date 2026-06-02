@@ -3,8 +3,8 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  color: var(--rec-dark);
-  background: var(--rec-bg);
+  color: var(--text);
+  background: var(--surface);
   line-height: 1.5;
 }
 img { max-width: 100%; display: block; }
