@@ -1,12 +1,14 @@
 // Returns the union of static partners (src/data/partners.ts) + partners
-// added via Decap CMS (src/content/partners/*.json) + Google reviews data
+// adicionados via /cadastro-empresas (src/content/partners/*.json) + Google reviews data
 // (src/data/partners-google.json, gerado por scripts/fetch-google-reviews.mjs).
 //
 // CMS partners override static ones if id collides.
 // Google data is merged on top (rating, reviewsCount, mapsUrl, reviews).
+// IDs em partners-removed.json são filtrados (empresas removidas via painel).
 
 import { getCollection } from 'astro:content'
 import { partners as staticPartners, type Partner } from './partners'
+import removedIds from './partners-removed.json'
 
 // Importa o JSON do Google. Astro/Vite resolve em build time.
 // Se o arquivo não existir/estiver vazio, o merge simplesmente não adiciona campos.
@@ -43,10 +45,11 @@ export async function loadAllPartners(): Promise<Partner[]> {
     website: (e.data as any).website || undefined,
     hideGoogle: (e.data as any).hideGoogle || undefined,
   }))
-  // CMS partners win on id collision
+  // CMS partners win on id collision; ids removidos via painel são excluídos
+  const removed = new Set(removedIds as string[])
   const map = new Map<string, Partner>()
-  for (const p of staticPartners) map.set(p.id, p)
-  for (const p of cmsPartners) map.set(p.id, p)
+  for (const p of staticPartners) if (!removed.has(p.id)) map.set(p.id, p)
+  for (const p of cmsPartners) if (!removed.has(p.id)) map.set(p.id, p)
 
   // Merge Google data por id (NÃO sobrescreve campos já preenchidos manualmente)
   const merged: Partner[] = []

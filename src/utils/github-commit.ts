@@ -13,7 +13,9 @@ interface CommitArgs {
   branch: string
   token: string
   message: string
-  files: FileToCommit[]
+  files?: FileToCommit[]
+  /** caminhos a REMOVER do repositório no mesmo commit */
+  deletions?: string[]
 }
 
 async function gh(token: string, url: string, init?: RequestInit) {
@@ -31,7 +33,7 @@ async function gh(token: string, url: string, init?: RequestInit) {
   return res.json()
 }
 
-export async function commitFiles({ owner, repo, branch, token, message, files }: CommitArgs) {
+export async function commitFiles({ owner, repo, branch, token, message, files = [], deletions = [] }: CommitArgs) {
   const base = `/repos/${owner}/${repo}`
 
   // 1) ref atual → commit base → tree base
@@ -40,8 +42,8 @@ export async function commitFiles({ owner, repo, branch, token, message, files }
   const baseCommit = await gh(token, `${base}/git/commits/${baseCommitSha}`)
   const baseTreeSha = baseCommit.tree.sha
 
-  // 2) cria blobs
-  const treeItems = []
+  // 2) cria blobs (adições) + marca deleções (sha: null no tree)
+  const treeItems: any[] = []
   for (const f of files) {
     const isBuffer = typeof f.content !== 'string'
     const blob = await gh(token, `${base}/git/blobs`, {
@@ -53,6 +55,9 @@ export async function commitFiles({ owner, repo, branch, token, message, files }
       ),
     })
     treeItems.push({ path: f.path, mode: '100644', type: 'blob', sha: blob.sha })
+  }
+  for (const path of deletions) {
+    treeItems.push({ path, mode: '100644', type: 'blob', sha: null })
   }
 
   // 3) tree → commit → atualiza ref

@@ -1,8 +1,8 @@
 ---
 export const prerender = false
 
-// Página interna (não linkada, noindex) pra revisar e publicar empresas que
-// se inscreveram pelo Google Form. Mesmo cookie `rec_mod` da /moderacao.
+// Página interna (não linkada, noindex) pra revisar/publicar empresas do Google Form
+// e gerenciar as que já estão no site. Mesmo cookie `rec_mod` da /moderacao.
 import { modPageGate } from '../utils/mod-auth'
 
 const gate = modPageGate(Astro.request, Astro.url, '/cadastro-empresas')
@@ -20,65 +20,128 @@ const SECTORS = [
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Cadastro de empresas — REC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    :root { --bg:#0e1116; --card:#161b22; --line:rgba(255,255,255,0.12); --txt:#e8eef5; --muted:rgba(232,238,245,0.6); --teal:#2dd4c4; --red:#e06b6b; }
-    * { box-sizing: border-box; }
-    body { margin:0; background:var(--bg); color:var(--txt); font-family:system-ui,-apple-system,sans-serif; padding:24px; }
-    h1 { font-size:1.4rem; margin:0 0 4px; }
-    .sub { color:var(--muted); font-size:.9rem; margin:0 0 24px; }
-    #status { margin-bottom:16px; font-size:.9rem; color:var(--muted); }
-    .grid { display:grid; gap:20px; max-width:1100px; }
-    .sub-card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; display:grid; grid-template-columns:200px 1fr; gap:18px; }
-    .logo-box { width:200px; height:130px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    :root {
+      --blue:#012659; --blue2:#02377A; --teal:#00a198; --teal-d:#008b83;
+      --cream:#F4EFE6; --ink:#0E1116; --line:rgba(1,38,89,0.1); --muted:rgba(1,38,89,0.6);
+      --red:#c0392b;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--cream); color:var(--blue); font-family:'Manrope',system-ui,sans-serif; }
+    .wrap { max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
+    header.top { display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+    .logo { width:40px; height:40px; border-radius:10px; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.2rem; }
+    h1 { font-family:'Fraunces',serif; font-weight:400; font-size:1.9rem; margin:0; letter-spacing:-0.01em; }
+    .sub { color:var(--muted); font-size:.92rem; margin:4px 0 26px; }
+    /* Tabs */
+    .tabs { display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:24px; gap:4px; }
+    .tab { border:none; background:transparent; color:var(--muted); font-family:inherit; font-weight:700; font-size:.85rem; padding:9px 20px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s; }
+    .tab.active { background:var(--blue); color:#fff; }
+    .badge { background:rgba(0,0,0,0.12); border-radius:999px; padding:1px 8px; font-size:.72rem; }
+    .tab.active .badge { background:rgba(255,255,255,0.22); }
+    #status { font-size:.88rem; color:var(--muted); margin-bottom:16px; }
+    .empty { color:var(--muted); padding:48px 0; text-align:center; }
+    /* Pending cards */
+    .grid { display:grid; gap:18px; }
+    .sub-card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:grid; grid-template-columns:200px 1fr; gap:18px; box-shadow:0 4px 20px rgba(1,38,89,0.04); }
+    .logo-box { width:200px; height:130px; border-radius:10px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .logo-box img { max-width:100%; max-height:100%; object-fit:contain; }
-    .logo-box .noimg { color:#999; font-size:.75rem; text-align:center; padding:8px; }
-    .hint { font-size:.74rem; color:var(--muted); margin:10px 0 0; line-height:1.5; }
+    .logo-box .noimg { color:var(--muted); font-size:.74rem; text-align:center; padding:8px; }
+    .hint { font-size:.74rem; color:var(--muted); margin:10px 2px 0; line-height:1.5; }
     .fields { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 14px; }
-    .fields label { display:flex; flex-direction:column; gap:3px; font-size:.7rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+    .fields label { display:flex; flex-direction:column; gap:3px; font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
     .fields .full { grid-column:1 / -1; }
-    input, select, textarea { background:#0e1116; border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:9px 11px; font-size:.9rem; font-family:inherit; width:100%; }
-    textarea { resize:vertical; min-height:54px; }
-    .row-check { flex-direction:row !important; align-items:center; gap:8px; text-transform:none; }
-    .actions { grid-column:1 / -1; display:flex; gap:10px; margin-top:6px; }
-    button { border:none; border-radius:999px; padding:11px 22px; font-weight:700; font-size:.85rem; cursor:pointer; }
-    .pub { background:var(--teal); color:#04120f; }
+    input, select, textarea { background:#fafcfe; border:1px solid var(--line); color:var(--blue); border-radius:8px; padding:9px 11px; font-size:.9rem; font-family:inherit; width:100%; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--teal); }
+    textarea { resize:vertical; min-height:52px; }
+    .row-check { flex-direction:row !important; align-items:center; gap:8px; text-transform:none; font-weight:500; font-size:.8rem; }
+    .actions { grid-column:1 / -1; display:flex; gap:10px; margin-top:6px; align-items:center; }
+    button.act { border:none; border-radius:999px; padding:11px 22px; font-weight:700; font-size:.82rem; cursor:pointer; font-family:inherit; }
+    .pub { background:var(--teal); color:#fff; } .pub:hover { background:var(--teal-d); }
     .dis { background:transparent; border:1px solid var(--line); color:var(--muted); }
-    button:disabled { opacity:.5; cursor:default; }
+    .rm { background:#fff; border:1px solid rgba(192,57,43,0.4); color:var(--red); }
+    .rm:hover { background:rgba(192,57,43,0.06); }
+    button.act:disabled { opacity:.5; cursor:default; }
     .msg { font-size:.82rem; margin-left:auto; align-self:center; }
-    .ok { color:var(--teal); } .err { color:var(--red); }
-    .empty { color:var(--muted); padding:40px 0; }
+    .ok { color:var(--teal-d); } .err { color:var(--red); }
+    /* Approved grid */
+    .app-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .app-search { width:100%; max-width:380px; margin-bottom:18px; }
+    .app-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .app-logo { height:70px; border-radius:8px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .app-logo img { max-width:100%; max-height:100%; object-fit:contain; }
+    .app-name { font-weight:700; font-size:.92rem; line-height:1.25; }
+    .app-meta { font-size:.7rem; color:var(--muted); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+    .src { border-radius:999px; padding:1px 8px; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .src.cms { background:rgba(0,161,152,0.12); color:var(--teal-d); }
+    .src.static { background:rgba(1,38,89,0.08); color:var(--blue); }
+    .app-rm { margin-top:auto; background:#fff; border:1px solid rgba(192,57,43,0.35); color:var(--red); border-radius:8px; padding:8px; font-weight:700; font-size:.78rem; cursor:pointer; font-family:inherit; }
+    .app-rm:hover { background:rgba(192,57,43,0.06); }
+    .app-rm:disabled { opacity:.5; cursor:default; }
+    @media (max-width:640px){ .sub-card{ grid-template-columns:1fr; } .logo-box{ width:100%; } .fields{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-  <h1>Cadastro de empresas</h1>
-  <p class="sub">Inscrições do Google Form. Revise, ajuste segmento/alcance e publique. A logo é baixada e otimizada automaticamente.</p>
-  <div id="status">carregando inscrições…</div>
-  <div class="grid" id="grid"></div>
+  <div class="wrap">
+    <header class="top">
+      <span class="logo">R</span>
+      <div>
+        <h1>Cadastro de empresas</h1>
+      </div>
+    </header>
+    <p class="sub">Inscrições do Google Form e gestão da constelação. A logo é baixada e otimizada automaticamente ao publicar.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="pending">Para aprovar <span class="badge" id="badge-pending">·</span></button>
+      <button class="tab" data-tab="approved">Já no site <span class="badge" id="badge-approved">·</span></button>
+    </div>
+
+    <div id="status">carregando…</div>
+    <div id="view-pending"><div class="grid" id="grid"></div></div>
+    <div id="view-approved" style="display:none">
+      <input class="app-search" id="app-search" placeholder="filtrar por nome…" />
+      <div class="app-grid" id="app-grid"></div>
+    </div>
+  </div>
 
   <script define:vars={{ SECTORS }}>
-    const grid = document.getElementById('grid')
-    const statusEl = document.getElementById('status')
+    const $ = (id) => document.getElementById(id)
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
     const driveThumb = (ref) => {
       const m = String(ref).match(/[?&]id=([\w-]+)/) || String(ref).match(/\/d\/([\w-]+)/)
       const id = m ? m[1] : (/^[\w-]{20,}$/.test(ref) ? ref : null)
       return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w400` : null
     }
-    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
 
-    function card(s) {
+    // ---------- Tabs ----------
+    let loadedApproved = false
+    document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'))
+      t.classList.add('active')
+      const tab = t.dataset.tab
+      $('view-pending').style.display = tab === 'pending' ? '' : 'none'
+      $('view-approved').style.display = tab === 'approved' ? '' : 'none'
+      $('status').textContent = ''
+      if (tab === 'approved' && !loadedApproved) loadApproved()
+    })
+
+    // ---------- PENDING (para aprovar) ----------
+    function pendingCard(s) {
       const thumb = driveThumb(s.logoRef)
       const opts = SECTORS.map(x => `<option value="${x}">${x}</option>`).join('')
       const el = document.createElement('div')
       el.className = 'sub-card'
-      el.dataset.key = s.key
       el.innerHTML = `
         <div>
-          <div class="logo-box">${thumb ? `<img src="${thumb}" alt="" onerror="this.parentElement.innerHTML='<span class=noimg>logo não pôde ser pré-visualizada (mas será baixada ao publicar)</span>'"/>` : '<span class="noimg">sem logo detectada</span>'}</div>
+          <div class="logo-box">${thumb ? `<img src="${thumb}" alt="" onerror="this.parentElement.innerHTML='<span class=noimg>logo será baixada ao publicar</span>'"/>` : '<span class="noimg">sem logo detectada</span>'}</div>
           <p class="hint">${s.contactName ? '👤 ' + esc(s.contactName) : ''}${s.segment ? '<br>🏷️ ' + esc(s.segment) : ''}</p>
         </div>
         <div class="fields">
           <label>Identificador (slug)<input name="id" value="${esc(s.suggestedId)}"/></label>
-          <label>Nome<input name="name" value="${esc(s.name)}"/></label>
+          <label>Nome da empresa<input name="name" value="${esc(s.name)}" placeholder="(Form não coleta — confira)"/></label>
           <label>Instagram<input name="instagram" value="${esc(s.instagram)}"/></label>
           <label>Segmento<select name="sector">${opts}</select></label>
           <label>Alcance (1-5)<input name="reach" type="number" min="1" max="5" value="3"/></label>
@@ -88,65 +151,87 @@ const SECTORS = [
           <label class="row-check"><input name="hasGoogle" type="checkbox" ${s.hasGoogle ? 'checked' : ''}/> Tem Google Meu Negócio</label>
           <label class="full">Descrição<textarea name="description">${esc(s.description)}</textarea></label>
           <div class="actions">
-            <button class="pub">publicar →</button>
-            <button class="dis">ignorar</button>
+            <button class="act pub">publicar →</button>
+            <button class="act dis">ignorar</button>
             <span class="msg"></span>
           </div>
         </div>`
-      // pré-seleciona o setor detectado pelo segmento (revisor ajusta se quiser)
       el.querySelector('[name=sector]').value = s.suggestedSector || 'outro'
-      el.querySelector('.pub').onclick = () => publish(el, s)
-      el.querySelector('.dis').onclick = () => dismiss(el, s)
+      const collect = () => {
+        const v = (n) => el.querySelector(`[name=${n}]`)
+        return { id:v('id').value.trim(), name:v('name').value.trim(), instagram:v('instagram').value.trim(),
+          sector:v('sector').value, reach:v('reach').value, city:v('city').value.trim(),
+          whatsapp:v('whatsapp').value.trim(), website:v('website').value.trim(),
+          hasGoogle:v('hasGoogle').checked, description:v('description').value.trim() }
+      }
+      const msg = el.querySelector('.msg')
+      el.querySelector('.pub').onclick = async (e) => {
+        e.target.disabled = true; msg.className='msg'; msg.textContent='publicando…'
+        const r = await fetch('/api/partner-intake/publish', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ ...collect(), key:s.key, logoRef:s.logoRef }) })
+        const d = await r.json().catch(()=>({}))
+        if (r.ok && d.ok) { msg.className='msg ok'; msg.textContent='✓ publicada'; setTimeout(()=>el.remove(),1200); bumpPending(-1) }
+        else { e.target.disabled=false; msg.className='msg err'; msg.textContent=d.error||'erro' }
+      }
+      el.querySelector('.dis').onclick = async () => {
+        await fetch('/api/partner-intake/dismiss', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ key:s.key, name:s.name }) })
+        el.remove(); bumpPending(-1)
+      }
       return el
     }
 
-    function collect(el) {
-      const v = (n) => el.querySelector(`[name=${n}]`)
-      return {
-        id: v('id').value.trim(),
-        name: v('name').value.trim(),
-        instagram: v('instagram').value.trim(),
-        sector: v('sector').value,
-        reach: v('reach').value,
-        city: v('city').value.trim(),
-        whatsapp: v('whatsapp').value.trim(),
-        website: v('website').value.trim(),
-        hasGoogle: v('hasGoogle').checked,
-        description: v('description').value.trim(),
-      }
+    let pendingCount = 0
+    const bumpPending = (d) => { pendingCount += d; $('badge-pending').textContent = pendingCount
+      if (pendingCount === 0) $('grid').innerHTML = '<p class="empty">Nenhuma inscrição pendente. 🎉</p>' }
+
+    async function loadPending() {
+      const r = await fetch('/api/partner-intake/list')
+      const d = await r.json().catch(()=>({}))
+      if (!r.ok) { $('status').className='err'; $('status').textContent = d.error || 'erro ao carregar'; return }
+      $('status').textContent = ''
+      pendingCount = d.pending.length; $('badge-pending').textContent = pendingCount
+      if (!d.pending.length) { $('grid').innerHTML = '<p class="empty">Nenhuma inscrição pendente. 🎉</p>'; return }
+      d.pending.forEach(s => $('grid').appendChild(pendingCard(s)))
     }
 
-    async function publish(el, s) {
-      const msg = el.querySelector('.msg')
-      const btn = el.querySelector('.pub')
-      btn.disabled = true; msg.className = 'msg'; msg.textContent = 'publicando…'
-      const res = await fetch('/api/partner-intake/publish', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...collect(el), key: s.key, logoRef: s.logoRef }),
+    // ---------- APPROVED (já no site) ----------
+    let approvedData = []
+    function renderApproved(filter='') {
+      const f = filter.toLowerCase()
+      const list = approvedData.filter(p => p.name.toLowerCase().includes(f) || p.id.includes(f))
+      $('app-grid').innerHTML = list.map(p => `
+        <div class="app-card" data-id="${p.id}">
+          <div class="app-logo"><img src="${esc(p.logo)}" alt="" onerror="this.style.display='none'"/></div>
+          <div class="app-name">${esc(p.name)}</div>
+          <div class="app-meta"><span>${esc(p.sector)}</span><span class="src ${p.source}">${p.source}</span></div>
+          <button class="app-rm">remover do site</button>
+        </div>`).join('')
+      $('app-grid').querySelectorAll('.app-card').forEach(card => {
+        card.querySelector('.app-rm').onclick = () => removeApproved(card, card.dataset.id)
       })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok && data.ok) { msg.className = 'msg ok'; msg.textContent = '✓ publicada'; setTimeout(() => el.remove(), 1200) }
-      else { btn.disabled = false; msg.className = 'msg err'; msg.textContent = data.error || 'erro' }
     }
+    async function removeApproved(card, id) {
+      if (!confirm(`Remover "${id}" do site? Ela some da constelação no próximo build.`)) return
+      const btn = card.querySelector('.app-rm'); btn.disabled = true; btn.textContent = 'removendo…'
+      const r = await fetch('/api/partner-intake/remove', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id }) })
+      const d = await r.json().catch(()=>({}))
+      if (r.ok && d.ok) { card.style.opacity='.4'; btn.textContent='✓ removida'; approvedData = approvedData.filter(p=>p.id!==id); $('badge-approved').textContent = approvedData.length }
+      else { btn.disabled=false; btn.textContent='erro — tentar de novo'; alert(d.error||'erro') }
+    }
+    async function loadApproved() {
+      loadedApproved = true
+      $('app-grid').innerHTML = '<p class="empty">carregando…</p>'
+      const r = await fetch('/api/partner-intake/approved')
+      const d = await r.json().catch(()=>({}))
+      if (!r.ok) { $('app-grid').innerHTML = `<p class="empty err">${d.error||'erro'}</p>`; return }
+      approvedData = d.approved; $('badge-approved').textContent = d.count
+      renderApproved()
+    }
+    $('app-search').oninput = (e) => renderApproved(e.target.value)
 
-    async function dismiss(el, s) {
-      const msg = el.querySelector('.msg')
-      await fetch('/api/partner-intake/dismiss', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: s.key, name: s.name }),
-      })
-      el.remove()
-    }
-
-    async function load() {
-      const res = await fetch('/api/partner-intake/list')
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) { statusEl.className = 'err'; statusEl.textContent = data.error || 'erro ao carregar'; return }
-      if (!data.pending.length) { statusEl.textContent = ''; grid.innerHTML = '<p class="empty">Nenhuma inscrição pendente. 🎉</p>'; return }
-      statusEl.textContent = `${data.count} inscrição(ões) pendente(s)`
-      data.pending.forEach(s => grid.appendChild(card(s)))
-    }
-    load()
+    loadPending()
   </script>
 </body>
 </html>
