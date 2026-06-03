@@ -22,13 +22,18 @@ export interface RateLimitResult {
   resetIn: number
 }
 
-/** Lê IP "real" considerando proxies do Vercel. Falls back pra 'unknown'. */
+/**
+ * Lê o IP do cliente. PRIORIZA `clientAddress` (derivado pela Vercel a partir de
+ * headers confiáveis) porque `x-forwarded-for` é controlado pelo cliente e o
+ * primeiro valor pode ser forjado (`X-Forwarded-For: 1.2.3.4`) pra burlar o limite.
+ * Headers só entram como último recurso (dev local sem clientAddress).
+ */
 export function extractIp(request: Request, fallback?: string | null): string {
+  if (fallback) return fallback
   const fwd = request.headers.get('x-forwarded-for') ?? ''
   if (fwd) return fwd.split(',')[0]!.trim()
   const real = request.headers.get('x-real-ip')
   if (real) return real.trim()
-  if (fallback) return fallback
   return 'unknown'
 }
 

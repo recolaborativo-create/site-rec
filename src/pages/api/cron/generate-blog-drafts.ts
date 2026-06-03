@@ -6,24 +6,21 @@ export const prerender = false
 // Cron Vercel: gera os 9 drafts semanais e dispara email pro Henrique.
 // Schedule definido em vercel.json: "0 9 * * 0" (UTC) = domingo 06h BR.
 //
-// Segurança: Vercel envia header `x-vercel-cron-signature` que valida origem.
-// Adicionalmente exigimos `CRON_SECRET` no header `authorization` pra evitar
-// invocação manual não autorizada.
+// Segurança: quando CRON_SECRET está setado, a Vercel envia automaticamente
+// `Authorization: Bearer $CRON_SECRET` nos crons agendados. Validamos SÓ o secret.
+// (NÃO confiar na mera presença de `x-vercel-cron-signature` — header arbitrário
+// que qualquer um pode enviar → bypass + queima de ANTHROPIC_API_KEY/Brave/Unsplash.)
 // =============================================================
 
 export const GET: APIRoute = async ({ request }) => {
-  // Auth: Vercel Cron envia automaticamente, ou via header se for manual
   const auth = request.headers.get('authorization')
   const cronSecret = import.meta.env.CRON_SECRET
-  const vercelCron = request.headers.get('x-vercel-cron-signature')
 
   if (!cronSecret) {
     return json({ error: 'CRON_SECRET não configurado no servidor' }, 503)
   }
 
-  // Aceita: Vercel cron OU bearer token correto
-  const isAuthorized = vercelCron || auth === `Bearer ${cronSecret}`
-  if (!isAuthorized) {
+  if (auth !== `Bearer ${cronSecret}`) {
     return json({ error: 'não autorizado' }, 403)
   }
 

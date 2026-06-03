@@ -16,11 +16,20 @@ function modSecret(): string | undefined {
   return process.env.MOD_SECRET || import.meta.env.MOD_SECRET
 }
 
+// Comparação em tempo constante — não vaza o tamanho do match via timing.
+// (Runtime-agnóstica: não depende de node:crypto.)
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
+
 export function isModAuthorized(req: Request): boolean {
   const secret = modSecret()
   if (!secret) return false
   const token = readCookie(req, COOKIE_NAME)
-  return !!token && token === secret
+  return !!token && safeEqual(token, secret)
 }
 
 export function unauthorizedResponse() {
@@ -40,13 +49,13 @@ export function modPageGate(request: Request, url: URL, redirectTo: string): Res
 
   const param = url.searchParams.get('s')
   if (param) {
-    if (param !== secret) return new Response(null, { status: 404 })
+    if (!safeEqual(param, secret)) return new Response(null, { status: 404 })
     const cookie = `${COOKIE_NAME}=${encodeURIComponent(param)}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${60 * 60 * 12}`
     return new Response(null, { status: 302, headers: { Location: redirectTo, 'Set-Cookie': cookie } })
   }
 
   const token = readCookie(request, COOKIE_NAME)
-  if (!token || token !== secret) return new Response(null, { status: 404 })
+  if (!token || !safeEqual(token, secret)) return new Response(null, { status: 404 })
   return null
 }
 
