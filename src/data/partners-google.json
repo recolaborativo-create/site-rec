@@ -910,14 +910,26 @@
     "fetchedAt": 1779318677523
   },
   "iz-english": {
-    "rating": 0,
-    "reviewsCount": 0,
-    "mapsUrl": "https://www.google.com/maps/place/IZ+English+-+Escola+de+Ingl%C3%AAs/@0,0,5z/data=!4m6!3m5!1s0x9519797bd7896379:0xadf77c39eb6a42dd!8m2!3d-14.4095262!4d-51.31668!16s%2Fg%2F11y872ns6n",
-    "phone": null,
+    "rating": 5,
+    "reviewsCount": 10,
+    "mapsUrl": "https://maps.google.com/?cid=12535624676013654749",
+    "address": null,
+    "phone": "(51) 99133-1414",
     "editorialSummary": null,
-    "websiteUri": null,
-    "reviews": [],
-    "fetchedAt": 1779318677523
+    "websiteUri": "https://izenglish.com.br/",
+    "reviews": [
+      {
+        "author": "Cliente Google",
+        "rating": 5,
+        "text": "Estou há 3 anos nas aulas de conversão em Inglês. Sinto-me muito confortável, estimulada nas aulas. Professores competentes e amigáveis. E eu já tenho 72 aninhos. Recomendo muito esta Escola."
+      },
+      {
+        "author": "Cliente Google",
+        "rating": 5,
+        "text": "Foi uma escolha extremamente assertiva, super indico! A equipe é atenciosa, respeita o ritmo dos alunos, tem uma metodologia muito adequada e que me engajou e se encaixou com o meu perfil. Sempre tive dificuldades com a língua inglesa mas Teacher Gabi e a equipe tornaram tudo possível."
+      }
+    ],
+    "fetchedAt": 1780689888327
   },
   "cressol": {
     "rating": 0,
