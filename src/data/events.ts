@@ -15,23 +15,12 @@ export interface RecEvent {
   featured?: boolean
 }
 
-const NOTION_DATABASE_ID = '04db9462-e005-47cc-8487-ce2124449caa'
+const NOTION_DATABASE_ID = 'd9fb8577-bf00-427b-a662-79f9ab8fca86'
 const NOTION_VERSION     = '2022-06-28'
 
 // ── Fallback (usado se Notion offline ou token ausente) ──────
-// Atualizado em 29/mai/2026 com dados reais do Notion
+// Atualizado em 10/jun/2026 com dados reais do Notion
 const EVENTS_FALLBACK: RecEvent[] = [
-  {
-    id: 'hh-pa-sul-jun-2026',
-    name: 'Happy Hour de Negócios',
-    type: 'happy hour',
-    city: 'Porto Alegre Zona Sul, RS',
-    date: '2026-06-09',
-    time: '19h',
-    description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
-    status: 'inscricoes',
-    featured: true,
-  },
   {
     id: 'hh-pa-norte-jun-2026',
     name: 'Happy Hour de Negócios',
@@ -41,6 +30,7 @@ const EVENTS_FALLBACK: RecEvent[] = [
     time: '19h',
     description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
     status: 'inscricoes',
+    featured: true,
   },
   {
     id: 'hh-sapiranga-jun-2026',
@@ -57,9 +47,19 @@ const EVENTS_FALLBACK: RecEvent[] = [
     name: 'Happy Hour de Negócios',
     type: 'happy hour',
     city: 'Canoas, RS',
-    date: '2026-07-17',
+    date: '2026-07-14',
     time: '19h',
     description: 'Inscrições abertas com vagas limitadas para empreendedores(as). Aprenda a transformar presença digital em faturamento real.',
+    status: 'inscricoes',
+  },
+  {
+    id: 'hh-gravatai-jul-2026',
+    name: 'Happy Hour de Negócios',
+    type: 'happy hour',
+    city: 'Gravataí, RS',
+    date: '2026-07-21',
+    time: '19h',
+    description: 'Encontro segmentado para empreendedores(as) que querem ampliar conexões e gerar oportunidades de negócio.',
     status: 'inscricoes',
   },
 ]
