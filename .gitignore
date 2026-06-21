@@ -29,3 +29,4 @@ pnpm-debug.log*
 /public/novas-fotos/
 /public/Novas logos para ser add/
 _*.mjs
+_backup-assets/

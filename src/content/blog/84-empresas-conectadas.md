@@ -3,7 +3,7 @@ title: O que aprendi conectando diversas empresas em um grande ecossistema
 excerpt: "O que começou com 3 parcerias em 2018, hoje conecta mais de noventa empresas. Oito anos depois, a maior lição continua a mesma: comunidades não se criam, se constroem conexão por conexão."
 pillar: comunidade
 publishedAt: 2026-04-15
-cover: /illustrative/blog-ecossistema.jpg
+cover: /illustrative/blog-ecossistema.webp
 coverAlt: Mapa visual de empresas conectadas
 ---
 

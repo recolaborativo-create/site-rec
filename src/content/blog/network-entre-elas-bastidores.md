@@ -3,7 +3,7 @@ title: Network Entre Elas - bastidores do encontro de 370 mulheres
 excerpt: O que acontece quando 370 mulheres ocupam o mesmo espaço para conversar sobre negócio, vida e estratégia. Bastidores da maior edição do REC.
 pillar: eventos
 publishedAt: 2026-04-21
-cover: /illustrative/network-entre-elas.jpg
+cover: /illustrative/network-entre-elas.webp
 coverAlt: Encontro Network Entre Elas com mulheres conversando
 ---
 

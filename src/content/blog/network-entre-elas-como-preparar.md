@@ -3,7 +3,7 @@ title: "Como se preparar para um evento de networking e sair com resultado"
 excerpt: "Chegar num evento de negócios sem preparação é a forma mais rápida de gastar três horas sem nada acontecer. Veja como mudar isso."
 pillar: eventos
 publishedAt: 2026-04-25
-cover: /fotos-blog/network-entre-elas-como-preparar.jpg
+cover: /fotos-blog/network-entre-elas-como-preparar.webp
 coverAlt: Mulheres se conectando em evento de networking
 author: REC
 ---

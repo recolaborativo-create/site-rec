@@ -6,7 +6,7 @@ when: past
 stat:
   value: 370
   label: mulheres inscritas
-image: /illustrative/network-entre-elas.jpg
+image: /illustrative/network-entre-elas.webp
 order: 2
 ---
 

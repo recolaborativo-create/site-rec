@@ -3,7 +3,7 @@ title: "Como estruturar seu primeiro serviço e parar de cobrar por hora"
 excerpt: "Cobrar por hora é o modelo mais intuitivo para quem está começando. Também é o que mais limita o crescimento. Entenda como migrar para pacotes que vendem mais e te cansam menos."
 pillar: empreendedorismo
 publishedAt: 2026-02-25
-cover: /fotos-blog/como-estruturar-servico.png
+cover: /fotos-blog/como-estruturar-servico.webp
 coverAlt: Como estruturar seu primeiro serviço
 author: REC
 ---

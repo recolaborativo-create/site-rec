@@ -3,7 +3,7 @@ title: Networking estratégico - 5 erros que matam relacionamento antes de virar
 excerpt: Networking não é coleção de cartões. É um trabalho de longo prazo que muita gente sabota nos primeiros 30 dias sem perceber.
 pillar: negocios
 publishedAt: 2026-04-01
-cover: /illustrative/blog-redes.png
+cover: /illustrative/blog-redes.webp
 coverAlt: Conversa entre profissionais em evento
 ---
 
