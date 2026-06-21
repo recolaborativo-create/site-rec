@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import DotGrid from '../components/ui/DotGrid.astro'
 import SolutionIcon from '../components/hub/SolutionIcon.astro'
+import ClientLogos from '../components/hub/ClientLogos.astro'
 import { whatsappLink, messages } from '../utils/whatsapp'
 
 const solutions = [
@@ -392,7 +393,10 @@ const method = [
     </div>
   </section>
 
-  <!-- 6. CTA ESTRATÉGICO -->
+  <!-- 6. PORTFÓLIO — empresas atendidas (carrossel infinito) -->
+  <ClientLogos />
+
+  <!-- 7. CTA ESTRATÉGICO -->
   <section class="hub-final" data-reveal>
     <div class="hub-final-bars" aria-hidden="true">
       <span></span><span></span><span></span>

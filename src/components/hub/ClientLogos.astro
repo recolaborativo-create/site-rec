@@ -1,0 +1,152 @@
+---
+// Carrossel infinito de logos de empresas atendidas pelo HUB.
+// Marquee em CSS puro (sem JS) — funciona idêntico em desktop e mobile.
+// Não-clicável: é só exibição/prova social.
+// scale = multiplicador da altura base, pra equalizar o PESO ÓPTICO.
+// Logos "densas" (2 linhas, arte compacta) ganham mais altura pra a marca
+// não ficar miúda perto das de uma linha só.
+const clients = [
+  { name: 'Open Imobiliária', file: 'open-imobiliaria' },
+  { name: 'Agafarma', file: 'agafarma', scale: 1.12 },
+  { name: 'OK Arquitetura', file: 'ok-arquitetura' },
+  { name: 'NOCA Porto Alegre', file: 'noca-porto-alegre', scale: 1.1 },
+  { name: 'Balloons', file: 'balloons' },
+  { name: 'Raupp Consultoria Contábil', file: 'raupp' },
+  { name: 'Educação Adventista', file: 'educacao-adventista' },
+  { name: 'Geração Água', file: 'geracao-agua', scale: 1.24 },
+  { name: 'Italínea Conceito', file: 'italinea-conceito' },
+  { name: 'Sanar Farmácias', file: 'sanar', scale: 1.12 },
+  { name: 'Guacamole', file: 'guacamole' },
+  { name: 'Dra. Regiane Pereira', file: 'regiane-pereira' },
+  { name: 'Andréia Longaray', file: 'andreia-longaray' },
+  { name: 'Lumbiezi', file: 'lumbiezi' },
+  { name: 'O Guia Imóveis', file: 'o-guia-imoveis' },
+  { name: 'Mistura Farmácia', file: 'mistura', scale: 1.3 },
+  { name: 'Sua Casa Imóveis', file: 'sua-casa' },
+  { name: 'Andressa Boneto Contabilidade', file: 'andressa-boneto', scale: 1.08 },
+  { name: 'Ótica Guria Bonita', file: 'otica-guria-bonita' },
+  { name: 'Italínea Casa Bonita', file: 'italinea-casa-bonita', scale: 1.18 },
+  { name: 'Trevo Locações', file: 'trevo-locacoes', scale: 1.2 },
+]
+// Duplica a lista pra o loop ficar seamless (translateX -50%).
+const loop = [...clients, ...clients]
+---
+
+<section class="hub-clients" aria-label="Empresas atendidas pelo HUB">
+  <header class="hub-clients-head" data-reveal>
+    <span class="hub-eyebrow hub-eyebrow-dark">portfólio</span>
+    <h2>Marcas que já <em>cresceram</em> com o HUB.</h2>
+    <p>Empresas que confiaram na estratégia da rede e seguem em movimento.</p>
+  </header>
+
+  <div class="hub-clients-track" data-reveal>
+    <div class="hub-clients-belt" role="list">
+      {loop.map((c, i) => (
+        <div class="hub-client" role={i < clients.length ? 'listitem' : 'presentation'} aria-hidden={i >= clients.length ? 'true' : undefined} style={c.scale ? `--logo-scale:${c.scale}` : undefined}>
+          <img src={`/clientes/${c.file}.png`} alt={i < clients.length ? c.name : ''} loading="lazy" />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hub-clients {
+    padding: var(--space-20) 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .hub-clients-head {
+    max-width: 720px;
+    margin: 0 auto var(--space-12);
+    text-align: center;
+    padding: 0 var(--space-6);
+  }
+  .hub-clients-head h2 {
+    font-family: var(--font-display);
+    color: var(--rec-blue);
+    margin: var(--space-3) 0 var(--space-2);
+  }
+  .hub-clients-head h2 em {
+    font-style: italic;
+    color: var(--rec-teal);
+  }
+  .hub-clients-head p {
+    color: var(--text);
+    opacity: 0.7;
+  }
+  /* Dark mode: texto do cabeçalho precisa clarear */
+  :global(html[data-theme='dark']) .hub-clients-head h2 { color: var(--text-strong); }
+  :global(html[data-theme='dark']) .hub-clients-head h2 em { color: var(--accent); }
+
+  /* Trilho com fade nas bordas (máscara) */
+  .hub-clients-track {
+    position: relative;
+    width: 100%;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .hub-clients-belt {
+    display: flex;
+    width: max-content;
+    animation: hub-clients-scroll 56s linear infinite;
+  }
+  /* Pausa ao passar o mouse (desktop) */
+  .hub-clients-track:hover .hub-clients-belt {
+    animation-play-state: paused;
+  }
+
+  .hub-client {
+    flex: 0 0 auto;
+    /* largura auto: o card se ajusta à largura natural da logo.
+       altura de logo uniforme (abaixo) garante peso visual igual. */
+    width: auto;
+    height: 104px;
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 32px;
+    background: #fff;
+    border: 1px solid rgba(1, 38, 89, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(1, 38, 89, 0.04);
+  }
+  .hub-client img {
+    /* altura base uniforme × scale por-logo (peso óptico).
+       teto de largura impede que logos muito largas virem faixa. */
+    height: calc(52px * var(--logo-scale, 1));
+    width: auto;
+    max-width: 172px;
+    object-fit: contain;
+    filter: saturate(0.96);
+  }
+
+  @keyframes hub-clients-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* Respeita quem prefere menos movimento */
+  @media (prefers-reduced-motion: reduce) {
+    .hub-clients-belt { animation: none; flex-wrap: wrap; justify-content: center; width: 100%; }
+  }
+
+  /* Mobile: cards menores e fita um pouco mais rápida */
+  @media (max-width: 640px) {
+    .hub-clients { padding: var(--space-16) 0; }
+    .hub-client {
+      height: 82px;
+      margin: 0 7px;
+      padding: 0 22px;
+      border-radius: 14px;
+    }
+    .hub-client img { height: calc(40px * var(--logo-scale, 1)); max-width: 132px; }
+    .hub-clients-belt { animation-duration: 42s; }
+    .hub-clients-track {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    }
+  }
+</style>
