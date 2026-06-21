@@ -4,7 +4,7 @@ export const prerender = false
 
 // =============================================================
 // Cron Vercel: gera os 9 drafts semanais e dispara email pro Henrique.
-// Schedule definido em vercel.json: "0 9 * * 0" (UTC) = domingo 06h BR.
+// Schedule definido em vercel.json: "0 18 * * 1" (UTC) = segunda 15h BR.
 //
 // Segurança: quando CRON_SECRET está setado, a Vercel envia automaticamente
 // `Authorization: Bearer $CRON_SECRET` nos crons agendados. Validamos SÓ o secret.

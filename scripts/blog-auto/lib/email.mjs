@@ -55,7 +55,7 @@ export async function sendDraftsReadyEmail({ batchMonth, count }) {
         </p>
         <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #012659;">
           Idealmente nos primeiros dias da semana, antes do próximo lote chegar
-          no domingo seguinte.
+          na segunda seguinte.
         </p>
       </div>
 

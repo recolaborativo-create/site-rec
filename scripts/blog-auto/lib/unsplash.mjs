@@ -1,12 +1,8 @@
 // Wrapper Unsplash API. Documentação: https://unsplash.com/documentation
 // Limite free: 50 requests/hora — generoso pra 9-27 posts/mês.
 
-const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY
-
-if (!UNSPLASH_KEY) {
-  console.warn('[unsplash] UNSPLASH_ACCESS_KEY não configurada — vai usar fallback genérico.')
-}
-
+// Lê a key de forma lazy (dentro da função) — em CLI o .env é carregado DEPOIS
+// dos imports, então ler no top-level do módulo pegaria undefined.
 const FALLBACK_IMAGE = {
   url: '/NORMAL - FT.png',
   alt: 'REC Colaborativo',
@@ -20,6 +16,7 @@ const FALLBACK_IMAGE = {
  * @returns {Promise<{url:string, alt:string, credit:string}>}
  */
 export async function fetchCoverImage(query, altPt) {
+  const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY
   if (!UNSPLASH_KEY) return { ...FALLBACK_IMAGE, alt: altPt }
 
   try {

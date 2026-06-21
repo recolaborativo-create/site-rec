@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // =============================================================
 // Blog Automation — Gerador Semanal de Rascunhos
-// Roda via cron Vercel todo domingo, OU manualmente:
+// Roda via cron Vercel toda segunda, OU manualmente:
 //   node scripts/blog-auto/generate-monthly-drafts.mjs
 //   node scripts/blog-auto/generate-monthly-drafts.mjs --week 2026-05-31
 //   node scripts/blog-auto/generate-monthly-drafts.mjs --week 2026-05-31 --dry-run

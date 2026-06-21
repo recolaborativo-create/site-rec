@@ -3,10 +3,10 @@
 Sistema que gera 9 posts por semana usando IA, deixa pra revisão humana, e
 publica os aprovados como `.md` no repositório (Vercel rebuilda automático).
 
-## Como funciona, do domingo até o post no ar
+## Como funciona, da segunda até o post no ar
 
 ```
-DOMINGO, 06h BRT
+SEGUNDA, 15h BRT
    │
    ▼
 1. Cron Vercel chama POST /api/cron/generate-blog-drafts
@@ -57,10 +57,10 @@ pra lista completa. As novas pro blog auto são:
 ### 3. Cron já está configurado em `vercel.json`
 ```json
 "crons": [
-  { "path": "/api/cron/generate-blog-drafts", "schedule": "0 9 * * 0" }
+  { "path": "/api/cron/generate-blog-drafts", "schedule": "0 18 * * 1" }
 ]
 ```
-Schedule `0 9 * * 0` = às 09:00 UTC de todo domingo = 06:00 BRT.
+Schedule `0 18 * * 1` = às 18:00 UTC de toda segunda = 15:00 BRT.
 
 ## Rodar manualmente (testes)
 

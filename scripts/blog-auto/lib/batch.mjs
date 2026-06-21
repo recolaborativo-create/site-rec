@@ -1,5 +1,5 @@
 // Lote SEMANAL de blog: a chave é a data do domingo da semana (YYYY-MM-DD, UTC).
-// Antes era mensal (YYYY-MM); agora roda todo domingo.
+// Antes era mensal (YYYY-MM); agora roda toda segunda (a chave continua sendo o domingo da semana).
 
 const MONTH_NAMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
 
