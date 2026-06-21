@@ -51,6 +51,10 @@ Use como **inspiração** (não copie literal). Sempre adapte ao público do REC
 
 {{NEWS_CONTEXT}}
 
+### Dados internos do REC
+
+{{REC_CONTEXT}}
+
 ---
 
 ## FORMATO DE RESPOSTA

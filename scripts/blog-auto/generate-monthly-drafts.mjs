@@ -33,6 +33,7 @@ import { generatePosts } from './lib/anthropic.mjs'
 import { fetchCoverImage } from './lib/unsplash.mjs'
 import { gatherNewsContext } from './lib/news.mjs'
 import { sundayBatchKey, weekLabel } from './lib/batch.mjs'
+import { gatherRecContext } from './lib/rec-context.mjs'
 
 function parseArgs(argv) {
   const args = { week: null, dryRun: false }
@@ -70,16 +71,21 @@ async function main() {
     }
   }
 
-  // 2) Coleta contexto de notícias
+  // 2) Coleta contexto de notícias + dados internos do REC
   console.log('\n📰 Coletando notícias do mês...')
   const newsContext = await gatherNewsContext()
   console.log(`   ${newsContext.split('\n').length} linhas de contexto.`)
+
+  console.log('🔎 Coletando contexto do REC (eventos + temas já publicados)...')
+  const recContext = await gatherRecContext()
+  console.log(`   ${recContext ? recContext.split('\n').length + ' linhas' : 'vazio'}.`)
 
   // 3) Chama IA pra gerar 9 posts
   console.log('\n🧠 Chamando IA...')
   const { posts, usage, model } = await generatePosts({
     batchMonthLabel: label,
     newsContext,
+    recContext,
   })
   console.log(`   ✅ ${posts.length} posts gerados em ${model}`)
   console.log(`   tokens: in=${usage.input_tokens} out=${usage.output_tokens}`)

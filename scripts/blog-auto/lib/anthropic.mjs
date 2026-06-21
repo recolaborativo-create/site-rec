@@ -27,7 +27,7 @@ function getModel() {
 /**
  * Lê os 2 prompts e substitui as variáveis.
  */
-async function buildPrompt({ batchMonthLabel, newsContext }) {
+async function buildPrompt({ batchMonthLabel, newsContext, recContext }) {
   const [rules, master] = await Promise.all([
     readFile(join(PROMPTS_DIR, 'writing-rules.md'), 'utf8'),
     readFile(join(PROMPTS_DIR, 'master-prompt.md'), 'utf8'),
@@ -37,6 +37,7 @@ async function buildPrompt({ batchMonthLabel, newsContext }) {
     .replace('{{WRITING_RULES}}', rules)
     .replace('{{BATCH_MONTH_LABEL}}', batchMonthLabel)
     .replace('{{NEWS_CONTEXT}}', newsContext || '(sem contexto adicional este mês — use temas evergreen)')
+    .replace('{{REC_CONTEXT}}', recContext || '(sem dados internos adicionais)')
 }
 
 /**
@@ -110,8 +111,8 @@ function extractJson(text) {
 /**
  * Gera 9 posts via Claude. Faz até 3 tentativas em caso de validação falhar.
  */
-export async function generatePosts({ batchMonthLabel, newsContext }) {
-  const prompt = await buildPrompt({ batchMonthLabel, newsContext })
+export async function generatePosts({ batchMonthLabel, newsContext, recContext }) {
+  const prompt = await buildPrompt({ batchMonthLabel, newsContext, recContext })
 
   const maxAttempts = 3
   let lastError
