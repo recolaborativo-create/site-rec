@@ -126,6 +126,10 @@ const method = [
   { n: '03', t: 'Execução', d: 'Time multidisciplinar em campo. Marca, conteúdo, performance e comercial articulados.' },
   { n: '04', t: 'Aceleração', d: 'Leitura de dados, ajustes e novos movimentos. Resultado é cíclico, não pontual.' },
 ]
+
+// Chips do hero: grade estática no desktop, marquee infinito no mobile.
+// Duplicados no HTML pro loop ficar seamless (-50%); clones escondidos no desktop.
+const heroChips = ['posicionamento', 'conteúdo', 'marketing', 'comercial', 'treinamentos', 'consultoria']
 ---
 <BaseLayout
   title="HUB | núcleo estratégico de soluções empresariais"
@@ -173,14 +177,11 @@ const method = [
         </div>
       </div>
 
-      <!-- Chips 3×2 grid -->
+      <!-- Chips: grade no desktop / marquee no mobile (duplicados pro loop) -->
       <ul class="hub-hero-chips" aria-hidden="true">
-        <li><span>posicionamento</span></li>
-        <li><span>conteúdo</span></li>
-        <li><span>marketing</span></li>
-        <li><span>comercial</span></li>
-        <li><span>treinamentos</span></li>
-        <li><span>consultoria</span></li>
+        {[...heroChips, ...heroChips].map((c, i) => (
+          <li class={i >= heroChips.length ? 'chip-clone' : undefined}><span>{c}</span></li>
+        ))}
       </ul>
     </div>
     <img src="/logo-white.png" class="hub-hero-logo-bottom" alt="" aria-hidden="true" />
@@ -420,25 +421,9 @@ const method = [
   import { initReveal } from '../utils/reveal'
   initReveal()
 
-  // No mobile, duplica os chips do hero 2x pra animação marquee ficar
-  // verdadeiramente seamless (6 originais + 12 clones = 18). Quando o transform
-  // chega em -50% (que é após os 6 originais + 6 clones, ou seja, 12 itens),
-  // o que mostra na tela é a sequência inicial dos clones, idêntica à original.
-  // O clone extra cria buffer pra evitar qualquer flash de "salto".
-  if (window.matchMedia('(max-width: 640px)').matches) {
-    const chipsList = document.querySelector<HTMLElement>('.hub-hero-chips')
-    if (chipsList) {
-      const originalChips = Array.from(chipsList.children)
-      // Duplica os chips DUAS vezes (6 originais + 12 clones = 18)
-      for (let i = 0; i < 2; i++) {
-        originalChips.forEach(chip => {
-          const clone = chip.cloneNode(true) as HTMLElement
-          clone.setAttribute('aria-hidden', 'true')
-          chipsList.appendChild(clone)
-        })
-      }
-    }
-  }
+  // Chips duplicados no HTML (6 + 6 clones). Desktop esconde os clones via CSS;
+  // mobile mostra todos no marquee. Sem JS de duplicação — antes o desktop
+  // quebrava quando a página carregava estreita e era redimensionada.
 
   // Soluções mobile: botão "ver todas as 9 frentes" expande o grid
   const solMore = document.getElementById('solMore')
@@ -558,6 +543,8 @@ const method = [
   animation: hub-chip-in 600ms cubic-bezier(0.22,1,0.36,1) both, chip-breathe 4s ease-in-out infinite;
 }
 .hub-hero-chips li:nth-child(odd) span  { background: rgba(1,38,89,0.35); border-color: rgba(100,160,255,0.28); }
+/* Desktop: clones existem só pro marquee mobile — escondidos na grade */
+.hub-hero-chips .chip-clone { display: none; }
 .hub-hero-chips li:nth-child(1) span  { animation-delay: 150ms, 0.0s; }
 .hub-hero-chips li:nth-child(2) span  { animation-delay: 240ms, 0.6s; }
 .hub-hero-chips li:nth-child(3) span  { animation-delay: 330ms, 1.2s; }
@@ -1299,6 +1286,8 @@ const method = [
     min-width: auto !important;
     margin-right: 10px;
   }
+  /* mobile: reexibe os clones (escondidos no desktop) pro marquee */
+  .hub-hero-chips .chip-clone { display: flex !important; }
   .hub-hero-chips li:hover { transform: none !important; }
   .hub-hero-chips span {
     font-size: 0.72rem !important;
@@ -1308,12 +1297,11 @@ const method = [
     background: rgba(1,38,89,0.32) !important;
     border-color: rgba(100,160,255,0.22) !important;
   }
-  /* Marquee verdadeiramente seamless: 18 chips (6 orig + 12 clones).
-     Mover -33.333% = avançar 6 chips (um terço do total) → mostra o 1º
-     bloco de clones onde antes estavam os originais. Sem salto visível. */
+  /* Marquee seamless: 12 chips (6 originais + 6 clones).
+     Mover -50% = avançar 6 chips → a 2ª metade fica idêntica à 1ª. Sem salto. */
   @keyframes hub-chips-marquee {
     from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-33.333%, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
   @media (prefers-reduced-motion: reduce) {
     .hub-hero-chips { animation: none; mask-image: none; -webkit-mask-image: none; overflow-x: auto; }
