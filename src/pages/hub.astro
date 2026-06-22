@@ -1202,11 +1202,13 @@ const heroChips = ['posicionamento', 'conteúdo', 'marketing', 'comercial', 'tre
      - padding-bottom: 100px → garante 64px de gap entre botão e início dos chips
      - min-height: 96dvh → mais respiro pro título crescido */
   .hub-hero {
-    min-height: 88dvh;
-    padding: var(--space-12) var(--space-4) var(--space-10);
+    /* altura natural do conteúdo (+ respiro) em vez de 88dvh forçado, que
+       deixava ~190px de vazio dark embaixo dos chips */
+    min-height: auto;
+    padding: var(--space-12) var(--space-4) var(--space-12);
     overflow: hidden;
     position: relative;
-    justify-content: center;   /* centraliza o bloco — sem vácuo no meio */
+    justify-content: flex-start;
   }
   /* Inner: bloco único centralizado (título → texto → botão → chips),
      distribuído de forma equilibrada em vez de título no topo + chips colados no fundo. */
@@ -1270,16 +1272,17 @@ const heroChips = ['posicionamento', 'conteúdo', 'marketing', 'comercial', 'tre
     position: static !important;
     margin: var(--space-2) calc(-1 * var(--space-4)) 0 !important;
     padding: var(--space-2) 0;
-    width: 100vw !important;
-    max-width: 100vw;
-    overflow: hidden;
+    /* largura = conteúdo real (12 chips) pra -50% casar com 6 chips e o loop
+       ser seamless. O clip do excesso vem do .hub-hero (overflow:hidden). */
+    width: max-content !important;
+    max-width: none;
     grid-column: auto !important;
     grid-row: auto !important;
     z-index: 3;
-    mask-image: linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
     animation: hub-chips-marquee 22s linear infinite;
-    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   .hub-hero-chips li {
     flex: 0 0 auto !important;
