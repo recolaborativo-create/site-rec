@@ -7,7 +7,7 @@
 // não ficar miúda perto das de uma linha só.
 const clients = [
   { name: 'Open Imobiliária', file: 'open-imobiliaria' },
-  { name: 'Agafarma', file: 'agafarma', scale: 1.12 },
+  { name: 'Agafarma', file: 'agafarma', scale: 1.28 },
   { name: 'OK Arquitetura', file: 'ok-arquitetura' },
   { name: 'NOCA Porto Alegre', file: 'noca-porto-alegre', scale: 1.1 },
   { name: 'Balloons', file: 'balloons' },
@@ -37,13 +37,29 @@ const loop = [...clients, ...clients]
     <span class="hub-eyebrow hub-eyebrow-dark">portfólio</span>
     <h2>Marcas que já <em>cresceram</em> com o HUB.</h2>
     <p>Empresas que confiaram na estratégia da rede e seguem em movimento.</p>
+
+    <div class="hub-clients-modes" data-clients-toggle role="group" aria-label="modo de exibição">
+      <button class="hcm-btn active" data-mode="carousel" type="button" aria-pressed="true" title="Carrossel">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h13"/><path d="M12 7l5 5-5 5"/><path d="M20 6v12"/>
+        </svg>
+        <span>carrossel</span>
+      </button>
+      <button class="hcm-btn" data-mode="grid" type="button" aria-pressed="false" title="Grade">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>grade</span>
+      </button>
+    </div>
   </header>
 
   <div class="hub-clients-track" data-reveal>
     <div class="hub-clients-belt" role="list">
       {loop.map((c, i) => (
         <div class="hub-client" role={i < clients.length ? 'listitem' : 'presentation'} aria-hidden={i >= clients.length ? 'true' : undefined} style={c.scale ? `--logo-scale:${c.scale}` : undefined}>
-          <img src={`/clientes/${c.file}.png`} alt={i < clients.length ? c.name : ''} loading="lazy" />
+          <img src={`/clientes/${c.file}.png`} alt={i < clients.length ? c.name : ''} loading="eager" decoding="async" />
         </div>
       ))}
     </div>
@@ -79,18 +95,73 @@ const loop = [...clients, ...clients]
   :global(html[data-theme='dark']) .hub-clients-head h2 { color: var(--text-strong); }
   :global(html[data-theme='dark']) .hub-clients-head h2 em { color: var(--accent); }
 
-  /* Trilho com fade nas bordas (máscara) */
+  /* Toggle carrossel / grade */
+  .hub-clients-modes {
+    display: inline-flex;
+    gap: 2px;
+    margin-top: var(--space-5);
+    padding: 4px;
+    background: rgba(1, 38, 89, 0.05);
+    border: 1px solid rgba(1, 38, 89, 0.08);
+    border-radius: 11px;
+  }
+  :global(html[data-theme='dark']) .hub-clients-modes {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .hcm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-ui);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 200ms ease, background 200ms ease;
+  }
+  .hcm-btn:hover { color: var(--text); }
+  .hcm-btn.active {
+    color: var(--rec-teal);
+    background: var(--surface-raised);
+    box-shadow: 0 2px 6px rgba(1, 38, 89, 0.1);
+  }
+  :global(html[data-theme='dark']) .hcm-btn.active { color: var(--accent); }
+  .hcm-btn svg { flex-shrink: 0; }
+
+  /* Trilho com fade nas bordas — via pseudo-elementos (NÃO mask-image:
+     mask + animation pisca/some no iOS Safari). */
   .hub-clients-track {
     position: relative;
     width: 100%;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    overflow: hidden;
   }
+  .hub-clients-track::before,
+  .hub-clients-track::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 9%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hub-clients-track::before { left: 0; background: linear-gradient(to right, var(--surface), transparent); }
+  .hub-clients-track::after { right: 0; background: linear-gradient(to left, var(--surface), transparent); }
 
   .hub-clients-belt {
     display: flex;
     width: max-content;
     animation: hub-clients-scroll 56s linear infinite;
+    /* estabiliza a composição GPU — evita o iOS descartar a camada
+       e a fita "sumir e voltar" durante o loop */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   /* Pausa ao passar o mouse (desktop) */
   .hub-clients-track:hover .hub-clients-belt {
@@ -124,9 +195,27 @@ const loop = [...clients, ...clients]
   }
 
   @keyframes hub-clients-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
   }
+
+  /* ===== Modo GRADE (estático) ===== */
+  .hub-clients.is-grid .hub-clients-track { overflow: visible; padding: 0 var(--space-6); }
+  .hub-clients.is-grid .hub-clients-track::before,
+  .hub-clients.is-grid .hub-clients-track::after { display: none; }
+  .hub-clients.is-grid .hub-clients-belt {
+    animation: none;
+    transform: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  /* esconde as cópias duplicadas (só servem pro loop do carrossel) */
+  .hub-clients.is-grid .hub-client[aria-hidden='true'] { display: none; }
+  .hub-clients.is-grid .hub-client { margin: 0; }
 
   /* Respeita quem prefere menos movimento */
   @media (prefers-reduced-motion: reduce) {
@@ -144,9 +233,30 @@ const loop = [...clients, ...clients]
     }
     .hub-client img { height: calc(40px * var(--logo-scale, 1)); max-width: 132px; }
     .hub-clients-belt { animation-duration: 42s; }
-    .hub-clients-track {
-      -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-      mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-    }
+    .hub-clients-track::before,
+    .hub-clients-track::after { width: 7%; }
   }
 </style>
+
+<script>
+  // Toggle carrossel ↔ grade (persiste a escolha)
+  const section = document.querySelector<HTMLElement>('.hub-clients')
+  const toggle = document.querySelector<HTMLElement>('[data-clients-toggle]')
+  if (section && toggle) {
+    const btns = toggle.querySelectorAll<HTMLButtonElement>('.hcm-btn')
+    const apply = (mode: string, persist = true) => {
+      section.classList.toggle('is-grid', mode === 'grid')
+      btns.forEach(b => {
+        const active = b.dataset.mode === mode
+        b.classList.toggle('active', active)
+        b.setAttribute('aria-pressed', String(active))
+      })
+      if (persist) { try { localStorage.setItem('rec.hub.clients-view', mode) } catch {} }
+    }
+    btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.mode || 'carousel')))
+    try {
+      const saved = localStorage.getItem('rec.hub.clients-view')
+      if (saved === 'grid') apply('grid', false)
+    } catch {}
+  }
+</script>
