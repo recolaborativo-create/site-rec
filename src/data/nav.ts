@@ -18,3 +18,6 @@ export const externalLinks = {
   whatsapp: { url: 'https://wa.me/5551984632545', number: '51 98463-2545' },
   instagram: { url: 'https://instagram.com/somosrecoficial', handle: '@somosrecoficial' },
 }
+
+export const SITE_URL = 'https://somosrecoficial.com.br'
+export const CONTACT_EMAIL = 'henrique@somosrecoficial.com.br'

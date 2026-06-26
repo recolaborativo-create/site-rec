@@ -471,6 +471,7 @@ const monthLabel = batchLabel(mes!)
 
   <script>
     import { renderMarkdown } from '../../utils/render-markdown'
+    import { escapeHtml } from '../../utils/escape-html'
 
     type Draft = {
       id: string
@@ -516,15 +517,6 @@ const monthLabel = batchLabel(mes!)
       toastEl.className = `toast ${kind} show`
       clearTimeout((toastEl as any)._t)
       ;(toastEl as any)._t = setTimeout(() => toastEl.classList.remove('show'), 3000)
-    }
-
-    function escapeHtml(s: string) {
-      return s
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
     }
 
     function updateCounters() {

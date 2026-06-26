@@ -1,5 +1,6 @@
 ---
 import { getCategoryInfo, readingTime, type Pillar } from '../../utils/blog-category'
+import { formatDateShort } from '../../utils/format-date'
 
 interface Props {
   slug: string
@@ -22,7 +23,7 @@ const {
 const cat     = getCategoryInfo(pillar)
 const minutes = body ? readingTime(body) : 4
 const numStr  = String(number).padStart(2, '0')
-const dateStr = publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '')
+const dateStr = formatDateShort(publishedAt)
 ---
 
 <!--

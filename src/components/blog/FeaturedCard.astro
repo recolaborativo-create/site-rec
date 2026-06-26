@@ -1,5 +1,6 @@
 ---
 import { getCategoryInfo, readingTime, type Pillar } from '../../utils/blog-category'
+import { formatDateLong } from '../../utils/format-date'
 
 interface Props {
   slug: string
@@ -14,9 +15,7 @@ interface Props {
 
 const { slug, title, excerpt, pillar, publishedAt, cover, coverAlt, body = '' } = Astro.props
 const cat = getCategoryInfo(pillar)
-const dateStr = publishedAt.toLocaleDateString('pt-BR', {
-  day: '2-digit', month: 'long', year: 'numeric',
-})
+const dateStr = formatDateLong(publishedAt)
 const minutes = body ? readingTime(body) : 4
 ---
 

@@ -1,5 +1,6 @@
 ---
 import { safeJson } from '../../utils/safe-json'
+import { SITE_URL, CONTACT_EMAIL, externalLinks } from '../../data/nav'
 
 interface Props {
   title: string
@@ -10,7 +11,6 @@ interface Props {
   schemas?: Array<Record<string, unknown>>
 }
 const { title, description, path, ogImage = '/og-preview.jpg', schemas = [] } = Astro.props
-const SITE_URL = 'https://somosrecoficial.com.br'
 const canonical = `${SITE_URL}${path}`
 const ogImageAbs = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
 
@@ -22,8 +22,8 @@ const baseSchemas: Array<Record<string, unknown>> = [
     alternateName: 'REC',
     url: SITE_URL,
     logo: `${SITE_URL}/logo-icon.png`,
-    email: 'henrique@somosrecoficial.com.br',
-    sameAs: ['https://instagram.com/somosrecoficial'],
+    email: CONTACT_EMAIL,
+    sameAs: [externalLinks.instagram.url],
     description: 'Ecossistema de empresas conectadas no Rio Grande do Sul.',
   },
   {
@@ -33,7 +33,7 @@ const baseSchemas: Array<Record<string, unknown>> = [
     alternateName: 'REC Colaborativo',
     url: SITE_URL,
     telephone: '+5551984632545',
-    sameAs: ['https://instagram.com/somosrecoficial'],
+    sameAs: [externalLinks.instagram.url],
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Porto Alegre',

@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
+import { externalLinks } from '../../data/nav'
 
 const events = await getCollection('events')
 
@@ -106,7 +107,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
       <!-- Empty state -->
       <div class="panel-empty" data-panel-empty hidden>
         <p>Esse ano ainda não tem eventos registrados.</p>
-        <a href="https://instagram.com/somosrecoficial" target="_blank" rel="noopener" class="empty-cta">acompanhar @somosrecoficial →</a>
+        <a href={externalLinks.instagram.url} target="_blank" rel="noopener" class="empty-cta">acompanhar {externalLinks.instagram.handle} →</a>
       </div>
     </div>
   </div>

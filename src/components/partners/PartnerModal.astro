@@ -179,18 +179,10 @@
 
 <script>
   import { sortReviews, REVIEWS_VISIBLE } from '../../utils/review-sort'
+  import { escapeHtml } from '../../utils/escape-html'
+  import { instagramLink } from '../../utils/instagram-link'
 
   type Review = { rating: number; name?: string; comment?: string; createdAt: number }
-
-  // Escapa entidades HTML — reviews sobem sem moderação, então sanitiza no render.
-  function escapeHtml(s: string): string {
-    return s
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-  }
 
   const overlay = document.querySelector<HTMLElement>('[data-partner-modal]')
   if (overlay) {
@@ -211,10 +203,11 @@
     let chosenRating = 0
     let lastFocused: HTMLElement | null = null
 
-    function paintStars(value: number) {
-      const stars = starsEl.querySelectorAll<HTMLElement>('.star')
+    function paintStarsIn(container: Element, value: number) {
+      const stars = container.querySelectorAll<HTMLElement>('.star')
       stars.forEach((s, idx) => s.classList.toggle('filled', idx < Math.round(value)))
     }
+    function paintStars(value: number) { paintStarsIn(starsEl, value) }
 
     function formatPhoneBR(digits: string): string {
       // Espera 55 + DDD + número
@@ -229,8 +222,8 @@
     }
 
     function paintGoogleStars(value: number) {
-      const stars = overlay.querySelectorAll<HTMLElement>('[data-google-stars] .star')
-      stars.forEach((s, idx) => s.classList.toggle('filled', idx < Math.round(value)))
+      const container = overlay.querySelector<HTMLElement>('[data-google-stars]')
+      if (container) paintStarsIn(container, value)
     }
 
     function renderReviews(reviews: Review[]) {
@@ -473,7 +466,7 @@
       const igLabel = overlay.querySelector<HTMLElement>('[data-modal-instagram-label]')!
       if (p.instagram) {
         const handle = p.instagram.replace('@', '')
-        ig.href = `https://instagram.com/${handle}`
+        ig.href = instagramLink(p.instagram)
         igLabel.textContent = p.instagram.startsWith('@') ? p.instagram : `@${handle}`
         ig.style.display = ''
       } else {

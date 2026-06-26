@@ -1,4 +1,6 @@
 ---
+import { externalLinks } from '../../data/nav'
+
 interface Props {
   url: string
   title: string
@@ -11,7 +13,7 @@ const enc = (s: string) => encodeURIComponent(s)
   <span class="share-label">compartilhar</span>
 
   <a
-    href="https://instagram.com/somosrecoficial"
+    href={externalLinks.instagram.url}
     target="_blank" rel="noopener noreferrer"
     class="share-btn" aria-label="Seguir no Instagram"
   >

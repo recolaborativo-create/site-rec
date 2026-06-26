@@ -1,5 +1,6 @@
 ---
 import { getCategoryInfo, readingTime, type Pillar } from '../../utils/blog-category'
+import { formatDateShort } from '../../utils/format-date'
 
 interface Props {
   slug: string
@@ -23,9 +24,7 @@ const {
 } = Astro.props
 
 const cat = getCategoryInfo(pillar)
-const dateStr = publishedAt.toLocaleDateString('pt-BR', {
-  day: '2-digit', month: 'short', year: 'numeric',
-})
+const dateStr = formatDateShort(publishedAt)
 const minutes = body ? readingTime(body) : 4
 ---
 

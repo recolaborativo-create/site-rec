@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { checkRateLimit, extractIp, isHoneypotTripped } from '../../utils/rate-limit'
+import { escapeHtml as escapeHtmlBase } from '../../utils/escape-html'
 
 export const prerender = false
 
@@ -23,13 +24,7 @@ function sanitize(input: unknown, maxLen: number): string {
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-    .replace(/\n/g, '<br>')
+  return escapeHtmlBase(s).replace(/\n/g, '<br>')
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {

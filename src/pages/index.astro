@@ -6,6 +6,7 @@ import InstagramFeed from '../components/instagram/InstagramFeed.astro'
 import PillarChip from '../components/blog/PillarChip.astro'
 import ScrollGraphics from '../components/ui/ScrollGraphics.astro'
 import { whatsappLink, messages } from '../utils/whatsapp'
+import { formatDateShort } from '../utils/format-date'
 import { getCollection } from 'astro:content'
 
 const allPosts = await getCollection('blog')
@@ -146,7 +147,7 @@ const recentPosts = allPosts
       </header>
       <div class="blog-grid">
         {recentPosts.map(post => {
-          const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '')
+          const dateStr = formatDateShort(post.data.publishedAt)
           return (
             <a href={`/blog/${post.id}/`} class="home-post-card">
               {post.data.cover ? (

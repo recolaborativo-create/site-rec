@@ -1,5 +1,6 @@
 import { forceSimulation, forceManyBody, forceCenter, forceCollide, forceLink, forceX, forceY } from 'd3-force'
 import type { Partner } from '../../data/partners'
+import { instagramLink } from '../../utils/instagram-link'
 
 interface Node extends Partner {
   x?: number
@@ -338,7 +339,7 @@ function renderStatic(container: HTMLElement, partners: Partner[]) {
   partners.forEach(p => {
     const item = document.createElement('a')
     item.className = 'static-tile'
-    item.href = p.instagram ? `https://instagram.com/${p.instagram.replace('@', '')}` : '#'
+    item.href = p.instagram ? instagramLink(p.instagram) : '#'
     if (p.instagram) {
       item.target = '_blank'
       item.rel = 'noopener'

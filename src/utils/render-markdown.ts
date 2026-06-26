@@ -6,14 +6,7 @@
 // Pra produção, posts viram .md e Astro renderiza com a pipeline completa.
 // Aqui é só pra visualização no painel de aprovação.
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
+import { escapeHtml } from './escape-html'
 
 function renderInline(text: string): string {
   // Já assumimos que o input já foi escapado uma vez.

@@ -6,6 +6,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { whatsappLink, whatsappEventLink, messages } from '../utils/whatsapp'
 import { getEvents, type RecEvent } from '../data/events'
+import { SITE_URL } from '../data/nav'
 
 // SSR: lê o Notion ao vivo a cada visita (com cache de 60s no módulo).
 // Edita no Notion → aparece no site sem rebuild.
@@ -117,7 +118,6 @@ const timeline: YearEntry[] = [
 const totalYears = timeline.length
 
 // JSON-LD: Schema.org Event para cada evento futuro/aberto (Google rich results)
-const SITE_URL = 'https://somosrecoficial.com.br'
 const eventSchemas: Array<Record<string, unknown>> = events
   .filter(e => e.status !== 'encerrado')
   .map(e => {

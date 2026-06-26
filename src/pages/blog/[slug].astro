@@ -5,6 +5,8 @@ import ArticleSidebar from '../../components/blog/ArticleSidebar.astro'
 import ShareBar from '../../components/blog/ShareBar.astro'
 import { getCategoryInfo, pillarToCategory, readingTime } from '../../utils/blog-category'
 import { getCollection, render, type CollectionEntry } from 'astro:content'
+import { SITE_URL } from '../../data/nav'
+import { formatDateLong } from '../../utils/format-date'
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog')
@@ -16,9 +18,7 @@ const { Content } = await render(post)
 
 const cat = getCategoryInfo(post.data.pillar)
 const catSlug = pillarToCategory(post.data.pillar)
-const dateStr = post.data.publishedAt.toLocaleDateString('pt-BR', {
-  day: '2-digit', month: 'long', year: 'numeric',
-})
+const dateStr = formatDateLong(post.data.publishedAt)
 const minutes = readingTime(post.body || '')
 
 // Variante do hero: todos os posts com imagem ganham o hero visual
@@ -32,7 +32,7 @@ const related = allPosts
   .slice(0, 3)
 
 // URL canônica para compartilhamento
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://somosrecoficial.com.br'
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? SITE_URL
 const fullUrl = `${siteUrl}/blog/${post.id}`
 
 // JSON-LD: BlogPosting + Breadcrumb (rich results no Google)
