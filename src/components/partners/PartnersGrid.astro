@@ -15,7 +15,6 @@ const sorted = [...partners].sort((a, b) => b.reach - a.reach || a.name.localeCo
         data-sector={p.sector}
         data-name={p.name}
         type="button"
-        aria-label={`${p.name} — ver detalhes`}
       >
         <div class="grid-card-logo-wrap">
           <img src={p.logo} alt={p.name} loading="lazy" decoding="async" />
