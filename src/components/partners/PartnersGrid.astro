@@ -15,13 +15,13 @@ const sorted = [...partners].sort((a, b) => b.reach - a.reach || a.name.localeCo
         data-sector={p.sector}
         data-name={p.name}
         type="button"
-        aria-label={`Ver detalhes de ${p.name}`}
+        aria-label={`${p.name} — ver detalhes`}
       >
         <div class="grid-card-logo-wrap">
           <img src={p.logo} alt={p.name} loading="lazy" decoding="async" />
         </div>
         <div class="grid-card-info">
-          <h3 class="grid-card-name">{p.name}</h3>
+          <h2 class="grid-card-name">{p.name}</h2>
           <span class="grid-card-sector">{SECTOR_LABEL[p.sector] ?? p.sector}</span>
         </div>
         {p.instagram && (

@@ -267,7 +267,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
     <div class="ev-timeline-sticky">
 
       <!-- Botões de navegação entre seções -->
-      <div class="ev-section-nav" aria-label="Navegar entre seções">
+      <div class="ev-section-nav" role="group" aria-label="Navegar entre seções">
         <button class="ev-section-btn" id="ev-prev-section" type="button" aria-label="Ir para seção anterior">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
           seção anterior
@@ -335,7 +335,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
               class:list={['ev-year-page', `ev-year-page--${y.layout}`, { 'is-active': idx === 0, 'ev-year-page--future': y.isFuture }]}
               data-page-index={idx}
               data-year={y.year}
-              aria-hidden={idx === 0 ? 'false' : 'true'}
+              inert={idx === 0 ? undefined : true}
             >
               <!-- Elemento decorativo único por ano (posição variada) -->
               <div class="ev-deco" data-year={y.year} aria-hidden="true"></div>
@@ -493,7 +493,8 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
 
     if (isMobile) {
       // Marca todas as pages como ativas pra desbloquear opacity/pointer-events
-      pages.forEach(p => p.classList.add('is-active'))
+      // e remove o inert — no mobile o carrossel é navegado via swipe, todas ficam focáveis.
+      pages.forEach(p => { p.classList.add('is-active'); p.removeAttribute('inert') })
       yearBigs.forEach(y => y.classList.add('is-active'))
 
       // Gera os dots indicadores
@@ -509,6 +510,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
           dot.className = 'ev-mobile-dot'
           dot.type = 'button'
           dot.dataset.idx = String(i)
+          dot.setAttribute('role', 'tab')
           dot.setAttribute('aria-label', `ir para ${year}`)
           dot.innerHTML = `<span class="ev-mobile-dot-y">${year}</span>`
           if (i === 0) dot.classList.add('is-active')
@@ -583,7 +585,7 @@ const eventosSchemas = [...eventSchemas, breadcrumbSchema]
     function apply(index: number) {
       pages.forEach((p, i) => {
         p.classList.remove('is-active', 'is-past', 'is-future')
-        p.setAttribute('aria-hidden', i === index ? 'false' : 'true')
+        p.toggleAttribute('inert', i !== index)
         if (i === index) p.classList.add('is-active')
         else if (i < index) p.classList.add('is-past')
         else p.classList.add('is-future')

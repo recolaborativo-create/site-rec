@@ -3,7 +3,7 @@
 // Substitui o antigo side card (PartnerCard.astro).
 // Conteúdo: logo, nome, segmento, descrição, Instagram, WhatsApp, Google rating, sistema de avaliação interno.
 ---
-<div class="partner-modal-overlay" data-partner-modal aria-hidden="true" role="dialog" aria-modal="true" aria-label="detalhes da empresa">
+<div class="partner-modal-overlay" data-partner-modal inert role="dialog" aria-modal="true" aria-label="detalhes da empresa">
   <div class="partner-modal" data-modal-content>
     <!-- Drag handle visual no mobile (bottom sheet) -->
     <span class="modal-drag-handle" aria-hidden="true"></span>
@@ -280,7 +280,7 @@
     function openModal() {
       lastFocused = document.activeElement as HTMLElement
       overlay.classList.add('open')
-      overlay.setAttribute('aria-hidden', 'false')
+      overlay.removeAttribute('inert')
       document.body.classList.add('modal-open')
       document.body.style.overflow = 'hidden'
       // Focus into modal for a11y
@@ -288,7 +288,7 @@
     }
     function closeModal() {
       overlay.classList.remove('open')
-      overlay.setAttribute('aria-hidden', 'true')
+      overlay.setAttribute('inert', '')
       document.body.classList.remove('modal-open')
       document.body.style.overflow = ''
       lastFocused?.focus?.()
