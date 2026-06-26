@@ -17,7 +17,7 @@ export interface ComunidadeAdesao {
 }
 
 export interface ComunidadeBenefit {
-  icon: 'eye' | 'gift' | 'mic' | 'ticket' | 'compass' | 'tag' | 'spark' | 'store'
+  icon: 'eye' | 'gift' | 'mic' | 'ticket' | 'compass' | 'spark' | 'store'
   title: string
   description: string
 }
@@ -93,12 +93,6 @@ export const comunidadePlan: ComunidadePlan = {
       title: 'Consultoria em grupo trimestral',
       description:
         'Estratégia em grupo a cada três meses com curadoria temática.',
-    },
-    {
-      icon: 'tag',
-      title: 'Clube de desconto',
-      description:
-        'Parceiros com condições exclusivas de desconto para associadas.',
     },
     {
       icon: 'spark',
