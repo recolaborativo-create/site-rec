@@ -320,6 +320,10 @@ const initial = comunidadePlan.adesoes[0]
 
     adTabs.forEach(t => t.addEventListener('click', () => switchAdesao(t.dataset.ad as AdesaoKey)))
 
+    // close_convert_lead: dispara só nos CTAs "quero o plano semestral/anual" (desktop + mobile)
+    ctaLink?.addEventListener('click', () => { (window as any).gtag?.('event', 'close_convert_lead') })
+    mobileLink?.addEventListener('click', () => { (window as any).gtag?.('event', 'close_convert_lead') })
+
     // ===== Intersection reveal for benefits + steps =====
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver((entries) => {

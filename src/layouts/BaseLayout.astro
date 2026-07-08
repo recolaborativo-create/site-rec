@@ -81,6 +81,12 @@ const { title, description, path, currentSection, schemas, preloadImage } = Astr
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-7KFTLNZC8V');
+
+    // qualify_lead: dispara em qualquer clique que leve ao WhatsApp do REC (mesmo gatilho do "Fale conosco")
+    document.addEventListener('click', function (e) {
+      const link = e.target && e.target.closest ? e.target.closest('a[href*="wa.me"]') : null;
+      if (link) gtag('event', 'qualify_lead');
+    });
   </script>
 </body>
 </html>
