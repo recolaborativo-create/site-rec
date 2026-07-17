@@ -71,6 +71,12 @@
       <p class="modal-description" data-modal-description>descrição em breve</p>
     </section>
 
+    <!-- BENEFÍCIO EXCLUSIVO REC -->
+    <section class="modal-section modal-benefit" data-modal-benefit-section hidden>
+      <h3 class="modal-section-title">benefício rec</h3>
+      <p class="modal-benefit-text" data-modal-benefit></p>
+    </section>
+
     <!-- AVALIAÇÕES (Google + REC) -->
     <section class="modal-section modal-reviews">
       <div class="reviews-header">
@@ -520,6 +526,16 @@
         descEl.classList.add('is-empty')
       }
 
+      // Benefício exclusivo REC
+      const benefitSection = overlay.querySelector<HTMLElement>('[data-modal-benefit-section]')!
+      const benefitEl = overlay.querySelector<HTMLElement>('[data-modal-benefit]')!
+      if (p.benefit && p.benefit.trim()) {
+        benefitEl.textContent = p.benefit.trim()
+        benefitSection.hidden = false
+      } else {
+        benefitSection.hidden = true
+      }
+
       // Google Reviews
       const googleScore = overlay.querySelector<HTMLElement>('[data-google-score]')!
       const googleCount = overlay.querySelector<HTMLElement>('[data-google-count]')!
@@ -845,6 +861,20 @@
 .modal-description.is-empty {
   color: var(--text-soft);
   font-style: italic;
+}
+
+.modal-benefit {
+  border-top: none;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: var(--space-3) var(--space-4);
+}
+.modal-benefit-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
 }
 
 /* ============================================

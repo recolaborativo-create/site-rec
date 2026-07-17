@@ -54,13 +54,15 @@ export interface Partner {
   website?: string
   /** Override do padding CSS do nó na constelação — reduz para logos com muito espaço em branco na imagem. Ex: '1px 2px' */
   logoPaddingOverride?: string
+  /** Benefício exclusivo pra membros do REC, exibido no modal abaixo da descrição. */
+  benefit?: string
 }
 
 /** Versão serializada/client-side do Partner — usada nos script blocks dos componentes de filtro. */
 export type PartnerLite = {
   id: string; name: string; logo: string; sector: string; sectorLabel?: string;
   instagram?: string; whatsapp?: string; phone?: string; description?: string; city?: string;
-  address?: string; website?: string; hideGoogle?: boolean;
+  address?: string; website?: string; hideGoogle?: boolean; benefit?: string;
   googleRating?: number; googleReviewsCount?: number; googleMapsUrl?: string;
   googleReviews?: Array<{ author: string; rating: number; text: string }>;
 }
@@ -83,7 +85,7 @@ export const partners: Partner[] = [
   { id: '360', name: 'Gestum 360º Assessoria Contábil', instagram: '@tavianealvescontadora', phone: '5551983333774', sector: 'contabilidade', reach: 3, logo: '/partners/banners-site1-360-200x120.png', description: 'Contabilidade consultiva 360° com Taviane Alves. Da abertura ao crescimento do seu negócio com estratégia e atendimento próximo.', googleSearchOverride: 'Gestum 360 Assessoria Contabil Canoas' , whatsapp: '555137858814'},
   { id: 'andressa', name: 'Andressa Boneto Contabilidade Digital', instagram: '@andressaboneto.contadora', phone: '5551994544093', sector: 'contabilidade', reach: 3, logo: '/partners/banners-site1-andressa-200x120.png', description: 'Contadora dedicada à saúde fiscal de empresas e profissionais. Atendimento próximo, claro e estratégico.', googleSearchOverride: 'Andressa Boneto Contabilidade Canoas RS' , whatsapp: '5551994544093', city: 'Canoas, RS'},
   { id: 'baby-200x119png', name: 'Baby Plays', instagram: '@babyplays.brinquedos', sector: 'servicos', reach: 3, logo: '/partners/banners-site1-baby-200x119.png', description: 'Brinquedos pedagógicos e itens infantis selecionados pra estimular desenvolvimento e brincadeira consciente.' , whatsapp: '5551981177297'},
-  { id: 'cibele', name: 'Cibele Reis Finanças', instagram: '@cibelejreis.financas', sector: 'contabilidade', reach: 3, logo: '/partners/banners-site1-cibele-200x120.png', description: 'Educação financeira e organização das finanças pessoais e empresariais com a Cibele Reis.' , whatsapp: '5551996166696', hideGoogle: true, website: 'https://cjrfinancas.com/', city: 'Tramandaí, RS'},
+  { id: 'cibele', name: 'Cibele Reis Finanças', instagram: '@cibelejreis.financas', sector: 'contabilidade', reach: 3, logo: '/partners/banners-site1-cibele-200x120.png', description: 'Educação financeira e organização das finanças pessoais e empresariais com a Cibele Reis.' , whatsapp: '5551996166696', hideGoogle: true, website: 'https://cjrfinancas.com/', city: 'Tramandaí, RS', benefit: 'Desconto de 10% na contratação de mentorias e consultorias individuais, tanto pessoal como empresarial.'},
   { id: 'ciclojoel', name: 'Ciclo Joel', instagram: '@ciclojel', sector: 'servicos', reach: 3, logo: '/partners/banners-site1-ciclojoel-200x120.png', description: 'Bicicletas, peças e manutenção. Tudo pra quem ama pedalar, com atendimento técnico de confiança.' , whatsapp: '5551981376599'},
   { id: 'cressol', name: 'Cresol Gerações', sector: 'servicos', reach: 3, logo: '/partners/banners-site1-cressol-200x120.png', description: 'Cooperativa de crédito Cresol, soluções financeiras com cara de gente e propósito de gerar valor local.' , whatsapp: '5555984426261', instagram: '@cresolriograndedosul', website: 'https://cresol.com.br/', city: 'Canoas, RS'},
   { id: 'doce-amargo', name: 'Doce Amargo', instagram: '@doceamargo.at', sector: 'gastronomia', reach: 3, logo: '/partners/banners-site1-doce-amargo-200x120.png', description: 'Confeitaria autoral com criações únicas em sabor e apresentação. Doces que contam histórias.' , hideGoogle: true, city: 'Esteio, RS'},
