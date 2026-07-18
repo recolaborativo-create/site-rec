@@ -23,13 +23,15 @@ const partnersWithLabel = partners.map(p => ({
 <script type="application/json" data-partners-json set:html={safeJson(partnersWithLabel)}></script>
 
 <script>
-  import { initConstellation } from './constellation'
   const el = document.querySelector<HTMLElement>('[data-constellation]')
   const dataEl = document.querySelector<HTMLElement>('[data-partners-json]')
-  if (el && dataEl) {
+  const isMobile = window.matchMedia('(max-width: 1023px)').matches
+  if (el && dataEl && !isMobile) {
     try {
       const partners = JSON.parse(dataEl.textContent || '[]')
-      initConstellation(el, partners)
+      // import dinâmico: só busca/roda o motor de força quando realmente vai ser usado,
+      // evita bloquear a fila de módulos (e o registro de listeners dos outros componentes) em mobile
+      import('./constellation').then(({ initConstellation }) => initConstellation(el, partners))
     } catch (err) {
       console.error('failed to parse partners data', err)
     }

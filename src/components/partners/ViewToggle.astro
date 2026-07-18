@@ -92,6 +92,20 @@
       stored = 'grid'
     }
 
+    // Aplica visibilidade inicial direto no DOM, de forma síncrona — não depende de
+    // outros componentes (grid/segments/regions) já terem registrado seus listeners
+    // de 'partners-view-change' quando esse módulo roda.
+    const viewSelectors: Record<ViewMode, string> = {
+      constellation: '[data-constellation-wrap]',
+      grid: '[data-partners-grid]',
+      segments: '[data-partners-segments]',
+      regions: '[data-partners-regions]',
+    }
+    Object.entries(viewSelectors).forEach(([mode, selector]) => {
+      const node = document.querySelector<HTMLElement>(selector)
+      if (node) node.hidden = mode !== stored
+    })
+
     // Espera o layout assentar pra posicionar indicator corretamente
     requestAnimationFrame(() => {
       const initialBtn = root!.querySelector<HTMLButtonElement>(`.view-btn[data-view="${stored}"]`)
