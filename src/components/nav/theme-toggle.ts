@@ -14,12 +14,20 @@ function apply(theme: Theme) {
   try { localStorage.setItem('rec-theme', theme) } catch {}
 }
 
+// Transição em andamento — evita que um segundo clique (ou reentrância) chame
+// startViewTransition() enquanto a anterior ainda está ativa. Duas transições
+// sobrepostas fazem o Chrome abortar a primeira com InvalidStateError, o que
+// corta a animação no meio e faz o tema "saltar" pro estado final sem fluidez.
+let activeTransition: any = null
+
 export function initThemeToggle() {
   const btns = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')
   if (!btns.length) return
 
   btns.forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (activeTransition) return
+
       const next: Theme = current() === 'dark' ? 'light' : 'dark'
 
       const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -41,6 +49,7 @@ export function initThemeToggle() {
 
       document.documentElement.classList.add('theme-switching')
       const transition = (document as any).startViewTransition(() => apply(next))
+      activeTransition = transition
 
       try {
         await transition.ready
@@ -62,6 +71,7 @@ export function initThemeToggle() {
         // se algo falhar, o tema já foi aplicado no callback — ok
       } finally {
         document.documentElement.classList.remove('theme-switching')
+        activeTransition = null
       }
     })
   })
