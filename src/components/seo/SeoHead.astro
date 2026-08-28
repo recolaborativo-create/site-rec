@@ -11,7 +11,11 @@ interface Props {
   schemas?: Array<Record<string, unknown>>
 }
 const { title, description, path, ogImage = '/og-preview.jpg', schemas = [] } = Astro.props
-const canonical = `${SITE_URL}${path}`
+// Site inteiro serve com barra final (vercel.json: trailingSlash: true) — o canonical
+// tem que bater com a URL de fato servida, senão o Google trata a página do sitemap
+// como "alternativa" da versão sem barra e nunca indexa nenhuma das duas.
+const pathWithSlash = path === '/' || path.endsWith('/') ? path : `${path}/`
+const canonical = `${SITE_URL}${pathWithSlash}`
 const ogImageAbs = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
 
 const baseSchemas: Array<Record<string, unknown>> = [

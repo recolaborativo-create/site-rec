@@ -12,7 +12,11 @@ export default defineConfig({
   adapter: vercel({
     webAnalytics: { enabled: false },
   }),
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => !/\/(moderacao|cadastro-empresas|aprovacao-blog)(\/|$)/.test(page),
+    }),
+  ],
   vite: {
     css: { devSourcemap: true },
   },

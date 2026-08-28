@@ -10,17 +10,26 @@
     }
   ],
   "redirects": [
-    { "source": "/sobre-nos", "destination": "/comunidade", "permanent": true },
-    { "source": "/sobre", "destination": "/comunidade", "permanent": true },
-    { "source": "/nossa-rede", "destination": "/comunidade", "permanent": true },
-    { "source": "/beneficios", "destination": "/comunidade", "permanent": true },
-    { "source": "/agenda", "destination": "/eventos", "permanent": true },
-    { "source": "/agenda/:path*", "destination": "/eventos/:path*", "permanent": true },
-    { "source": "/about", "destination": "/comunidade", "permanent": true },
-    { "source": "/about-us", "destination": "/comunidade", "permanent": true },
-    { "source": "/contact", "destination": "/contato", "permanent": true },
-    { "source": "/privacy", "destination": "/privacidade", "permanent": true },
-    { "source": "/privacy-policy", "destination": "/privacidade", "permanent": true }
+    { "source": "/sobre-nos", "destination": "/comunidade/", "permanent": true },
+    { "source": "/sobre", "destination": "/comunidade/", "permanent": true },
+    { "source": "/nossa-rede", "destination": "/comunidade/", "permanent": true },
+    { "source": "/beneficios", "destination": "/comunidade/", "permanent": true },
+    { "source": "/agenda", "destination": "/eventos/", "permanent": true },
+    { "source": "/agenda/:path*", "destination": "/eventos/:path*/", "permanent": true },
+    { "source": "/about", "destination": "/comunidade/", "permanent": true },
+    { "source": "/about-us", "destination": "/comunidade/", "permanent": true },
+    { "source": "/contact", "destination": "/contato/", "permanent": true },
+    { "source": "/privacy", "destination": "/privacidade/", "permanent": true },
+    { "source": "/privacy-policy", "destination": "/privacidade/", "permanent": true },
+    { "source": "/comunidade", "destination": "/comunidade/", "permanent": true },
+    { "source": "/hub", "destination": "/hub/", "permanent": true },
+    { "source": "/empresas", "destination": "/empresas/", "permanent": true },
+    { "source": "/eventos", "destination": "/eventos/", "permanent": true },
+    { "source": "/planos", "destination": "/planos/", "permanent": true },
+    { "source": "/contato", "destination": "/contato/", "permanent": true },
+    { "source": "/privacidade", "destination": "/privacidade/", "permanent": true },
+    { "source": "/blog", "destination": "/blog/", "permanent": true },
+    { "source": "/blog/:slug", "destination": "/blog/:slug/", "permanent": true }
   ],
   "headers": [
     {

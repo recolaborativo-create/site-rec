@@ -33,7 +33,7 @@ const related = allPosts
 
 // URL canônica para compartilhamento
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? SITE_URL
-const fullUrl = `${siteUrl}/blog/${post.id}`
+const fullUrl = `${siteUrl}/blog/${post.id}/`
 
 // JSON-LD: BlogPosting + Breadcrumb (rich results no Google)
 const articleSchemas: Array<Record<string, unknown>> = [
@@ -61,7 +61,7 @@ const articleSchemas: Array<Record<string, unknown>> = [
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Início', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog/` },
       { '@type': 'ListItem', position: 3, name: post.data.title, item: fullUrl },
     ],
   },
