@@ -25,6 +25,14 @@ const baseSchemas: Array<Record<string, unknown>> = [
     email: CONTACT_EMAIL,
     sameAs: [externalLinks.instagram.url],
     description: 'Ecossistema de empresas conectadas no Rio Grande do Sul.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: CONTACT_EMAIL,
+      telephone: '+5551984632545',
+      contactType: 'customer service',
+      areaServed: 'BR',
+      availableLanguage: ['Portuguese'],
+    },
   },
   {
     '@context': 'https://schema.org',

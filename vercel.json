@@ -15,7 +15,12 @@
     { "source": "/nossa-rede", "destination": "/comunidade", "permanent": true },
     { "source": "/beneficios", "destination": "/comunidade", "permanent": true },
     { "source": "/agenda", "destination": "/eventos", "permanent": true },
-    { "source": "/agenda/:path*", "destination": "/eventos/:path*", "permanent": true }
+    { "source": "/agenda/:path*", "destination": "/eventos/:path*", "permanent": true },
+    { "source": "/about", "destination": "/comunidade", "permanent": true },
+    { "source": "/about-us", "destination": "/comunidade", "permanent": true },
+    { "source": "/contact", "destination": "/contato", "permanent": true },
+    { "source": "/privacy", "destination": "/privacidade", "permanent": true },
+    { "source": "/privacy-policy", "destination": "/privacidade", "permanent": true }
   ],
   "headers": [
     {
@@ -25,7 +30,8 @@
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
       ]
     }
   ]

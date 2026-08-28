@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { CONTACT_EMAIL } from '../data/nav'
+---
+<BaseLayout
+  title="Política de Privacidade"
+  description="Como o REC coleta, usa e protege os dados de quem visita o site e participa da comunidade, em conformidade com a LGPD."
+  path="/privacidade"
+  currentSection="Privacidade"
+>
+  <section class="privacidade">
+    <div class="privacidade-inner">
+      <span class="privacidade-eyebrow">privacidade</span>
+      <h1>Política de Privacidade</h1>
+      <p class="privacidade-atualizado">Última atualização: agosto de 2026.</p>
+
+      <p>
+        Esta página explica quais dados o REC Colaborativo coleta quando você visita
+        <strong>somosrecoficial.com.br</strong>, preenche um formulário ou entra em contato pelo
+        WhatsApp/Instagram, e como esses dados são usados — em conformidade com a Lei Geral de
+        Proteção de Dados (LGPD, Lei nº 13.709/2018).
+      </p>
+
+      <h2>Quais dados coletamos</h2>
+      <p>
+        Quando você usa o formulário de contato ou de cadastro de empresa, coletamos nome,
+        forma de contato (e-mail, WhatsApp ou Instagram) e a mensagem que você escreve. Ao
+        navegar pelo site, ferramentas de analytics (Google Analytics) e de mensuração de
+        anúncios (Meta Pixel) coletam dados de uso — páginas visitadas, dispositivo, origem do
+        tráfego — de forma agregada, sem que precisemos te identificar pessoalmente para isso.
+      </p>
+
+      <h2>Como usamos esses dados</h2>
+      <p>
+        Usamos os dados de contato exclusivamente para responder sua mensagem, apresentar o
+        REC e, quando aplicável, dar andamento a um cadastro de parceria. Os dados de
+        analytics servem para entender como o site é usado e melhorar a experiência — não são
+        vendidos nem repassados a terceiros para fins de marketing de outras empresas.
+      </p>
+
+      <h2>Com quem compartilhamos</h2>
+      <p>
+        Não vendemos dados pessoais. Compartilhamos informações apenas com provedores que
+        operam a infraestrutura do site (hospedagem, envio de formulário, analytics — como
+        Google e Meta), estritamente para essas finalidades técnicas, e nunca para fins alheios
+        à operação do REC.
+      </p>
+
+      <h2>Seus direitos</h2>
+      <p>
+        Você pode pedir a qualquer momento para saber quais dados seus temos, corrigi-los ou
+        excluí-los. Basta escrever para
+        {' '}<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{' '}
+        com o pedido — respondemos em até 15 dias úteis, como prevê a LGPD.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        O site usa cookies técnicos e de analytics para lembrar preferências (como o tema
+        claro/escuro escolhido) e medir uso. Você pode bloquear cookies nas configurações do
+        seu navegador a qualquer momento, sem que isso impeça o uso do site.
+      </p>
+
+      <h2>Contato</h2>
+      <p>
+        Dúvidas sobre esta política ou sobre seus dados: fale com a gente pelo e-mail
+        {' '}<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{' '}
+        ou pela <a href="/contato">página de contato</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.privacidade {
+  padding: var(--space-16) var(--space-6) var(--space-20);
+  min-height: 60vh;
+}
+.privacidade-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.privacidade-eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rec-teal);
+  margin-bottom: var(--space-5);
+}
+.privacidade h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 0 0 var(--space-3);
+}
+.privacidade-atualizado {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 0 0 var(--space-8);
+}
+.privacidade h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: var(--space-9) 0 var(--space-3);
+}
+.privacidade p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-4);
+}
+.privacidade a {
+  color: var(--rec-teal);
+  text-decoration: underline;
+}
+</style>
