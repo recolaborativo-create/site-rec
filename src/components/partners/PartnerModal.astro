@@ -125,6 +125,8 @@
             <span class="form-label">comentário (até 200 caracteres)</span>
             <textarea name="comment" maxlength="200" rows="3"></textarea>
           </label>
+          {/* Honeypot: invisível ao usuário, bots preenchem e são silenciados. */}
+          <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <div class="form-actions">
             <button type="button" class="form-cancel" data-review-cancel>cancelar</button>
             <button type="submit" class="form-submit">enviar</button>
@@ -410,13 +412,14 @@
       if (!partnerId) return
       const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim().slice(0, 40)
       const comment = (form.elements.namedItem('comment') as HTMLTextAreaElement).value.trim().slice(0, 200)
+      const website = (form.elements.namedItem('website') as HTMLInputElement)?.value ?? ''
       statusEl.textContent = 'enviando…'
       statusEl.dataset.kind = ''
       try {
         const res = await fetch('/api/reviews', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ partnerId, rating: chosenRating, name, comment }),
+          body: JSON.stringify({ partnerId, rating: chosenRating, name, comment, website }),
         })
         if (!res.ok) {
           const err = await res.json().catch(() => ({}))
@@ -1364,5 +1367,15 @@
   .partner-modal-overlay,
   .partner-modal { transition: opacity 100ms linear; }
   .modal-close:hover { transform: none; }
+}
+
+/* Honeypot anti-spam: invisível ao usuário humano */
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 </style>

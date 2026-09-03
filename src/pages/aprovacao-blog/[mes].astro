@@ -5,6 +5,7 @@
 // =============================================================
 import { safeJson } from '../../utils/safe-json'
 import { isValidBatch, batchLabel } from '../../utils/blog-batch'
+import { isModAuthorized } from '../../utils/mod-auth'
 
 export const prerender = false
 
@@ -15,25 +16,12 @@ if (!isValidBatch(mes)) {
   return new Response('Formato inválido. Use /aprovacao-blog/AAAA-MM-DD', { status: 400 })
 }
 
-// Auth: usa o mesmo cookie rec_mod
-const MOD_SECRET = import.meta.env.MOD_SECRET
-const COOKIE_NAME = 'rec_mod'
-
-function readCookie(name: string): string | null {
-  const raw = Astro.request.headers.get('cookie') ?? ''
-  for (const part of raw.split(';')) {
-    const [k, ...v] = part.trim().split('=')
-    if (k === name) return decodeURIComponent(v.join('='))
-  }
-  return null
-}
-
-if (!MOD_SECRET) {
+// Auth: usa o mesmo cookie rec_mod (comparação em tempo constante via safeEqual)
+if (!import.meta.env.MOD_SECRET) {
   return new Response('Servidor não configurado (MOD_SECRET ausente)', { status: 503 })
 }
 
-const cookieToken = readCookie(COOKIE_NAME)
-if (!cookieToken || cookieToken !== MOD_SECRET) {
+if (!isModAuthorized(Astro.request)) {
   // 404 disfarçado pra não revelar a existência da página
   return new Response(null, { status: 404 })
 }
