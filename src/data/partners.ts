@@ -311,4 +311,22 @@ export const partners: Partner[] = [
     hideGoogle: true,
     city: 'Porto Alegre',
   },
+  {
+    id: 'pm-atelier',
+    name: 'PM Atelier',
+    instagram: '@pmatelierdecor',
+    sector: 'servicos',
+    reach: 3,
+    logo: '/partners/LOGOS-SITE-pm-atelier-200x120.png',
+    description: 'Atelier de decoração, aromas e bem-estar pra transformar ambientes com sensibilidade e cuidado.',
+  },
+  {
+    id: 'sanches-marmoraria',
+    name: 'Sanches Marmoraria',
+    instagram: '@sanchesmarmoraria_oficial',
+    sector: 'servicos',
+    reach: 3,
+    logo: '/partners/LOGOS-SITE-sanches-marmoraria-200x120.png',
+    description: 'Marmoraria especializada em mármores e granitos, do projeto à instalação, com acabamento de precisão.',
+  },
 ]
