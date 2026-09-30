@@ -1,0 +1,10 @@
+{
+  "id": "sicredi",
+  "name": "Sicredi",
+  "sector": "servicos",
+  "reach": 3,
+  "logo": "/partners/sicredi.png",
+  "city": "Canoas, RS",
+  "description": "Cooperativa de crédito: conta, crédito, investimentos e seguros.",
+  "hideGoogle": true
+}
