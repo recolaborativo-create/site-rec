@@ -974,5 +974,27 @@
     "websiteUri": null,
     "reviews": [],
     "fetchedAt": 1790791898545
+  },
+  "visao-arte": {
+    "rating": 4.8,
+    "reviewsCount": 18,
+    "mapsUrl": "https://maps.google.com/?cid=15374154270919343406&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "Av. Pernambuco, 374 - Navegantes, Porto Alegre - RS, 90240-000",
+    "phone": "(51) 99729-0221",
+    "editorialSummary": null,
+    "websiteUri": "https://www.visaoeartemoveis.com.br/",
+    "reviews": [
+      {
+        "author": "Clair Menezes Pinzon",
+        "rating": 5,
+        "text": "A Visão e Arte foi uma feliz escolha. Empresa competente, com profissionais sérios. O trabalho foi feito sem a gente perceber dentro de casa. Deixaram tudo limpo e organizado. Entrega em tempo muito rápido. Preço just…"
+      },
+      {
+        "author": "Yasmim Pinzon",
+        "rating": 5,
+        "text": "Parceria de excelência! Executaram o projeto em tempo recorde e com fidelidade ao mesmo. Atendimento profissional, super atenciosos e comprometidos! Recomendo muito!"
+      }
+    ],
+    "fetchedAt": 1790801450683
   }
 }
