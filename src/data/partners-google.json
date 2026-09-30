@@ -1051,5 +1051,27 @@
     "websiteUri": null,
     "reviews": [],
     "fetchedAt": 1790802562671
+  },
+  "sicredi": {
+    "rating": 4.6,
+    "reviewsCount": 9,
+    "mapsUrl": "https://maps.google.com/?cid=5988830003699139739&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "Av. Mariland, 477 - Auxiliadora, Porto Alegre - RS, 90540-155",
+    "phone": "(51) 3358-8200",
+    "editorialSummary": null,
+    "websiteUri": "https://www.sicredi.com.br/coop/origensrs/",
+    "reviews": [
+      {
+        "author": "Roberta B",
+        "rating": 5,
+        "text": "Obrigada Sicredi União Metropolitana por ter feito parceria com as lotações de Porto Alegre!!! Está muito mais fácil e com muita comodidade usar lotação agora! Já era fã de vocês antes! Depois dessa então!!! 👏👏👏"
+      },
+      {
+        "author": "Valneia de paula Braz",
+        "rating": 5,
+        "text": "Muito bom."
+      }
+    ],
+    "fetchedAt": 1790802905400
   }
 }

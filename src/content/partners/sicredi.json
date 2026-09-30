@@ -1,10 +1,11 @@
 {
   "id": "sicredi",
-  "name": "Sicredi",
+  "name": "Sicredi Origens RS",
   "sector": "servicos",
   "reach": 3,
   "logo": "/partners/sicredi.png",
-  "city": "Canoas, RS",
+  "city": "Porto Alegre, RS",
   "description": "Cooperativa de crédito: conta, crédito, investimentos e seguros.",
-  "hideGoogle": true
+  "instagram": "@sicrediorigensrs",
+  "whatsapp": "5551998258889"
 }
