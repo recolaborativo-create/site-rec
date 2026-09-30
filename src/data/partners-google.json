@@ -1073,5 +1073,27 @@
       }
     ],
     "fetchedAt": 1790802905400
+  },
+  "jaqueline-campiol": {
+    "rating": 5,
+    "reviewsCount": 13,
+    "mapsUrl": "https://maps.google.com/?cid=2437565250712911970&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "R. Dr. Barcelos, 2375 - Centro, Canoas - RS, 92330-300",
+    "phone": "(51) 99165-6023",
+    "editorialSummary": null,
+    "websiteUri": "https://jaquelinecampiol.46graus.com/",
+    "reviews": [
+      {
+        "author": "Tatieli Dutra",
+        "rating": 5,
+        "text": "Uma empresa incrível, serviço maravilhoso, atendimento especial, nos sentimos mto avontade nos ensaios, fotos de mtaaa qualidade, agilidade na entrega. Só tenho a agradecer e recomendo muito esse trabalho."
+      },
+      {
+        "author": "Emersom",
+        "rating": 5,
+        "text": "Excelente profissional, dedicada e com muitas ideias de ensaio, com sentimento genuíno de trazer a melhor experiência para o cliente! Indico !!!"
+      }
+    ],
+    "fetchedAt": 1790803340677
   }
 }
