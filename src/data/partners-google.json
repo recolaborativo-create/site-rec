@@ -996,5 +996,60 @@
       }
     ],
     "fetchedAt": 1790801450683
+  },
+  "a-quatro-consorcios": {
+    "rating": 5,
+    "reviewsCount": 7,
+    "mapsUrl": "https://maps.google.com/?cid=3196913898185334809&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "Av. Gen. Flores da Cunha, 3004 - Sl 201 - Parque Brasilia, Cachoeirinha - RS, 94910-001",
+    "phone": "(51) 99281-0493",
+    "editorialSummary": null,
+    "websiteUri": "https://serello.consorciogo.com/s/construcaodepatrimoniosemjuros",
+    "reviews": [
+      {
+        "author": "Marieta Weiler",
+        "rating": 5,
+        "text": "Excelente profissional, com ótima comunicação, didática e conhecimento na área de consórcios. Conheço seu trabalho há 10 anos e posso destacar sua competência, dedicação e excelente atendimento. Recomendo com total co…"
+      },
+      {
+        "author": "tania maria Balestrin",
+        "rating": 5,
+        "text": "Nunca tive sorte kkkk até conhecer essa mulher maravilhosa e a hs consórcios fui contemplada e já moro no meu paraíso graças a essa linda Anna"
+      }
+    ],
+    "fetchedAt": 1790802561411
+  },
+  "garden-containers": {
+    "rating": 4.6,
+    "reviewsCount": 866,
+    "mapsUrl": "https://maps.google.com/?cid=9577612027091658348&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "R. Açucena, 1575 - Mal. Rondon, Canoas - RS, 92025-840",
+    "phone": "(51) 98948-2358",
+    "editorialSummary": null,
+    "websiteUri": "https://www.gardencontainers.com.br/",
+    "reviews": [
+      {
+        "author": "Mateus Gomes",
+        "rating": 5,
+        "text": "Ambiente perfeito para tudooo! Obrigado Luciana e Arthur pelo excelente atendimento e atenção 🙏🏼 voltaremos sempre ❤️"
+      },
+      {
+        "author": "Gabriela Capilheira",
+        "rating": 5,
+        "text": "Comemorei meu aniver junto com minha irmã no espaço vip e fomos super bem atendidos. Todo cuidado dos profissionais e comida saborosa. Convidados amaram o espaço e também elogiaram tudo o que vivenciaram lá. Super rec…"
+      }
+    ],
+    "fetchedAt": 1790802562148
+  },
+  "joseane-moreira": {
+    "rating": 0,
+    "reviewsCount": 0,
+    "mapsUrl": "https://maps.google.com/?cid=10969683136876358101&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "R. Gen. Sampaio, 251 - Centro, Bagé - RS, 96400-370",
+    "phone": "(53) 99961-9203",
+    "editorialSummary": null,
+    "websiteUri": null,
+    "reviews": [],
+    "fetchedAt": 1790802562671
   }
 }
