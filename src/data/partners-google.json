@@ -941,5 +941,38 @@
     "websiteUri": null,
     "reviews": [],
     "fetchedAt": 1779328030765
+  },
+  "star-bags": {
+    "rating": 5,
+    "reviewsCount": 5,
+    "mapsUrl": "https://maps.google.com/?cid=1889240220565152253&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "R. Libório Müler, 172 - Santos Dumont, São Leopoldo - RS, 93115-110",
+    "phone": "(51) 99110-3552",
+    "editorialSummary": null,
+    "websiteUri": "http://starbagsdobrasil.com/",
+    "reviews": [
+      {
+        "author": "Eliange",
+        "rating": 5,
+        "text": "A capa para mala da Star Bags do Brasil é simplesmente maravilhosa. O material é ótimo, o acabamento é ótimo, ficou perfeita. Recebi muito rápido e veio super embalado. Outro detalhe, a capa tem um fecho e para guarda…"
+      },
+      {
+        "author": "claudia marques",
+        "rating": 5,
+        "text": "Excelente ! Simplesmente a melhor capa q já tive. E linda , vira uma bolsa, facilde dobrar e guardar e o mais importante o material é muito bom. Também vem com um lugarzinho para colocar cadeado. O atendimento é simpa…"
+      }
+    ],
+    "fetchedAt": 1790791899173
+  },
+  "samantha-belloli": {
+    "rating": 0,
+    "reviewsCount": 0,
+    "mapsUrl": "https://maps.google.com/?cid=10125731949208907520&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+    "address": "Av. Júlio de Castilhos, 583 - Sl 203 - CENTRO, São Francisco de Paula - RS, 95400-000",
+    "phone": "(54) 99693-3572",
+    "editorialSummary": null,
+    "websiteUri": null,
+    "reviews": [],
+    "fetchedAt": 1790791898545
   }
 }

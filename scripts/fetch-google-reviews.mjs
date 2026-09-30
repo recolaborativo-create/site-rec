@@ -9,13 +9,14 @@
 // API: Places API (New) — https://developers.google.com/maps/documentation/places/web-service/text-search
 // Custo aproximado: ~$0,02 por empresa (Text Search $32/1000 + Place Details lite $17/1000). Free tier $200/mês cobre.
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const PARTNERS_TS = resolve(ROOT, 'src/data/partners.ts')
+const CMS_DIR = resolve(ROOT, 'src/content/partners')
 const OUTPUT_JSON = resolve(ROOT, 'src/data/partners-google.json')
 const ENV_PATH = resolve(ROOT, '.env')
 
@@ -47,6 +48,14 @@ function parsePartners() {
     const override = overrideMatch ? overrideMatch[1] : null
     const hideGoogle = /hideGoogle:\s*true/.test(block)
     entries.push({ id, name, city, override, hideGoogle })
+  }
+  // Empresas do CMS (src/content/partners/*.json, vindas do formulário de adesão)
+  if (existsSync(CMS_DIR)) {
+    for (const f of readdirSync(CMS_DIR).filter((f) => f.endsWith('.json'))) {
+      const j = JSON.parse(readFileSync(resolve(CMS_DIR, f), 'utf8'))
+      if (entries.some((e) => e.id === j.id)) continue
+      entries.push({ id: j.id, name: j.name, city: j.city || null, override: j.googleSearchOverride || null, hideGoogle: !!j.hideGoogle })
+    }
   }
   return entries
 }
@@ -102,7 +111,10 @@ function pickTopReviews(reviews) {
 
 async function main() {
   const apiKey = loadApiKey()
-  const partners = parsePartners()
+  // --only id1,id2 → busca só essas (ignora hideGoogle, pra testar se a empresa tem ficha)
+  const onlyArg = process.argv.find((a) => a.startsWith('--only='))
+  const only = onlyArg ? onlyArg.slice(7).split(',') : null
+  const partners = parsePartners().filter((p) => !only || only.includes(p.id)).map((p) => (only ? { ...p, hideGoogle: false } : p))
   console.log(`📋 ${partners.length} empresas pra processar`)
   console.log('')
 
